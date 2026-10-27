@@ -88,7 +88,8 @@ a { color: inherit; }
 .fb svg { width: 100%; max-width: 420px; height: auto; }
 .legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-.echo-slots { display: flex; gap: 8px; justify-content: center; }
+.echo-slots { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.echo-slots.many span { min-width: 40px; height: 40px; font-size: 16px; }
 .echo-slots span { min-width: 54px; height: 44px; border: 1.5px dashed var(--line); border-radius: 12px; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 18px; }
 .echo-slots span.given { border-style: solid; border-color: var(--coral); color: var(--coral); }
 .echo-slots span.filled { border-style: solid; border-color: var(--ink); }
@@ -113,7 +114,7 @@ a { color: inherit; }
 .meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .meter i { height: 8px; border-radius: 4px; background: var(--line); }
 .meter i.on { background: var(--good); }
-.share-text { width: 100%; min-height: 120px; resize: none; border: 1px dashed var(--line); background: var(--paper); color: var(--ink); border-radius: 12px; padding: 10px 12px; font: 14px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
+.share-text { width: 100%; min-height: 120px; resize: none; border: 1px dashed var(--line); background: var(--paper); color: var(--ink); border-radius: 12px; padding: 10px 12px; font: 15px/1.6 var(--f-body, "Atkinson Hyperlegible", system-ui, sans-serif); }
 .plan { border: 1.5px solid var(--ink); border-radius: 18px; padding: 16px; display: grid; gap: 10px; }
 .plan h3 { font-size: 18px; }
 .plan p { font-size: 14px; color: var(--muted); }
@@ -205,7 +206,10 @@ a { color: inherit; }
 .buddy .face .bv { width: 60px; height: 60px; }
 #b-idle { width: 86px; height: 86px; margin: -13px; -webkit-mask-image: radial-gradient(circle, #000 50%, transparent 68%); mask-image: radial-gradient(circle, #000 50%, transparent 68%); }
 .buddy .face { overflow: hidden; }
-.tap-pad { grid-column: 1 / -1; height: 140px; border-radius: 28px; border: 2px solid var(--ink); background: var(--coral); color: #fff; font-size: 28px; font-weight: 900; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.tap-pad { grid-column: 1 / -1; height: 140px; border-radius: 28px; border: 2px solid var(--ink); background: radial-gradient(circle at 50% 35%, #ff7a5c, var(--coral) 70%); color: #fff; font-size: 28px; font-weight: 900; touch-action: manipulation; user-select: none; -webkit-user-select: none; box-shadow: 0 8px 0 #9e3422, 0 14px 24px rgba(0,0,0,.18); transform: translateY(0); transition: transform .06s, box-shadow .06s; position: relative; overflow: hidden; }
+.tap-pad:active, .tap-pad.down { transform: translateY(6px); box-shadow: 0 2px 0 #9e3422, 0 6px 12px rgba(0,0,0,.18); }
+.tap-pad .rip { position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: rgba(255,255,255,.55); pointer-events: none; animation: rip .5s ease-out forwards; } @keyframes rip { to { transform: scale(9); opacity: 0; } }
+.tap-pad.wait { filter: grayscale(.6) brightness(.95); }
 .tap-pad.hit { animation: tapHit .14s ease-out; } @keyframes tapHit { 0% { transform: scale(.96); filter: brightness(1.15); } 100% { transform: none; } }
 .tap-dots { grid-column: 1 / -1; display: flex; gap: 6px; justify-content: center; min-height: 12px; } .tap-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
 .rh-fb { display: grid; gap: 8px; margin: 8px 0; } .rh-fb b { display: block; font-size: 13px; margin-bottom: 2px; } .rh-fb svg { width: 100%; max-width: 320px; height: auto; color: var(--ink); }
@@ -246,6 +250,10 @@ a { color: inherit; }
 .ans.picked{outline:3px solid var(--ink);outline-offset:2px}
 #answers.rh .ans.rev{display:flex;flex-direction:row;align-items:center;gap:12px;text-align:left;justify-content:flex-start;padding:12px 16px;min-height:0}#answers.rh .ans.rev span{font-size:16px}
 #answers.rh .ans.rev small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+.cue{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px;padding:6px 12px;border-radius:999px;background:var(--disc);color:var(--ink)}
+.cue.count{background:var(--ink);color:var(--paper)}.cue.turn{background:var(--good-soft);color:var(--good)}
+.cue.on i{display:inline-block;width:4px;height:14px;border-radius:2px;background:var(--coral);animation:eq .8s ease-in-out infinite}.cue.on i:nth-child(2){animation-delay:.15s}.cue.on i:nth-child(3){animation-delay:.3s}
+@keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
 </style>
 <script src="pay.js"></script>
 </head>
@@ -314,7 +322,7 @@ a { color: inherit; }
     <section class="card">
       <div class="prompt" id="l-prompt"></div>
       <p class="sub" id="l-sub"></p>
-      <div class="actions"><button class="btn ghost sm" id="btn-replay">▶ Play again</button><button class="btn ghost sm" id="btn-slow" hidden>🐢 Slower</button><button class="btn ghost sm" id="btn-undo" hidden>↩ Undo</button></div>
+      <div class="actions"><button class="btn ghost sm" id="btn-replay">▶ Play again</button><button class="btn ghost sm" id="btn-slow" hidden>🐢 Slower</button><button class="btn ghost sm" id="btn-undo" hidden>↩ Undo</button><span class="cue" id="cue" aria-live="polite" hidden></span></div>
       <div class="echo-slots" id="slots" hidden></div>
       <div class="staffbox" id="staffbox" hidden></div>
       <div class="singbar" id="singbar" hidden></div>
@@ -601,6 +609,8 @@ const T = {
     wrongEcho: 'Your notes in orange, the tune in green. Hear yours, then the tune.',
     sExamR: (b, k) => 'Like the exam: ' + k + '. The key chord and starting note, two bars counted in, then a ' + b + '-bar tune played twice. Play it back with its rhythm: notes and rhythm both count.',
     keyA: { C: 'C major', G: 'G major', F: 'F major', D: 'D major', A: 'A major', Bb: 'B♭ major', Eb: 'E♭ major', am: 'A minor', em: 'E minor', dm: 'D minor', bm: 'B minor', gm: 'G minor', cm: 'C minor' },
+    cueGet: 'Get ready…', cueListen: 'Listening…', cueTapNow: 'Tap along now!', cueTurn: ty => ty === 'sight' || ty === 'singmatch' ? 'Your turn: sing!' : ty === 'echo' ? 'Your turn: play it back' : ty === 'taprhythm' ? 'Your turn: tap it back' : 'Your turn',
+    tryOne: '↻ Try a similar one', practiceOk: 'Yes! You heard it this time.',
     wrongEchoRh: 'All the notes were right. The rhythm was a little different: here are your taps and the real rhythm.',
     wrongEchoBoth: 'Some notes and the rhythm were different. Notes in orange are yours, green is the tune. Hear yours, then the tune.',
     wrongSame: s => s ? 'They were the same. Listen once more, note by note.' : 'One note changed, marked in orange. Hear both again.',
@@ -864,6 +874,8 @@ const T = {
     wrongEcho: '橙色是你弹的，绿色是原来的旋律。先听你的，再听原来的。',
     sExamR: (b, k) => '和考试一样：' + k + '。先听主和弦和起始音，数两小节预备拍，再听一段 ' + b + ' 小节的旋律，弹两遍。连节奏一起弹回来：音和节奏都算分。',
     keyA: { C: 'C 大调', G: 'G 大调', F: 'F 大调', D: 'D 大调', A: 'A 大调', Bb: '降 B 大调', Eb: '降 E 大调', am: 'a 小调', em: 'e 小调', dm: 'd 小调', bm: 'b 小调', gm: 'g 小调', cm: 'c 小调' },
+    cueGet: '准备…', cueListen: '正在播放…', cueTapNow: '现在跟着拍！', cueTurn: ty => ty === 'sight' || ty === 'singmatch' ? '轮到你：唱吧！' : ty === 'echo' ? '轮到你：弹回来' : ty === 'taprhythm' ? '轮到你：拍回来' : '轮到你了',
+    tryOne: '↻ 同类再来一题', practiceOk: '对了！这次你听出来了。',
     wrongEchoRh: '音全对了，节奏有点不一样：下面是你按的节奏和原来的节奏。',
     wrongEchoBoth: '有几个音和节奏不一样。橙色是你弹的，绿色是原来的旋律。先听你的，再听原来的。',
     wrongSame: s => s ? '这两句其实一样。再一个音一个音听一遍。' : '有一个音变了，标成了橙色。两句再听一遍。',
@@ -934,10 +946,10 @@ function unlock() {
 }
 ['pointerdown', 'keydown', 'touchend'].forEach(ev => addEventListener(ev, unlock, { once: false, passive: true }));
 // all question audio goes through one bus; stopAudio() silences everything still scheduled (answering early, next question, replays)
-let bus = null, audioGen = 0;
+let bus = null, audioGen = 0, audioEnd = 0;
 function outBus() { if (!bus || bus.context !== ctx) { bus = ctx.createGain(); bus.connect(ctx.destination); } return bus; }
 function stopAudio() {
-  audioGen++;
+  audioGen++; audioEnd = 0;
   if (typeof followT !== 'undefined') { followT.forEach(clearTimeout); followT = []; }
   if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); } catch (e) { /* ignore */ } }, 150); }
   bus = null;
@@ -949,6 +961,7 @@ function play(midi, when, vol, waited, len) {
   const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3));
   if (!buf[base] && loads[base] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done || gen !== audioGen) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len); }; loads[base].then(go); setTimeout(go, 900); return; }
   const at = ctx.currentTime + (when || 0);
+  audioEnd = Math.max(audioEnd, at + Math.min(len || 0.7, 1.2));
   const g = ctx.createGain(); g.gain.value = vol || 0.85; g.connect(outBus());
   if (buf[base]) {
     const s = ctx.createBufferSource(); s.buffer = buf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12);
@@ -1144,7 +1157,7 @@ function onsetsOf(pattern) { const out = []; let t = 0; pattern.split(',').forEa
 function tapPad(onTap) {
   $('answers').innerHTML = `<button class="tap-pad" id="tap-pad" type="button">${t().tap}</button><div class="tap-dots" id="tap-dots" aria-hidden="true"></div>`;
   const pad = $('tap-pad');
-  const hit = e => { e.preventDefault(); unlock(); if (L.answered) return; pad.classList.remove('hit'); void pad.offsetWidth; pad.classList.add('hit'); onTap(performance.now()); };
+  const hit = e => { e.preventDefault(); unlock(); if (L.answered) return; pad.classList.remove('hit'); void pad.offsetWidth; pad.classList.add('hit'); const r = pad.getBoundingClientRect(), d = document.createElement('i'); d.className = 'rip'; d.style.left = ((e.clientX || r.left + r.width / 2) - r.left) + 'px'; d.style.top = ((e.clientY || r.top + r.height / 2) - r.top) + 'px'; pad.appendChild(d); setTimeout(() => d.remove(), 520); onTap(performance.now()); };
   pad.addEventListener('pointerdown', hit);
   pad.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') hit(e); });
 }
@@ -1215,8 +1228,8 @@ function staffSvg(q, names) {
   for (let i = 0; i < 5; i++) h += `<line x1="8" x2="${W - 8}" y1="${yB - i * 12}" y2="${yB - i * 12}" stroke="var(--ink)" stroke-width="1.3"/>`;
   h += bass ? `<text x="14" y="${yB - 21}" font-size="44" font-family="'Noto Music',serif" fill="var(--ink)">𝄢</text>` : `<text x="10" y="${yB + 4}" font-size="66" font-family="'Noto Music',serif" fill="var(--ink)">𝄞</text>`;
   let x0 = 66;
-  if (q.key === 'F') { h += `<text x="${x0}" y="${y(bass ? 20 : 34) + 6}" font-size="28" font-family="'Noto Music',serif" fill="var(--ink)">♭</text>`; x0 += 18; }
-  if (q.key === 'G') { h += `<text x="${x0}" y="${y(bass ? 24 : 38) + 8}" font-size="26" font-family="'Noto Music',serif" fill="var(--ink)">♯</text>`; x0 += 18; }
+  if (q.key === 'F') { const fy = y(bass ? 20 : 34), fx = x0 + 4; h += `<g fill="none" stroke="var(--ink)" stroke-linecap="round"><line x1="${fx}" y1="${fy - 22}" x2="${fx}" y2="${fy + 6}" stroke-width="2"/><path d="M${fx} ${fy + 6} C ${fx + 13} ${fy - 1}, ${fx + 12} ${fy - 9}, ${fx + 5} ${fy - 6} C ${fx + 2} ${fy - 5}, ${fx} ${fy - 3}, ${fx} ${fy - 2}" stroke-width="2.6"/></g>`; x0 += 20; }
+  if (q.key === 'G') { const sy = y(bass ? 24 : 38), sx = x0 + 3; h += `<g stroke="var(--ink)" stroke-linecap="butt"><line x1="${sx + 3}" y1="${sy - 15}" x2="${sx + 3}" y2="${sy + 17}" stroke-width="1.6"/><line x1="${sx + 10}" y1="${sy - 17}" x2="${sx + 10}" y2="${sy + 15}" stroke-width="1.6"/><line x1="${sx}" y1="${sy - 3}" x2="${sx + 13}" y2="${sy - 7}" stroke-width="3.6"/><line x1="${sx}" y1="${sy + 7}" x2="${sx + 13}" y2="${sy + 3}" stroke-width="3.6"/></g>`; x0 += 20; }
   const gap = (W - x0 - 30) / 5;
   q.steps.forEach((ds, i) => {
     const x = x0 + 16 + gap * (i + 0.5), yy = y(ds);
@@ -1690,6 +1703,7 @@ function progress() {
 
 // ---------- rendering a question ----------
 function resetUI() {
+  cueT.forEach(clearTimeout); cueT = []; if ($('cue')) $('cue').hidden = true;
   stopListen(); $('staffbox').hidden = true; $('singbar').hidden = true;
   $('answers').innerHTML = ''; $('answers').classList.remove('rh'); $('fb').hidden = true; $('next-row').hidden = true; $('slots').hidden = true; $('keys').hidden = true; $('btn-slow').hidden = true;
   $('btn-replay').hidden = false; $('lohi').hidden = true; $('btn-undo').hidden = true;
@@ -1735,7 +1749,7 @@ function ask() {
   else q = makeQ(g.type === 'singmatch' && !S.sing ? 'tonic' : g.type, g.type === 'singmatch' && !S.sing ? 1 : g.lv, g.aspect);
   L.retry = null;
   L.q = q; L.answered = false; L.lastPick = null;
-  renderQ(); playQ(); examUI();
+  renderQ(); examUI(); cueThen(q, () => { playQ(); watchTurn(q); });
   if (!calm && !clipBroken) { clip('listen', true); ['b-vid', 'b-idle', 'b-img'].forEach(id => { $(id).hidden = true; }); document.querySelector('.beyes').style.display = 'none'; }
 }
 function showReview() {
@@ -1750,12 +1764,22 @@ function showReview() {
   $('btn-next').textContent = T_.finish; $('next-row').hidden = false;
   say(right === L.review.length ? 'party' : 'wave', T_.revSay, true);
 }
+function offerSimilar(q) {
+  if (!L || (L.seg && L.seg.exam) || L.practice || ['same', 'intro', 'find'].includes(q.type)) return;
+  addRetry(() => { const nq = makeQ(q.type === 'singmatch' && !S.sing ? 'tonic' : q.type, q.level, q.aspect); if (q.sec) nq.sec = q.sec; L.practice = true; L.q = nq; L.answered = false; L.lastPick = null; renderQ(); cueThen(nq, () => { playQ(); watchTurn(nq); }); });
+}
+function addRetry(fn) {
+  const fb = $('fb'); if (!fb || fb.hidden) return;
+  let row = fb.querySelector('.actions'); if (!row) { row = document.createElement('div'); row.className = 'actions'; fb.appendChild(row); }
+  const b = document.createElement('button'); b.className = 'btn coral sm'; b.textContent = t().tryOne; b.onclick = () => { stopAudio(); fn(); }; row.appendChild(b);
+}
 function openReview(i) {
   const r = L.review[i], T_ = t();
   L.q = r.q; L.answered = true; L.reviewItem = i;
   renderQ(); $('singbar').hidden = true; $('btn-replay').hidden = false; $('l-level').textContent = (T_.secLong[r.q.sec] || '') + ' · ' + (i + 1) + ' / ' + L.review.length;
   if (r.pick != null) markAns(String(r.pick), r.ok);
   if (r.ok) feedback(true, T_.revRight, ''); else explain(r.q, r.info);
+  addRetry(() => { const nq = makeQ(r.q.type, r.q.level, r.q.aspect); nq.sec = r.q.sec; L.practice = true; L.q = nq; L.answered = false; L.lastPick = null; renderQ(); cueThen(nq, () => { playQ(); watchTurn(nq); }); });
   $('btn-next').textContent = T_.revBack; $('next-row').hidden = false;
 }
 function renderQ() {
@@ -1854,6 +1878,29 @@ function renderQ() {
     });
   }
 }
+// "3 2 1" before longer audio, then "listening…" while it plays and "your turn" when it ends
+const CUE_TYPES = ['tapbeat', 'taprhythm', 'echo', 'sight', 'singmatch', 'feat', 'char', 'meter'];
+let cueT = [];
+function cueThen(q, go) {
+  cueT.forEach(clearTimeout); cueT = [];
+  const c = $('cue'); if (!c) return go();
+  if (!CUE_TYPES.includes(q.type)) { c.hidden = true; return go(); }
+  const T_ = t(); c.hidden = false; c.className = 'cue count';
+  [3, 2, 1].forEach((n, i) => cueT.push(setTimeout(() => { if (L && L.q === q) c.textContent = T_.cueGet + ' ' + n; }, i * 450)));
+  cueT.push(setTimeout(() => { if (L && L.q === q) go(); }, 3 * 450));
+}
+function watchTurn(q) {
+  const c = $('cue'); if (!c || !ctx) return;
+  const T_ = t(); c.hidden = false; c.className = 'cue on';
+  c.innerHTML = '<i></i><i></i><i></i> ' + (q.type === 'tapbeat' && q.stage === 'tap' ? T_.cueTapNow : T_.cueListen);
+  const tick2 = () => {
+    if (!L || L.q !== q) return;
+    if (L.answered) { c.hidden = true; return; }
+    if (ctx.currentTime >= audioEnd - 0.25) { c.className = 'cue turn'; c.textContent = T_.cueTurn(q.type); return; }
+    cueT.push(setTimeout(tick2, 150));
+  };
+  cueT.push(setTimeout(tick2, 200));
+}
 function examUI() { if (!L || !L.seg || !L.seg.exam || L.reviewing) return; $('btn-replay').hidden = true; const h = $('sb-help'); if (h) h.hidden = true; }
 function playQ(slow) {
   stopAudio();
@@ -1889,7 +1936,7 @@ function shapeSvg(s) {
   return `<svg viewBox="0 0 ${w} 48" aria-hidden="true"><polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="5.5" fill="currentColor"/>`).join('')}</svg>`;
 }
 function drawSlots() {
-  const q = L.q; $('slots').hidden = false;
+  const q = L.q; $('slots').hidden = false; $('slots').classList.toggle('many', q.notes.length > 6);
   $('slots').innerHTML = q.notes.map((m, i) => { const got = q.got[i]; const txt = i === 0 && got == null ? nameOf(q.given) : got != null ? nameOf(got) : ''; return `<span class="${got != null ? 'filled' : i === 0 ? 'given' : ''}">${txt}</span>`; }).join('');
 }
 function buildKeys(lo, hi, opts) {
@@ -1940,7 +1987,15 @@ function pitchSvg(rows) {
 function judge(ok, info) {
   if (L && L.q && !['echo', 'find', 'tonic', 'sight'].includes(L.q.type)) stopAudio();
   if (L.answered) return; L.answered = true;
+  if (L.practice) { // a fresh try from the review or after a mistake: feedback only, not counted
+    const q = L.q, T_ = t(); if (L.lastPick) markAns(L.lastPick, ok); L.lastPick = null; L.lastJudge = { ok, info: info || {} };
+    if (ok) { chime(false); say('party', T_.practiceOk, true, 'cheer', true); feedback(true, T_.practiceOk, q.type === 'char' ? `<div class="say-it">${T_.sayIt(q.c)}</div>` : ''); }
+    else { say('think', pick(T_.oops), true, 'think', true); explain(q, info || {}); }
+    $('btn-next').textContent = L.reviewing ? T_.revBack : T_.next; $('next-row').hidden = false;
+    return;
+  }
   const q = L.q, g = L.seg, T_ = t();
+  L.lastJudge = { ok, info: info || {}, pick: L.lastPick };
   const sk = q.type === 'sight' && !S.sing ? 'sightkeys' : q.type;
   const stat = L.stats[sk] = L.stats[sk] || { asked: 0, right: 0, startLv: null, endLv: 0 };
   if (stat.startLv == null) stat.startLv = g.lv;
@@ -1997,6 +2052,7 @@ function judge(ok, info) {
   // wrong: show what to listen for, then let the child hear it again before moving on
   say('think', pick(T_.oops), true, 'think', true);
   explain(q, info || {});
+  offerSimilar(q);
   if (!['feat', 'char', 'sight', 'singmatch'].includes(q.type)) setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
 }
 function explain(q, info) {
@@ -2168,9 +2224,9 @@ const PT = () => PAYT[S.lang] || PAYT.en;
 const payOn = () => !!(window.DottinoPay && window.DottinoPay.active());
 function payLocked() { return WEEK >= 2 && payOn() && !window.DottinoPay.hasAccess(4); }
 function renderPay(locked) {
-  const on = payOn(), P = PT(), owned = on && window.DottinoPay.hasAccess(4);
+  const on = payOn(), P = PT(), has = !!(window.DottinoPay && window.DottinoPay.hasAccess(4)), owned = on && has;
   $('pay-box').hidden = !on;
-  $('wl-form').hidden = on; // the waitlist form is replaced by the real purchase while selling
+  $('wl-form').hidden = on || has; // the waitlist form is replaced by the real purchase while selling
   if (!on) return;
   $('pb-title').textContent = locked ? P.lockTitle : P.title;
   $('pb-sub').textContent = locked ? P.title + ' — ' + P.sub : P.sub;
@@ -2244,15 +2300,26 @@ function setText() {
 function show(v) { ['week', 'lesson', 'done'].forEach(k => { $('v-' + k).hidden = k !== v; }); window.scrollTo(0, 0); if (v === 'week') renderWeek(); }
 
 // ---------- wiring ----------
-function rerender() { setText(); if (!L || $('v-lesson').hidden) return; if (L.seg.type === 'intro') return showIntro(); if (!L.answered) { if (L.q.type === 'echo') L.q.got = []; renderQ(); } }
+function rerender() {
+  setText(); if (!L || $('v-lesson').hidden) return;
+  if (L.seg.type === 'intro') return showIntro();
+  if (L.reviewing) { if (L.reviewItem != null && !L.practice) return openReview(L.reviewItem); if (L.reviewItem == null) return showReview(); }
+  if (!L.answered) { if (L.q.type === 'echo') { L.q.got = []; if (L.q.tapT) L.q.tapT = []; } renderQ(); return; }
+  // an answer is on screen: draw it again in the new language
+  const j = L.lastJudge || {}, q = L.q, T_ = t(), nr = !$('next-row').hidden;
+  renderQ(); $('singbar').hidden = true;
+  if (j.pick != null) markAns(String(j.pick), j.ok);
+  if (!j.ok) { explain(q, j.info || {}); if (!L.reviewing) offerSimilar(q); } else if (q.type === 'char') feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c)}</div>`);
+  if (nr) { $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; }
+}
 $('lang-en').onclick = () => { S.lang = 'en'; saveShared(); rerender(); };
 $('lang-zh').onclick = () => { S.lang = 'zh'; saveShared(); rerender(); };
 $('nm-letter').onclick = () => { S.naming = 'letter'; saveShared(); rerender(); };
 $('nm-solfege').onclick = () => { S.naming = 'solfege'; saveShared(); rerender(); };
-$('btn-replay').onclick = () => { unlock(); playQ(); $('btn-slow').hidden = !!(L && L.q && (L.q.type === 'feat' || L.q.type === 'char')); };
+$('btn-replay').onclick = () => { unlock(); playQ(); if (L && L.q) watchTurn(L.q); $('btn-slow').hidden = !!(L && L.q && (L.q.type === 'feat' || L.q.type === 'char')); };
 $('btn-slow').onclick = () => playQ(true);
 $('btn-undo').onclick = () => { const q = L && L.q; if (!q || L.answered || q.type !== 'echo' || !q.got.length) return; q.got.pop(); if (q.tapT) q.tapT.pop(); drawSlots(); $('btn-undo').disabled = !q.got.length; };
-$('btn-next').onclick = () => { if (L && L.reviewing) { stopAudio(); if (L.reviewItem != null) return showReview(); L.reviewing = false; return nextSeg(); } if (L && L.seg.type === 'intro') return nextSeg(); if (L && L.afterWrong) { track('continue-after-wrong'); L.afterWrong = false; } ask(); };
+$('btn-next').onclick = () => { if (L && L.reviewing) { stopAudio(); L.practice = false; if (L.reviewItem != null) return showReview(); L.reviewing = false; return nextSeg(); } if (L && L.seg.type === 'intro') return nextSeg(); if (L && L.afterWrong) { track('continue-after-wrong'); L.afterWrong = false; } if (L) { L.practice = false; L.practiceBack = false; } ask(); };
 $('btn-quit').onclick = () => { stopAudio(); stopListen(); L = null; show('week'); };
 $('btn-week').onclick = () => show('week');
 $('btn-nextlesson').onclick = () => { const n = LESSONS.map((x, i) => i).find(i => !saved.lessons[i]); startLesson(n == null ? LESSONS.length - 1 : n); };
