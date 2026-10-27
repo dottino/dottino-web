@@ -514,17 +514,17 @@ const T = {
     sExam: (n, m) => 'Like the exam: first the key chord (' + (m ? 'A minor' : 'C major') + ') and the starting note, then a ' + n + '-note tune, played twice. Then play it back.',
     w4: {
       eyebrow: 'Exam-style practice · Week 4 · Grade 4 aural, Test A (ABRSM format)', h1: 'Play it back, the way the examiner asks.',
-      intro: 'In Test A the examiner plays the key chord and the starting note, then a short tune twice, and you play or sing it back. This week practises exactly that order, in major and minor keys, from five notes up to six. Four stops, about 10 minutes each.',
+      intro: 'In Test A the examiner plays the key chord and the starting note, then a short tune twice, and you play or sing it back. This week practises exactly that order, in major and minor keys: first five notes, then tunes with rhythm and a two-bar count-in, as in the exam. Four stops, about 10 minutes each.',
       lessons: 'Four stops, about 10 minutes each',
       L: [
         { t: 'Major or minor?', d: 'Hear a key chord, then a short tune. Bright or darker? You need this before playing back minor tunes.' },
         { t: 'Play back five notes', d: 'Key chord, starting note, the tune twice. Then play it back. C major and A minor.' },
-        { t: 'Play back six notes', d: 'One more note, same exam order. Use the second hearing to check the end of the tune.' },
+        { t: 'Tunes with rhythm', d: 'Two bars with a count-in, in new keys. Play back the notes and the rhythm, like the real Test A.' },
         { t: 'Week 4 check', d: 'Test A-style play-backs, major or minor, and two skills from earlier weeks.' }
       ],
       seg: { mode: 'Major or minor', echo: 'Play it back', quiz: 'Week 4 check', meter: 'Strong beat', same: 'Same or different' },
-      hi: ['Week 4: exam style! Major or minor?', 'Key chord, starting note, listen twice. Ready?', 'Six notes now. Listen for how it ends!', 'Last stop this week. Ready?'],
-      dTitle: ['You can hear major and minor', 'You can play back five notes, exam style', 'You can play back six notes', 'Week 4 complete'],
+      hi: ['Week 4: exam style! Major or minor?', 'Key chord, starting note, listen twice. Ready?', 'Now with rhythm. Feel the count-in!', 'Last stop this week. Ready?'],
+      dTitle: ['You can hear major and minor', 'You can play back five notes, exam style', 'You can play back a tune with its rhythm', 'Week 4 complete'],
       dNote: ['Next time: Test A play-backs.', 'Next time: six-note tunes.', 'One more stop: the week 4 check.', 'Your week 4 card is ready on the week page.'],
       stickers: [['🌗', 'Mood Reader', 'Hears major and minor'], ['🎯', 'Test A Starter', 'Plays back five notes, exam style'], ['🎹', 'Test A Player', 'Plays back six notes'], ['⭐', 'Week 4 Star', 'Finished week 4']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
@@ -599,6 +599,10 @@ const T = {
     wrongFind: n => 'It was ' + n + '. Listen again: the second note is marked in green.',
     wrongCt: 'Here is the real shape. Hear it again and trace it with your finger.',
     wrongEcho: 'Your notes in orange, the tune in green. Hear yours, then the tune.',
+    sExamR: (b, k) => 'Like the exam: ' + k + '. The key chord and starting note, two bars counted in, then a ' + b + '-bar tune played twice. Play it back with its rhythm: notes and rhythm both count.',
+    keyA: { C: 'C major', G: 'G major', F: 'F major', D: 'D major', A: 'A major', Bb: 'B♭ major', Eb: 'E♭ major', am: 'A minor', em: 'E minor', dm: 'D minor', bm: 'B minor', gm: 'G minor', cm: 'C minor' },
+    wrongEchoRh: 'All the notes were right. The rhythm was a little different: here are your taps and the real rhythm.',
+    wrongEchoBoth: 'Some notes and the rhythm were different. Notes in orange are yours, green is the tune. Hear yours, then the tune.',
     wrongSame: s => s ? 'They were the same. Listen once more, note by note.' : 'One note changed, marked in orange. Hear both again.',
     wrongWhere: s => 'The change was ' + (s ? 'near the start' : 'near the end') + '.',
     yours: 'Yours', tune: 'The tune', changed: 'Changed note', hearAgain: '▶ Hear it again', hearMine: '▶ Mine, then the tune',
@@ -773,17 +777,17 @@ const T = {
     sExam: (n, m) => '和考试一样：先听主和弦（' + (m ? 'a 小调' : 'C 大调') + '）和第一个音，然后一段 ' + n + ' 个音的旋律弹两遍，再把它弹回来。',
     w4: {
       eyebrow: '考试题型练习 · 第 4 周 · 四级听力 A 题（ABRSM 题型）', h1: '按考官的方式，把旋律弹回来。',
-      intro: 'A 题里，考官先弹主和弦和第一个音，再把一小段旋律弹两遍，你把它唱回或弹回来。这一周就按这个顺序练，大调、小调都有，从五个音到六个音。四站，每站约 10 分钟。',
+      intro: 'A 题里，考官先弹主和弦和第一个音，再把一小段旋律弹两遍，你把它唱回或弹回来。这一周就按这个顺序练，大调、小调都有：先练五个音，再练带节奏、有两小节预备拍的旋律，和考试一样。四站，每站约 10 分钟。',
       lessons: '四站，每站约 10 分钟',
       L: [
         { t: '大调还是小调？', d: '先听主和弦，再听一小段旋律，明亮还是暗一些？弹回小调旋律之前要先会听这个。' },
         { t: '弹回五个音', d: '主和弦、第一个音、旋律弹两遍，然后弹回来。C 大调和 a 小调。' },
-        { t: '弹回六个音', d: '多一个音，顺序和考试一样。第二遍用来确认旋律的结尾。' },
+        { t: '带节奏的旋律', d: '两小节，有数拍预备，新的调。音和节奏都要弹回来，和真正的 A 题一样。' },
         { t: '第 4 周小测', d: 'A 题式的弹回、大调小调，再加两项前几周的能力。' }
       ],
       seg: { mode: '大调还是小调', echo: '弹回来', quiz: '第 4 周小测', meter: '找强拍', same: '一样还是不一样' },
-      hi: ['第 4 周：考试题型！大调还是小调？', '主和弦、第一个音、听两遍，准备好了吗？', '这次六个音，注意它怎么结束！', '本周最后一站，准备好了吗？'],
-      dTitle: ['你能听出大调和小调了', '你能按考试方式弹回五个音了', '你能弹回六个音了', '第 4 周完成'],
+      hi: ['第 4 周：考试题型！大调还是小调？', '主和弦、第一个音、听两遍，准备好了吗？', '这次有节奏了，跟着预备拍感受一下！', '本周最后一站，准备好了吗？'],
+      dTitle: ['你能听出大调和小调了', '你能按考试方式弹回五个音了', '你能连节奏一起弹回旋律了', '第 4 周完成'],
       dNote: ['下一站：A 题式的弹回。', '下一站：六个音的旋律。', '还有一站：第 4 周小测。', '第 4 周听力卡已经放在本周页面上。'],
       stickers: [['🌗', '情绪聆听者', '听得出大调和小调'], ['🎯', 'A 题入门', '能按考试方式弹回五个音'], ['🎹', 'A 题高手', '能弹回六个音'], ['⭐', '第 4 周之星', '完成了第 4 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
@@ -858,6 +862,10 @@ const T = {
     wrongFind: n => '是 ' + n + '。再听一次，第二个音标成了绿色。',
     wrongCt: '这是正确的形状。再听一次，用手指跟着画。',
     wrongEcho: '橙色是你弹的，绿色是原来的旋律。先听你的，再听原来的。',
+    sExamR: (b, k) => '和考试一样：' + k + '。先听主和弦和起始音，数两小节预备拍，再听一段 ' + b + ' 小节的旋律，弹两遍。连节奏一起弹回来：音和节奏都算分。',
+    keyA: { C: 'C 大调', G: 'G 大调', F: 'F 大调', D: 'D 大调', A: 'A 大调', Bb: '降 B 大调', Eb: '降 E 大调', am: 'a 小调', em: 'e 小调', dm: 'd 小调', bm: 'b 小调', gm: 'g 小调', cm: 'c 小调' },
+    wrongEchoRh: '音全对了，节奏有点不一样：下面是你按的节奏和原来的节奏。',
+    wrongEchoBoth: '有几个音和节奏不一样。橙色是你弹的，绿色是原来的旋律。先听你的，再听原来的。',
     wrongSame: s => s ? '这两句其实一样。再一个音一个音听一遍。' : '有一个音变了，标成了橙色。两句再听一遍。',
     wrongWhere: s => '变化在' + (s ? '靠前' : '靠后') + '的位置。',
     yours: '你弹的', tune: '原旋律', changed: '变了的音', hearAgain: '▶ 再听一次', hearMine: '▶ 先听我的，再听原来的',
@@ -900,7 +908,7 @@ const $ = id => document.getElementById(id);
 const t = () => { const b = T[S.lang], w = WEEK === 8 ? b.w8 : WEEK === 7 ? b.w7 : WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const x = WEEK >= 7 ? b.w6 : {}, y = WEEK >= 8 ? b.w7 : {}; const o = Object.assign({}, b, x, y, w); o.seg = Object.assign({}, b.seg, x.seg, y.seg, w.seg); return o; };
 const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
-const flatCtx = () => !!(typeof L !== 'undefined' && L && L.q && L.q.key === 'F');
+const flatCtx = () => !!(typeof L !== 'undefined' && L && L.q && (L.q.flats || L.q.key === 'F'));
 const letterOf = m => LET[((m % 12) + 12) % 12] || (flatCtx() ? LET[(m + 1) % 12] + '♭' : LET[(m - 1) % 12] + '♯');
 const nameOf = m => { const l = letterOf(m); return S.naming === 'solfege' ? (SOLF[l[0]] || l) + (l[1] || '') : l; };
 const saveShared = () => { shared.lang = S.lang; shared.naming = S.naming; shared.sing = S.sing; shared.clef = S.clef; try { localStorage.setItem('dottino:v1', JSON.stringify(shared)); } catch (e) { /* ignore */ } };
@@ -1006,9 +1014,9 @@ const LESSONS_W4 = [
     { type: 'mode', level: 1, fixed: true, count: 6 } ],
   [ { type: 'echo', level: 2, fixed: true, count: 2, warm: true },
     { type: 'echo', level: 3, fixed: true, count: 6 } ],
-  [ { type: 'echo', level: 3, fixed: true, count: 2, warm: true },
-    { type: 'echo', level: 4, fixed: true, count: 5 } ],
-  [ { type: 'quiz', items: [{ t: 'echo', lv: 3 }, { t: 'echo', lv: 3 }, { t: 'echo', lv: 4 }, { t: 'echo', lv: 4 }, { t: 'mode', lv: 1 }, { t: 'mode', lv: 1 }, { t: 'meter', lv: 1 }, { t: 'same', lv: 1 }] } ]
+  [ { type: 'echo', level: 4, fixed: true, count: 2, warm: true },
+    { type: 'echo', level: 5, fixed: true, count: 5 } ],
+  [ { type: 'quiz', items: [{ t: 'echo', lv: 3 }, { t: 'echo', lv: 4 }, { t: 'echo', lv: 5 }, { t: 'echo', lv: 5 }, { t: 'mode', lv: 1 }, { t: 'mode', lv: 1 }, { t: 'meter', lv: 1 }, { t: 'same', lv: 1 }] } ]
 ];
 const LESSONS_W5 = [
   [ { type: 'tapbeat', level: 0, fixed: true, count: 4 },
@@ -1038,10 +1046,10 @@ const LESSONS_W7 = [
   [ { type: 'sight', level: 0, fixed: true, count: 2, warm: true },
     { type: 'sight', level: 1, fixed: true, count: 5 } ],
   [ { type: 'sight', level: 2, fixed: true, count: 6 } ],
-  [ { type: 'quiz', items: [{ t: 'sight', lv: 2 }, { t: 'sight', lv: 2 }, { t: 'echo', lv: 3 }, { t: 'feat', lv: 1 }, { t: 'sight', lv: 2 }, { t: 'char', lv: 1 }, { t: 'cii' }] } ]
+  [ { type: 'quiz', items: [{ t: 'sight', lv: 2 }, { t: 'sight', lv: 2 }, { t: 'echo', lv: 5 }, { t: 'feat', lv: 1 }, { t: 'sight', lv: 2 }, { t: 'char', lv: 1 }, { t: 'cii' }] } ]
 ];
 // week 8: mock exams in the real order (A, B, C(i), C(ii)); stop 2 practises the weakest part of mock 1
-const MOCK = [{ t: 'echo', lv: 3, sec: 'A' }, { t: 'echo', lv: 4, sec: 'A' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'cpair' }, { t: 'cii' }];
+const MOCK = [{ t: 'echo', lv: 5, sec: 'A' }, { t: 'echo', lv: 6, sec: 'A' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'cpair' }, { t: 'cii' }];
 const LESSONS_W8 = [ [ { type: 'quiz', items: MOCK, exam: true } ], [ { type: 'weak' } ], [ { type: 'quiz', items: MOCK, exam: true } ], [ { type: 'quiz', items: MOCK, exam: true } ] ];
 const SEC_OF = { echo: 'A', sight: 'B', sightkeys: 'Bk', singmatch: 'B', feat: 'Ci', char: 'Ci', taprhythm: 'Cii', meter: 'Cii', tapbeat: 'Cii' };
 function readyOf(a) { const r = a.asked ? a.right / a.asked : 0; return r >= 0.85 ? 2 : r >= 0.5 ? 1 : 0; }
@@ -1055,7 +1063,7 @@ function weakPlan() {
   let w = 'B', worst = 2;
   ['A', 'B', 'Bk', 'Ci', 'Cii'].forEach(k => { const a = ss[k]; if (!a.asked) return; const rt = a.right / a.asked; if (rt < worst) { worst = rt; w = k; } });
   const plans = {
-    A: [{ type: 'echo', level: 3, fixed: true, count: 3 }, { type: 'echo', level: 4, fixed: true, count: 4 }],
+    A: [{ type: 'echo', level: 5, fixed: true, count: 3 }, { type: 'echo', level: 6, fixed: true, count: 4 }],
     B: [{ type: 'sight', level: 1, fixed: true, count: 2 }, { type: 'sight', level: 2, fixed: true, count: 5 }],
     Bk: [{ type: 'sight', level: 1, fixed: true, count: 2 }, { type: 'sight', level: 2, fixed: true, count: 5 }],
     Ci: [{ type: 'feat', level: 1, fixed: true, count: 4 }, { type: 'char', level: 1, fixed: true, count: 3 }],
@@ -1114,6 +1122,15 @@ function rhythmSvg(pattern, mark) {
 }
 // Test A style: key chord, starting note, then the tune twice
 function playExam(q, slow) {
+  if (q.rhythm) {
+    const beat = slow ? 0.75 : 0.6;
+    q.chord.forEach(m => play(m, 0.1, 0.55)); play(q.notes[0], 1.0, 0.8);
+    const c0 = 2.0; for (let b = 0; b < 2 * q.k; b++) tick(c0 + b * beat, b % q.k === 0);
+    const t1 = c0 + 2 * q.k * beat, total = q.durs.reduce((a, b) => a + b, 0);
+    seqD(q.notes, q.durs, beat, t1);
+    const t2 = t1 + (total + q.k) * beat; seqD(q.notes, q.durs, beat, t2);
+    return (t2 + total * beat) * 1000;
+  }
   const gap = slow ? 0.8 : 0.6;
   q.chord.forEach(m => play(m, 0.1, 0.55));
   play(q.notes[0], 1.0, 0.8);
@@ -1355,6 +1372,46 @@ const CHARS = {
 };
 const CHAR_CLASH = { cheerful: ['march'], march: ['cheerful'], dance: ['calm'], calm: ['dance'] }; // too close to tell apart from a 4-bar piece
 const WHY_FLIP = { fast: 'slow', slow: 'fast', major: 'minor', minor: 'major', detached: 'smooth', smooth: 'detached', quiet: 'loud', loud: 'quiet', steady: 'speeding', lilt: 'march2' };
+// Test A with rhythm. level 5 (builder): 2 bars, keys up to one sharp or flat · level 6 (exam): 3–4 bars, up to three sharps or flats
+const KEYS_A = {
+  C: { t: 60, min: false, fl: false }, G: { t: 67, min: false, fl: false }, F: { t: 65, min: false, fl: true }, D: { t: 62, min: false, fl: false }, A: { t: 57, min: false, fl: false }, Bb: { t: 58, min: false, fl: true }, Eb: { t: 63, min: false, fl: true },
+  am: { t: 57, min: true, fl: false }, em: { t: 64, min: true, fl: false }, dm: { t: 62, min: true, fl: true }, bm: { t: 59, min: true, fl: false }, gm: { t: 67, min: true, fl: true }, cm: { t: 60, min: true, fl: true }
+};
+function makeEchoR(level) {
+  const key = pick(level >= 6 ? Object.keys(KEYS_A) : ['C', 'G', 'F', 'am', 'em', 'dm']), K = KEYS_A[key];
+  const steps = K.min ? [0, 2, 3, 5, 7, 8, 10] : [0, 2, 4, 5, 7, 9, 11];
+  const k = pick([2, 3, 4]), bars = level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 6 ? -3 : -2, hi = level >= 6 ? 7 : 5;
+  let degs, durs, parts, tries = 0;
+  do {
+    degs = []; durs = []; parts = []; let d = pick([0, 2, 4]);
+    for (let b = 0; b < bars; b++) {
+      const rh = b === bars - 1 ? pick(RH_END[k]) : pick(RH[k].filter(r => r.length <= 4));
+      if (b) parts.push('|');
+      rh.forEach((du, i) => {
+        if (b === bars - 1 && i === rh.length - 1) d = Math.abs(d - 7) < Math.abs(d) ? 7 : 0;
+        else if (degs.length) d += pick(level >= 6 ? [-1, 1, -1, 1, -2, 2, 3, -3] : [-1, 1, -1, 1, -2, 2]);
+        degs.push(d); durs.push(du); parts.push(String(du));
+      });
+    }
+    tries++;
+  } while ((degs.some(x => x < lo || x > hi) || new Set(degs).size < 3 || degs.length > 13 || degs.length < (level >= 6 ? 7 : 5)) && tries < 300);
+  const notes = degs.map((x, i) => {
+    const o = Math.floor(x / 7), st = ((x % 7) + 7) % 7;
+    let m = K.t + 12 * o + steps[st];
+    if (K.min && st === 6 && degs[i + 1] != null && ((degs[i + 1] % 7) + 7) % 7 === 0) m += 1; // leading note rises to home in minor
+    return m;
+  });
+  const third = K.min ? 3 : 4, wl = m => LET[((m % 12) + 12) % 12] ? m : m - 1;
+  return { type: 'echo', exam: true, rhythm: true, key, keyLabel: key, flats: K.fl, minor: K.min, notes, durs, pattern: parts.join(','), k, bars, given: notes[0], got: [], tapT: [], chord: [K.t, K.t + third, K.t + 7], lo: wl(Math.min(...notes) - 2), hi: wl(Math.max(...notes) + 2) + (LET[(Math.max(...notes) + 2) % 12] ? 0 : 0), level };
+}
+function judgeEchoR(q) {
+  const pitchOk = q.got.every((x, i) => x === q.notes[i]);
+  const want = onsetsOf(q.pattern), tp = q.tapT, span = want[want.length - 1] || 1;
+  const got = tp.map(x => (x - tp[0]) / ((tp[tp.length - 1] - tp[0]) || 1) * span);
+  const worst = Math.max(...want.map((w, i) => Math.abs(w - got[i])));
+  const rhythmOk = worst < 0.25; // a quarter of a beat: enough to tell even notes from long-short
+  judge(pitchOk && rhythmOk, { pitchOk, rhythmOk, got });
+}
 // a feature question about a given piece (exam: the same piece for the feature and the character question)
 function featFrom(pc) {
   const aspects = ['art', 'ton', 'tempo'].concat(['cresc', 'dim', 'fp', 'pf'].includes(pc.dyn) ? ['dyn'] : []), a = pick(aspects);
@@ -1436,6 +1493,7 @@ function makeQ(type, level, force) {
     if (level >= 1) { let d, n, tries = 0; do { d = pick([0, 2, 4]); n = [d]; for (let k = 0; k < 4; k++) { d += pick([-1, 1, -2, 2]); n.push(d); } n.push(0); tries++; } while (n.some(x => x < 0 || x > 7) && tries < 80); tune = n.map(x => scale[x]); }
     return { type, minor, root, chord: minor ? [57, 60, 64] : [60, 64, 67], tune, level };
   }
+  if (type === 'echo' && level >= 5) return makeEchoR(level);
   if (type === 'echo' && level >= 3) {
     // exam style (Test A): the key chord and the starting note, then the tune twice. C major or A minor (white keys only).
     // level 3: five notes · level 4: six notes. Mostly steps, leaps up to a third, ending on home.
@@ -1717,13 +1775,13 @@ function renderQ() {
     $('l-prompt').textContent = T_.pCt; $('l-sub').textContent = T_.sCt;
     answers(q.shapes.map(s => [s, shapeSvg(s), '']), v => judge(v === q.shape, { chose: v }));
   } else if (type === 'echo') {
-    $('l-prompt').textContent = T_.pEcho(nameOf(q.given)); $('l-sub').textContent = q.exam ? T_.sExam(q.notes.length, q.minor) : q.level >= 2 ? T_.sEcho5 : q.level >= 1 ? T_.sEcho4 : T_.sEcho;
+    $('l-prompt').textContent = T_.pEcho(nameOf(q.given)); $('l-sub').textContent = q.rhythm ? T_.sExamR(q.bars, T_.keyA[q.key]) : q.exam ? T_.sExam(q.notes.length, q.minor) : q.level >= 2 ? T_.sEcho5 : q.level >= 1 ? T_.sEcho4 : T_.sEcho;
     drawSlots();
     $('btn-undo').textContent = T_.undo; $('btn-undo').hidden = false; $('btn-undo').disabled = !q.got.length;
-    buildKeys(q.lo || 60, q.hi || 72, { given: q.given, onTap: m => {
+    buildKeys(q.lo || 60, q.hi || 72, { given: q.given, blacks: !!q.rhythm, onTap: m => {
       if (L.answered) { play(m); return; }
-      play(m); q.got.push(m); drawSlots(); $('btn-undo').disabled = false;
-      if (q.got.length === q.notes.length) judge(q.got.every((x, i) => x === q.notes[i]), {});
+      play(m); q.got.push(m); if (q.tapT) q.tapT.push(performance.now()); drawSlots(); $('btn-undo').disabled = false;
+      if (q.got.length === q.notes.length) { if (q.rhythm) judgeEchoR(q); else judge(q.got.every((x, i) => x === q.notes[i]), {}); }
     } });
   } else if (type === 'singmatch') {
     $('l-prompt').textContent = T_.pMatch; $('l-sub').textContent = T_.sMatch;
@@ -1979,11 +2037,16 @@ function explain(q, info) {
     feedback(false, info.got ? T_.wrongTapRh : T_.wrongTapCount(info.count, onsetsOf(q.pattern).length), html, () => playRhythm(q.pattern, 0.7, 0.1, q.notes), false, T_.hearAgain);
   }
   else if (q.type === 'meter') { html = meterSvg(q); feedback(false, T_.wrongMeter(q.k, info && info.chose), html, () => q.piece ? playPieceCount(q.piece) : playMeter(q, true, true), false, T_.hearCount); }
+  else if (q.type === 'echo' && q.rhythm && info.pitchOk) {
+    const mine = info.got ? tapsToPattern(info.got, q.pattern) : null;
+    html = `<div class="rh-fb">${mine ? `<div><b>${T_.rhYourTaps}</b>${rhythmSvg(mine)}</div>` : ''}<div><b>${T_.rhRight}</b>${rhythmSvg(q.pattern)}</div></div>`;
+    feedback(false, T_.wrongEchoRh, html, () => seqD(q.notes, q.durs, 0.7), false, T_.hearAgain);
+  }
   else if (q.type === 'echo') {
     q.notes.forEach((m, i) => keyMark(m, 'ok')); q.got.forEach((m, i) => { if (m !== q.notes[i]) keyMark(m, 'no'); });
     html = pitchSvg([{ notes: q.notes, color: 'var(--good)' }, { notes: q.got, color: 'var(--coral)', dx: 6 }]);
-    replay = () => { const d = seq(q.got, 0.62); seq(q.notes, 0.62, d / 1000 + 0.6); };
-    feedback(false, T_.wrongEcho, html, replay, true, T_.hearMine);
+    replay = q.rhythm ? () => { const d = seq(q.got, 0.62); seqD(q.notes, q.durs, 0.62, d / 1000 + 0.6); } : () => { const d = seq(q.got, 0.62); seq(q.notes, 0.62, d / 1000 + 0.6); };
+    feedback(false, q.rhythm && info.rhythmOk === false ? T_.wrongEchoBoth : T_.wrongEcho, html, replay, true, T_.hearMine);
   } else if (q.type === 'same') { feedbackSame(q, info || {}); }
 }
 function feedback(ok, text, svg, replay, legend, replayLabel) {
@@ -2188,7 +2251,7 @@ $('nm-letter').onclick = () => { S.naming = 'letter'; saveShared(); rerender(); 
 $('nm-solfege').onclick = () => { S.naming = 'solfege'; saveShared(); rerender(); };
 $('btn-replay').onclick = () => { unlock(); playQ(); $('btn-slow').hidden = !!(L && L.q && (L.q.type === 'feat' || L.q.type === 'char')); };
 $('btn-slow').onclick = () => playQ(true);
-$('btn-undo').onclick = () => { const q = L && L.q; if (!q || L.answered || q.type !== 'echo' || !q.got.length) return; q.got.pop(); drawSlots(); $('btn-undo').disabled = !q.got.length; };
+$('btn-undo').onclick = () => { const q = L && L.q; if (!q || L.answered || q.type !== 'echo' || !q.got.length) return; q.got.pop(); if (q.tapT) q.tapT.pop(); drawSlots(); $('btn-undo').disabled = !q.got.length; };
 $('btn-next').onclick = () => { if (L && L.reviewing) { stopAudio(); if (L.reviewItem != null) return showReview(); L.reviewing = false; return nextSeg(); } if (L && L.seg.type === 'intro') return nextSeg(); if (L && L.afterWrong) { track('continue-after-wrong'); L.afterWrong = false; } ask(); };
 $('btn-quit').onclick = () => { stopAudio(); stopListen(); L = null; show('week'); };
 $('btn-week').onclick = () => show('week');
