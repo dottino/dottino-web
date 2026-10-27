@@ -258,22 +258,29 @@ a { color: inherit; }
 :root { --vb-ink: #211C2F; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --vb-ink: #2c2640; } }
 .buddy .face.vector { width: 96px; height: 96px; background: transparent; overflow: visible; }
-.buddy .face.vector > :not(#vb) { display: none !important; }
+.buddy .face.vector > :not(#vb):not(#vb-halo) { display: none !important; }
+.vb-halo { position: absolute; inset: -18px; border-radius: 50%; color: #F36C51; background: radial-gradient(circle at 62% 30%, currentColor 0%, transparent 62%); opacity: calc(.16 + var(--lvh, 0) * .4); transition: color .65s ease, opacity .2s; pointer-events: none; }
+.vb { position: relative; --lv: 0; }
+.vb .vb-dot { transform: scale(calc(1 + var(--lv) * .55)); filter: drop-shadow(0 0 calc(2px + var(--lv) * 10px) currentColor); }
+.vb[data-state="correct"] .vb-eye, .vb[data-state="found"] .vb-eye, .vb[data-state="celebrate"] .vb-eye { animation: vbSquint 1.2s ease-in-out 1; }
+@keyframes vbSquint { 0%, 100% { transform: scaleY(1); } 15%, 75% { transform: scaleY(.38) translateY(-4px); } }
+.cue.tick { animation: cueTick .32s ease-out; } @keyframes cueTick { 0% { transform: scale(1.15); } 100% { transform: none; } }
+.why-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 6px; } .why-chips i { font-style: normal; font-size: 14px; font-weight: 700; background: var(--disc); border-radius: 999px; padding: 4px 10px; color: var(--ink); }
 .vb { width: 96px; height: 96px; overflow: visible; }
 .vb .vb-core { transform-origin: 256px 300px; animation: vbBreathe 4.4s ease-in-out infinite; }
 .vb .vb-curl { transform-origin: 300px 192px; animation: vbCurl 4.4s ease-in-out infinite; }
 .vb .vb-gaze { transition: transform .18s cubic-bezier(.18,.65,.3,1); }
 .vb .vb-eye { transform-box: fill-box; transform-origin: center; animation: vbBlink 6.3s ease-in-out infinite; } .vb .vb-eye2 { animation-delay: .06s; }
-.vb .vb-dot { fill: #F36C51; transform-box: fill-box; transform-origin: center; transition: fill .25s; }
+.vb .vb-dot { fill: #F36C51; color: #F36C51; transform-box: fill-box; transform-origin: center; }
 .vb .vb-tie { opacity: 0; transition: opacity .3s; }
 .vb[data-state="listen"] .vb-core { animation: vbListen 2.5s ease-in-out infinite; }
 .vb[data-state="listen"] .vb-dot { animation: vbGlow 1.6s ease-in-out infinite; } .vb[data-state="listen"] .vb-dot2 { animation-delay: .3s; }
 .vb[data-state="wait"] .vb-dot1 { animation: vbAlt 1.2s ease-in-out infinite; } .vb[data-state="wait"] .vb-dot2 { animation: vbAlt 1.2s ease-in-out infinite .6s; }
-.vb[data-state="correct"] .vb-core { animation: vbHappy .75s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="correct"] .vb-dot { fill: #3FB27F; animation: vbPop .7s ease-out 1; }
-.vb[data-state="search"] .vb-core { animation: vbThink 1.7s ease-in-out infinite; } .vb[data-state="search"] .vb-dot { fill: #F2A23A; animation: vbSearch 1s ease-in-out infinite; } .vb[data-state="search"] .vb-dot2 { animation-delay: .5s; }
-.vb[data-state="found"] .vb-core { animation: vbHappy .8s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="found"] .vb-dot { fill: #E8B931; filter: drop-shadow(0 0 6px rgba(232,185,49,.7)); animation: vbPop .8s ease-out 1; }
-.vb[data-state="celebrate"] .vb-core { animation: vbCeleb .96s ease-in-out 1; } .vb[data-state="celebrate"] .vb-dot { animation: vbRainbow .8s ease-in-out infinite alternate; } .vb[data-state="celebrate"] .vb-dot2 { animation-delay: -.4s; }
-.vb[data-state="exam"] .vb-core { animation: none; } .vb[data-state="exam"] .vb-dot { fill: #8DB4E2; } .vb[data-state="exam"] .vb-tie { opacity: 1; }
+.vb[data-state="correct"] .vb-core { animation: vbHappy .75s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="correct"] .vb-dot { animation: vbPop .7s ease-out 1; }
+.vb[data-state="search"] .vb-core { animation: vbThink 1.7s ease-in-out infinite; } .vb[data-state="search"] .vb-dot { animation: vbSearch 1s ease-in-out infinite; } .vb[data-state="search"] .vb-dot2 { animation-delay: .5s; }
+.vb[data-state="found"] .vb-core { animation: vbHappy .8s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="found"] .vb-dot { animation: vbPop .8s ease-out 1; }
+.vb[data-state="celebrate"] .vb-core { animation: vbCeleb .96s ease-in-out 1; } .vb[data-state="celebrate"] .vb-dot { animation: vbPop .5s ease-out 2; }
+.vb[data-state="exam"] .vb-core { animation: none; }  .vb[data-state="exam"] .vb-tie { opacity: 1; }
 @keyframes vbBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02,.985); } }
 @keyframes vbCurl { 0%,100% { transform: rotate(0); } 50% { transform: rotate(2deg); } }
 @keyframes vbListen { 0%,100% { transform: rotate(-4deg) translateY(1px); } 50% { transform: rotate(-6deg) translateY(-3px); } }
@@ -363,7 +370,7 @@ a { color: inherit; }
     <div class="lhead"><h2 id="l-title"></h2><button class="btn ghost sm" id="btn-quit">Exit</button></div>
     <div class="bar"><i id="l-bar"></i></div>
     <div class="stage"><span id="l-stage"></span><span id="l-level"></span></div>
-    <div class="buddy"><div class="face vector" id="b-face"><svg id="vb" class="vb" viewBox="40 60 400 400" data-state="idle" aria-hidden="true"><g class="vb-core"><circle cx="256" cy="290" r="111" fill="var(--vb-ink)"/><g class="vb-curl"><path d="M230 138 C224 118 247 91 270 91 C299 84 325 101 330 126 C338 154 318 179 289 198" fill="none" stroke="var(--vb-ink)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><circle cx="231" cy="139" r="24" fill="var(--vb-ink)"/></g><g class="vb-gaze"><rect class="vb-eye" x="209" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/><rect class="vb-eye vb-eye2" x="281" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/></g><g class="vb-tie"><path d="M256 352 L208 326 L208 378 Z M256 352 L304 326 L304 378 Z" fill="#8DB4E2"/><circle cx="256" cy="352" r="12" fill="#5E8CC2"/></g></g><circle class="vb-dot vb-dot1" cx="360" cy="104" r="13"/><circle class="vb-dot vb-dot2" cx="366" cy="149" r="13"/></svg><video id="b-idle" class="bv" muted loop playsinline preload="auto" poster="video/basso-idle.jpg" aria-hidden="true"><source src="video/basso-idle.webm" type="video/webm"><source src="video/basso-idle.mp4" type="video/mp4"></video><img id="b-img" src="img/wave-noeyes.png" alt="Basso"><svg class="beyes" viewBox="0 0 360 360" aria-hidden="true"><g class="blink" fill="none" stroke="#F2EDE4" stroke-width="11" stroke-linecap="round"><path d="M128.5 233 A16.5 16.5 0 1 1 161.5 233"/><path d="M203 247 A16.5 16.5 0 1 1 236 247"/></g></svg><video id="b-vid" class="bv" muted loop playsinline preload="auto" hidden><source src="video/basso-dizzy.webm" type="video/webm"><source src="video/basso-dizzy.mp4" type="video/mp4"></video><video id="b-clip" class="clipv" muted playsinline preload="none" hidden aria-hidden="true"></video></div><div class="bubble" id="b-say" aria-live="polite"></div></div>
+    <div class="buddy"><div class="face vector" id="b-face"><i class="vb-halo" id="vb-halo"></i><svg id="vb" class="vb" viewBox="40 60 400 400" data-state="idle" aria-hidden="true"><g class="vb-core"><circle cx="256" cy="290" r="111" fill="var(--vb-ink)"/><g class="vb-curl"><path d="M230 138 C224 118 247 91 270 91 C299 84 325 101 330 126 C338 154 318 179 289 198" fill="none" stroke="var(--vb-ink)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><circle cx="231" cy="139" r="24" fill="var(--vb-ink)"/></g><g class="vb-gaze"><rect class="vb-eye" x="209" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/><rect class="vb-eye vb-eye2" x="281" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/></g><g class="vb-tie"><path d="M256 352 L208 326 L208 378 Z M256 352 L304 326 L304 378 Z" fill="#8DB4E2"/><circle cx="256" cy="352" r="12" fill="#5E8CC2"/></g></g><circle class="vb-dot vb-dot1" cx="360" cy="104" r="13"/><circle class="vb-dot vb-dot2" cx="366" cy="149" r="13"/></svg><video id="b-idle" class="bv" muted loop playsinline preload="auto" poster="video/basso-idle.jpg" aria-hidden="true"><source src="video/basso-idle.webm" type="video/webm"><source src="video/basso-idle.mp4" type="video/mp4"></video><img id="b-img" src="img/wave-noeyes.png" alt="Basso"><svg class="beyes" viewBox="0 0 360 360" aria-hidden="true"><g class="blink" fill="none" stroke="#F2EDE4" stroke-width="11" stroke-linecap="round"><path d="M128.5 233 A16.5 16.5 0 1 1 161.5 233"/><path d="M203 247 A16.5 16.5 0 1 1 236 247"/></g></svg><video id="b-vid" class="bv" muted loop playsinline preload="auto" hidden><source src="video/basso-dizzy.webm" type="video/webm"><source src="video/basso-dizzy.mp4" type="video/mp4"></video><video id="b-clip" class="clipv" muted playsinline preload="none" hidden aria-hidden="true"></video></div><div class="bubble" id="b-say" aria-live="polite"></div></div>
     <div class="trailbox"><div class="trail" id="trail" aria-hidden="true"></div><div class="combo" id="combo"></div></div>
     <section class="card">
       <div class="prompt" id="l-prompt"></div>
@@ -1024,7 +1031,7 @@ function unlock() {
 ['pointerdown', 'keydown', 'touchend'].forEach(ev => addEventListener(ev, unlock, { once: false, passive: true }));
 // all question audio goes through one bus; stopAudio() silences everything still scheduled (answering early, next question, replays)
 let bus = null, audioGen = 0, audioEnd = 0;
-function outBus() { if (!bus || bus.context !== ctx) { bus = ctx.createGain(); bus.connect(ctx.destination); } return bus; }
+function outBus() { if (!bus || bus.context !== ctx) { bus = ctx.createGain(); bus.connect(ctx.destination); const an = typeof vbAnalyser === 'function' ? vbAnalyser() : null; if (an) bus.connect(an); } return bus; }
 function stopAudio() {
   audioGen++; audioEnd = 0;
   if (typeof followT !== 'undefined') { followT.forEach(clearTimeout); followT = []; }
@@ -1358,8 +1365,8 @@ function yin(b, sr) {
   const a = c[T0 - 1] || c[T0], bb = c[T0], cc = c[T0 + 1] || c[T0], den = a + cc - 2 * bb;
   return sr / (T0 + (den ? (a - cc) / (2 * den) : 0));
 }
-function micHz() { if (!mic) return 0; if (mic.fake) return window.__fakePitch() || 0; mic.an.getFloatTimeDomainData(mic.buf); return yin(mic.buf, ctx.sampleRate); }
-function stopListen() { clearInterval(listenT); listenT = null; micStop(); }
+function micHz() { if (!mic) { voiceLv = 0; return 0; } if (mic.fake) { const f = window.__fakePitch() || 0; voiceLv = f ? 0.05 : 0; return f; } mic.an.getFloatTimeDomainData(mic.buf); let r = 0; for (let i = 0; i < mic.buf.length; i += 4) r += mic.buf[i] * mic.buf[i]; voiceLv = Math.sqrt(r / (mic.buf.length / 4)); return yin(mic.buf, ctx.sampleRate); }
+function stopListen() { clearInterval(listenT); listenT = null; voiceLv = 0; micStop(); }
 // listen until the target note is held (0.35 s); a wrong note held 0.9 s counts as a miss for that note
 function listenFor(q, target, onHit, onMiss) {
   clearInterval(listenT);
@@ -1451,7 +1458,7 @@ function playPiece(p, start) {
     const at = s0 + clk(e.t) + (Math.random() - 0.5) * 0.01, dur = clk(e.t + e.d) - clk(e.t);
     const arch = 1 + 0.08 * Math.sin(Math.PI * e.t / p.T), acc = Math.abs(e.t % p.k) < 0.01 ? 1.07 : 1;
     const vel = Math.min(1, dynAt(p, e.t) * arch * acc * (e.mel ? 1 : 0.62) * (e.v || 1) * (1 + (Math.random() - 0.5) * 0.08));
-    if (p.real) { const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * acc * (e.mel ? 1 : 0.8); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
+    if (p.real) { const soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char), racc = Math.abs(e.t % p.k) < 0.01 ? (soft ? 1 : 1.04) : 1; const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * racc * (e.mel ? 1 : soft ? 0.5 : 0.62); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
     if (!pedal) play(e.m, at, vel, false, Math.min(0.16, dur * 0.45));
     else if (e.mel || p.lh === 'held') play(e.m, at, vel, false, dur + 0.05);
     else { const barEnd = s0 + clk((Math.floor(e.t / p.k + 0.001) + 1) * p.k); play(e.m, at, vel, false, dur, Math.max(at + dur, barEnd + 0.03)); } // left hand held by the pedal to the end of the bar
@@ -1470,6 +1477,7 @@ const CHARS = {
   dance: { o: () => ({ minor: false, tempo: 'mid', art: 'legato', dyn: 'mf', k: 3, lh: 'oompah' }), why: ['lilt', 'smooth', 'major'], icon: '∿' },
   energetic: { why: ['fast', 'minor', 'detached'], icon: '✦' }, flowing: { why: ['fast', 'smooth', 'quiet'], icon: '≈' }, bold: { why: ['fast', 'loud', 'major'], icon: '➶' }, solemn: { why: ['slow', 'smooth', 'major'], icon: '⛪' }, wild: { why: ['fast', 'minor', 'loud'], icon: '⚡' }
 };
+const WHY_ICON = { fast: '🐇', slow: '🐢', major: '☀', minor: '☁', detached: '⋯', smooth: '⁀', quiet: '🔉', loud: '🔊', steady: '🥁', lilt: '∿', speeding: '⏩', march2: '🥁' };
 const CHAR_CLASH = { cheerful: ['march', 'bold'], march: ['cheerful', 'bold'], bold: ['cheerful', 'march', 'wild', 'energetic'], dance: ['calm', 'flowing'], calm: ['dance', 'solemn', 'flowing'], solemn: ['calm'], flowing: ['calm', 'dance'], wild: ['energetic', 'bold', 'stormy'], energetic: ['wild', 'bold', 'stormy'], stormy: ['wild', 'energetic'], sad: [] }; // too close to tell apart from a 4-bar piece
 const WHY_FLIP = { fast: 'slow', slow: 'fast', major: 'minor', minor: 'major', detached: 'smooth', smooth: 'detached', quiet: 'loud', loud: 'quiet', steady: 'speeding', lilt: 'march2' };
 // Test A with rhythm. level 5 (builder): 2 bars, keys up to one sharp or flat · level 6 (exam): 3–4 bars, up to three sharps or flats
@@ -1548,6 +1556,14 @@ function rhythmFrom(pc) {
 function meterFrom(pc) { return { type: 'meter', k: pc.k, bars: 4, ev: [], piece: pc, level: 2, accent: 1 }; }
 function playPieceCount(pc) { const d = playPiece(pc), clk = pieceClock(pc); for (let b = 0; b < pc.T; b++) tick(0.1 + clk(b), b % pc.k === 0); return d; }
 // ---------- real repertoire (pieces.js) ----------
+// the next piece is one the child hasn't heard lately (all 20 come round before any repeats)
+function freshPiece(pool) {
+  let recent = []; try { recent = JSON.parse(localStorage.getItem('dottino:recentPieces') || '[]'); } catch (e) { /* ignore */ }
+  const fresh = pool.filter(x => !recent.includes(x.id)), pc = pick(fresh.length ? fresh : pool.filter(x => x.id !== recent[recent.length - 1]));
+  recent = recent.filter(id => id !== pc.id).concat(pc.id).slice(-Math.min(16, PIECES.length - 2));
+  try { localStorage.setItem('dottino:recentPieces', JSON.stringify(recent)); } catch (e) { /* ignore */ }
+  return pc;
+}
 function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii }; }
 function pieceLine(q) { const pc = q.piece; return pc && pc.real ? `<div class="small muted" style="margin-top:6px">♪ ${t().pieceWas(pc.composer, pc.title)}</div>` : ''; }
 function makeQ(type, level, force) {
@@ -1564,7 +1580,7 @@ function makeQ(type, level, force) {
     return { type, aspect: a, opts, ans, piece: makePiece(base), level };
   }
   if (type === 'char' && window.PIECES && PIECES.length) {
-    const pool = force === 'cii' ? PIECES.filter(x => x.cii) : PIECES, pc = pick(pool), c = pc.char;
+    const pool = force === 'cii' ? PIECES.filter(x => x.cii) : PIECES, pc = freshPiece(pool), c = pc.char;
     const others = PIECES.filter(x => x.char !== c && !(CHAR_CLASH[c] || []).includes(x.char));
     const o2 = pick(others), options = [{ id: c, c, why: pc.why }, { id: o2.char, c: o2.char, why: o2.why }];
     if (level >= 1) { const why = pc.why.slice(), keep = rnd(3); for (let i = 0; i < 3; i++) if (i !== keep) why[i] = WHY_FLIP[why[i]] || why[i]; options.push({ id: c + '-x', c, why }); }
@@ -1719,6 +1735,7 @@ let idleBroken = false;
 // clips: peek (hello, plays once), listen, happy, cheer, think, party (plays once), hugstar, party2
 // loaded only when first used; on slow networks the poster (first frame) shows; if a clip fails, the drawn Basso is used instead
 let clipBroken = false;
+setTimeout(() => { if (typeof vbLoop === 'function') vbLoop(); }, 0);
 const CLIP_END = { peek: 'peek-end' };
 function clip(name, loop) {
   const c = $('b-clip');
@@ -1732,12 +1749,39 @@ function clip(name, loop) {
   try { c.currentTime = 0; const pr = c.play(); if (pr && pr.catch) pr.catch(() => { /* autoplay blocked: the poster stays */ }); } catch (e) { /* ignore */ }
   return true;
 }
-let vbMood = 'idle', vbT = null;
+let vbMood = 'idle', vbT = null, vbColor = '#F36C51', rainbowT = null;
+const MOOD_COL = { idle: '#F36C51', listen: '#F36C51', wait: '#F36C51', correct: '#3FB27F', search: '#F2A23A', found: '#E8B931', exam: '#8DB4E2' };
+function moodLight(col, ms) {
+  const dots = document.querySelectorAll('#vb .vb-dot'), from = vbColor; vbColor = col;
+  dots.forEach(d => { try { d.animate([{ fill: from, color: from }, { fill: col, color: col }], { duration: ms || 650, easing: 'ease-in-out', fill: 'forwards' }); } catch (e) { d.style.fill = col; d.style.color = col; } });
+  const h = $('vb-halo'); if (h) h.style.color = col;
+  const card = document.querySelector('#v-lesson .card'); if (card) card.style.boxShadow = col === MOOD_COL.idle ? '' : `0 0 0 2px ${col}33, 0 14px 34px ${col}26`;
+}
 function basso(state) {
   const el = $('vb'); if (!el) return;
-  clearTimeout(vbT);
-  if (['correct', 'search', 'found', 'celebrate'].includes(state)) { el.dataset.state = state; vbT = setTimeout(() => { el.dataset.state = vbMood; }, state === 'search' ? 1600 : 1100); }
-  else { vbMood = state; el.dataset.state = state; }
+  clearTimeout(vbT); clearInterval(rainbowT);
+  const temp = ['correct', 'search', 'found', 'celebrate'].includes(state);
+  if (!temp) vbMood = state;
+  el.dataset.state = state;
+  if (state === 'celebrate') { const rb = ['#F6B34C', '#72BD96', '#66B8E4', '#9885D9', '#ED8FBD', '#F36C51']; let i = 0; moodLight(rb[0], 200); rainbowT = setInterval(() => moodLight(rb[++i % rb.length], 200), 210); }
+  else moodLight(MOOD_COL[state] || MOOD_COL.idle, state === 'correct' || state === 'found' ? 260 : 650);
+  if (temp) vbT = setTimeout(() => { clearInterval(rainbowT); el.dataset.state = vbMood; moodLight(MOOD_COL[vbMood] || MOOD_COL.idle, 900); }, state === 'search' ? 1700 : state === 'celebrate' ? 1600 : 1300);
+}
+// the dots follow the music's loudness while it plays (not on questions where that would give the answer away), and the child's voice while singing
+let vbAn = null, vbBuf = null, vbRaf = 0, voiceLv = 0;
+function vbAnalyser() { if (!ctx) return null; if (vbAn && vbAn.context === ctx) return vbAn; vbAn = ctx.createAnalyser(); vbAn.fftSize = 512; vbBuf = new Float32Array(512); const z = ctx.createGain(); z.gain.value = 0; vbAn.connect(z); z.connect(ctx.destination); return vbAn; }
+function vbFollowAllowed() { const q = L && L.q; if (!q || (L.seg && L.seg.exam && !L.reviewing)) return false; if (['meter', 'tapbeat', 'taprhythm', 'rhythm', 'same'].includes(q.type)) return false; if (q.type === 'feat' && (q.aspect === 'dyn' || q.aspect === 'tempo' || q.aspect === 'art')) return false; return true; }
+function vbLoop() {
+  cancelAnimationFrame(vbRaf);
+  const el = $('vb'); if (!el) return;
+  const step = () => {
+    let lv = 0;
+    if (listenT && voiceLv) lv = Math.min(1, voiceLv * 9);
+    else if (el.dataset.state === 'listen' && vbAn && vbFollowAllowed()) { vbAn.getFloatTimeDomainData(vbBuf); let r = 0; for (let i = 0; i < vbBuf.length; i++) r += vbBuf[i] * vbBuf[i]; lv = Math.min(1, Math.sqrt(r / vbBuf.length) * 7); }
+    el.style.setProperty('--lv', lv.toFixed(3)); const hh = $('vb-halo'); if (hh) hh.style.setProperty('--lvh', lv.toFixed(3));
+    vbRaf = requestAnimationFrame(step);
+  };
+  vbRaf = requestAnimationFrame(step);
 }
 function bassoLook(x, y) { const g = document.querySelector('#vb .vb-gaze'); if (!g) return; g.style.transform = `translate(${((Math.max(0, Math.min(1, x)) - 0.5) * 14).toFixed(1)}px, ${((Math.max(0, Math.min(1, y == null ? 0.7 : y)) - 0.5) * 8).toFixed(1)}px)`; clearTimeout(bassoLook.t); bassoLook.t = setTimeout(() => { g.style.transform = ''; }, 1400); }
 function say(img, text, bounce, clipName, loop) {
@@ -1783,7 +1827,12 @@ function reward(q) {
   chime(false);
 }
 function motif() { [72, 76, 79, 84].forEach((m, i) => play(m, 0.04 + i * 0.11, 0.32, false, i === 3 ? 0.9 : 0.25)); }
-function chime(big) { play(79, 0.02, 0.28); play(84, 0.12, 0.28); if (big) play(88, 0.22, 0.28); }
+function bell(m, when, vol) {
+  if (!ctx) return; const t0 = ctx.currentTime + when, f = 440 * Math.pow(2, (m - 69) / 12), g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.22, t0 + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7); g.connect(outBus());
+  [[1, 1], [2.76, 0.28], [5.4, 0.08]].forEach(([r, a]) => { const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sine'; o.frequency.value = f * r; og.gain.value = a; o.connect(og); og.connect(g); o.start(t0); o.stop(t0 + 0.75); });
+}
+function chime(big) { bell(84, 0.02); bell(88, 0.09); bell(91, 0.16, 0.26); if (big) bell(96, 0.26, 0.24); }
 const NOTE_FX = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5a3 3 0 1 1-2-2.83V4l12-2v12.5a3 3 0 1 1-2-2.83V6.2L9 7.6v10.9z" fill="currentColor"/></svg>';
 function burstFrom(el) {
   if (!el || calm) return;
@@ -1830,7 +1879,7 @@ function nextSeg() {
     g.items.forEach(k => {
       if (typeof k === 'string') { L.quizQs.push(makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0)); return; }
       if (k.t === 'cpair') { const c = makeQ('char', 1, 'cii'); if (c.piece.real) { const r0 = Math.random(); if (r0 < 0.3) c.piece.dyn = pick(['cresc', 'dim']); else if (r0 < 0.5) c.piece.tch = 'slower'; } const f = featFrom(c.piece); f.sec = c.sec = 'Ci'; L.quizQs.push(f, c); lastPiece = c.piece; return; }
-      if (k.t === 'cii') { const pc = (lastPiece && (!lastPiece.real || lastPiece.cii)) ? lastPiece : (window.PIECES ? realPiece(pick(PIECES.filter(x => x.cii))) : makePiece({ k: pick([2, 3, 4]) })), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
+      if (k.t === 'cii') { const pc = (lastPiece && (!lastPiece.real || lastPiece.cii)) ? lastPiece : (window.PIECES ? realPiece(freshPiece(PIECES.filter(x => x.cii))) : makePiece({ k: pick([2, 3, 4]) })), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
       const q2 = makeQ(k.t, k.lv, k.a); if (k.sec) q2.sec = k.sec; if (q2.piece) lastPiece = q2.piece; L.quizQs.push(q2);
     }); }
   if (g.type === 'intro') return showIntro();
@@ -2016,7 +2065,7 @@ function renderQ() {
     answers(q.opts.map(v => [v, T_.featIcon[v], T_.featName[v]]), v => judge(v === q.ans, { chose: v }));
   } else if (type === 'char') {
     $('l-prompt').textContent = T_.pChar; $('l-sub').textContent = q.level >= 1 ? T_.sChar2 : T_.sChar;
-    answers(q.options.map(o => [o.id, CHARS[o.c].icon, '<b>' + T_.charName[o.c] + '</b><small>' + o.why.map(w => T_.whyShort[w]).join(' · ') + '</small>']), v => judge(v === q.c, { chose: v }));
+    answers(q.options.map(o => [o.id, CHARS[o.c].icon, '<b>' + T_.charName[o.c] + '</b><span class="why-chips">' + o.why.map(w => '<i>' + (WHY_ICON[w] || '') + ' ' + T_.whyShort[w] + '</i>').join('') + '</span>']), v => judge(v === q.c, { chose: v }));
     $('answers').classList.add('rh');
   } else if (type === 'mode') {
     $('l-prompt').textContent = T_.pMode; $('l-sub').textContent = q.level >= 1 ? T_.sMode2 : T_.sMode;
@@ -2069,8 +2118,8 @@ function cueThen(q, go) {
   const c = $('cue'); if (!c) return go();
   if (!CUE_TYPES.includes(q.type)) { c.hidden = true; return go(); }
   const T_ = t(); c.hidden = false; c.className = 'cue count';
-  [3, 2, 1].forEach((n, i) => cueT.push(setTimeout(() => { if (L && L.q === q) c.textContent = T_.cueGet + ' ' + n; }, i * 450)));
-  cueT.push(setTimeout(() => { if (L && L.q === q) go(); }, 3 * 450));
+  [3, 2, 1].forEach((n, i) => cueT.push(setTimeout(() => { if (L && L.q === q) { c.textContent = T_.cueGet + ' ' + n; c.classList.remove('tick'); void c.offsetWidth; c.classList.add('tick'); } }, i * 750)));
+  cueT.push(setTimeout(() => { if (L && L.q === q) go(); }, 3 * 750));
 }
 function watchTurn(q) {
   const c = $('cue'); if (!c || !ctx) return;
