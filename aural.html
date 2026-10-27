@@ -238,6 +238,11 @@ a { color: inherit; }
 .meterbar .dot.ok{background:var(--good)}.meterbar .dot.off{opacity:.2}
 .singrow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}.singrow .heard{font-weight:700}.modesw{display:flex;gap:6px;flex-wrap:wrap}
 .bk.on{pointer-events:auto;border:0;z-index:2;cursor:pointer;padding:0}.bk.on.hit{background:#4a4458}.bk.on.ok{background:var(--good)}.bk.on.no{background:var(--coral)}
+.pv-banner{margin:0 0 12px;padding:9px 12px;border-radius:12px;background:var(--good-soft);color:var(--ink);font-size:14px;line-height:1.5}
+.fb-fab{position:fixed;right:16px;bottom:16px;z-index:40;border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:700;background:var(--ink);color:var(--paper,#fff);box-shadow:0 6px 18px rgba(0,0,0,.18);cursor:pointer}
+.fb-sheet{position:fixed;right:16px;bottom:70px;z-index:41;width:min(380px,calc(100vw - 32px));background:var(--card,#fffdf8);border:1.5px solid var(--line,#e2dbcf);border-radius:18px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.fb-sheet h3{margin:0 0 10px;font-size:17px}.fb-sheet textarea,.fb-sheet input{width:100%;box-sizing:border-box;font:inherit;font-size:15px;border:1.5px solid var(--line,#d9d2c5);border-radius:12px;padding:10px;margin-bottom:8px;background:transparent;color:var(--ink)}
+.fb-sheet .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 </style>
 <script src="pay.js"></script>
 </head>
@@ -293,6 +298,7 @@ a { color: inherit; }
     </form>
     <p class="foot"><a href="/" id="t-home">Dottino home</a> · <a href="privacy.html" id="t-privacy">Privacy</a> · <a href="terms.html">Terms</a> · <span id="t-keep">Progress stays in this browser.</span></p>
   </main>
+  <form name="feedback" data-netlify="true" netlify-honeypot="bot-field" hidden><textarea name="message"></textarea><input name="name"><input name="email"><input name="week"><input name="where"><input name="lang"><input name="settings"><input name="ua"><input name="ref"><input name="bot-field"></form>
 
   <!-- LESSON -->
   <main id="v-lesson" hidden>
@@ -349,6 +355,7 @@ a { color: inherit; }
 <script>
 (() => {
 // which week of the Grade 4 plan this page shows (?w=2 for week 2)
+const PREVIEW = (() => { try { if (new URLSearchParams(location.search).get('preview') === '1') sessionStorage.setItem('dottino:preview', '1'); return sessionStorage.getItem('dottino:preview') === '1'; } catch (e) { return /[?&]preview=1/.test(location.search); } })();
 const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 8 ? w : 1; } catch (e) { return 1; } })();
 // ---------- text ----------
 const T = {
@@ -2055,12 +2062,13 @@ function renderWeek() {
   const T_ = t(), locked = payLocked();
   renderPay(locked);
   $('lessons').innerHTML = T_.L.map((x, i) => {
-    const d = saved.lessons[i], open = !locked && (i === 0 || saved.lessons[i - 1]);
+    const d = saved.lessons[i], open = !locked && (PREVIEW || i === 0 || saved.lessons[i - 1]);
     const st = d ? (d.stars || 1) : 0;
     return `<li class="lesson${d ? ' done' : ''}"><span class="num${d ? ' em' : ''}">${d ? T_.stickers[i][0] : i + 1}</span><div><h3>${T_.stop(i + 1)} · ${x.t}</h3><p>${x.d}</p>${d ? `<div class="mini">${[1, 2, 3].map(k => k <= st ? '⭐' : '<span style="opacity:.25;filter:grayscale(1)">⭐</span>').join('')} <span class="muted" style="letter-spacing:0;font-size:12px">${T_.stickers[i][1]}</span></div>` : ''}</div>` +
       `<button class="btn ${d ? 'ghost' : open ? 'coral' : 'locked'} sm go" data-l="${i}" ${open ? '' : 'disabled'}>${locked ? PT().lockBtn : d ? T_.again : open ? T_.start : T_.locked + i + (S.lang === 'zh' ? ' 站后解锁' : '')}</button></li>`;
   }).join('');
   $('lessons').querySelectorAll('.go').forEach(b => { b.onclick = () => startLesson(+b.dataset.l); });
+  if (PREVIEW) { let pb = $('pv-banner'); if (!pb) { pb = document.createElement('div'); pb.id = 'pv-banner'; pb.className = 'pv-banner'; $('lessons').before(pb); } pb.textContent = S.lang === 'zh' ? '老师预览模式：所有站已解锁，可以跳着看。有意见点右下角「反馈」。' : 'Teacher preview: every stop is unlocked, so you can jump around. Spotted something? Tap “Feedback” at the bottom right.'; }
   const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 8;
   $('weeknav').innerHTML = WEEK === 1 ? `<a href="${wl(2)}">${T_.weekNext}</a>` : `<a href="${wl(WEEK - 1)}">${T_.weekN(WEEK - 1, -1)}</a>` + (WEEK < LAST ? ` · <a href="${wl(WEEK + 1)}">${T_.weekN(WEEK + 1, 1)}</a>` : '');
   // week card once the core stops are done (week 1: stops 1–3; week 2: all four)
@@ -2121,6 +2129,34 @@ $('wl-form').addEventListener('submit', e => {
     .then(r => { if (!r.ok) throw new Error(r.status); track('founding-g4-aural'); $('wl-status').style.color = 'var(--good)'; $('wl-status').textContent = T_.wlOk; })
     .catch(() => { $('wl-status').style.color = 'var(--muted)'; $('wl-status').textContent = T_.wlFail; });
 });
+// ---------- teacher feedback (preview mode) ----------
+if (PREVIEW) {
+  const fbBtn = document.createElement('button'); fbBtn.className = 'fb-fab'; fbBtn.id = 'fb-fab'; fbBtn.type = 'button';
+  const sheet = document.createElement('div'); sheet.className = 'fb-sheet'; sheet.id = 'fb-sheet'; sheet.hidden = true;
+  document.body.append(fbBtn, sheet);
+  const FT = () => S.lang === 'zh'
+    ? { fab: '💬 反馈', title: '给 Dottino 提意见', ph: '哪里不对、听着别扭、太难或太简单？越具体越好，比如"第 6 周第 2 站，渐慢听不出来"。', name: '你的名字（可不填）', email: '邮箱（可不填，方便我们回复你）', send: '发送', cancel: '关闭', ok: '收到了，谢谢！', bad: '请先写几句意见。', fail: '没发出去，请稍后再试。', auto: '会自动附上：第几周、第几站、当前题型和浏览器信息。' }
+    : { fab: '💬 Feedback', title: 'Feedback for Dottino', ph: 'What felt wrong, sounded odd, or was too hard or too easy? The more specific the better, e.g. “Week 6, stop 2: I couldn’t hear the slow-down.”', name: 'Your name (optional)', email: 'Email (optional, so we can reply)', send: 'Send', cancel: 'Close', ok: 'Got it, thank you!', bad: 'Please write a few words first.', fail: 'That didn’t send. Please try again in a moment.', auto: 'We add the week, stop, question type and browser automatically.' };
+  const paint = () => {
+    const f = FT(); fbBtn.textContent = f.fab;
+    sheet.innerHTML = `<h3>${f.title}</h3><textarea id="fbs-msg" rows="5" placeholder="${f.ph}"></textarea><input id="fbs-name" placeholder="${f.name}" autocomplete="name"><input id="fbs-email" type="email" placeholder="${f.email}" autocomplete="email"><p class="small muted">${f.auto}</p><div class="actions"><button class="btn coral sm" id="fbs-send" type="button">${f.send}</button><button class="btn ghost sm" id="fbs-close" type="button">${f.cancel}</button><span class="status" id="fbs-status" aria-live="polite"></span></div>`;
+    $('fbs-close').onclick = () => { sheet.hidden = true; };
+    $('fbs-send').onclick = () => {
+      const msg = $('fbs-msg').value.trim(), st = $('fbs-status');
+      if (msg.length < 3) { st.style.color = 'var(--bad)'; st.textContent = f.bad; return; }
+      const where = L ? 'stop ' + (L.n + 1) + (L.q ? ' · ' + L.q.type + (L.q.aspect ? '/' + L.q.aspect : '') + (L.q.key ? '/' + L.q.key : '') + (L.q.sec ? '/' + L.q.sec : '') : '') : ($('v-done').hidden ? 'week page' : 'stop done screen');
+      const body = new URLSearchParams({ 'form-name': 'feedback', message: msg, name: $('fbs-name').value.trim(), email: $('fbs-email').value.trim(), week: String(WEEK), where, lang: S.lang, settings: 'naming=' + S.naming + ' sing=' + S.sing + ' clef=' + S.clef, ua: navigator.userAgent.slice(0, 180), ref: shared.ref || '' });
+      $('fbs-send').disabled = true;
+      fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
+        .then(r => { if (!r.ok) throw new Error(r.status); track('teacher-feedback'); st.style.color = 'var(--good)'; st.textContent = f.ok; $('fbs-msg').value = ''; setTimeout(() => { sheet.hidden = true; st.textContent = ''; }, 1600); })
+        .catch(() => { st.style.color = 'var(--bad)'; st.textContent = f.fail; })
+        .finally(() => { $('fbs-send').disabled = false; });
+    };
+  };
+  paint();
+  fbBtn.onclick = () => { if (sheet.hidden) paint(); sheet.hidden = !sheet.hidden; if (!sheet.hidden) $('fbs-msg').focus(); };
+  ['lang-en', 'lang-zh'].forEach(id => $(id).addEventListener('click', () => { if (sheet.hidden) paint(); else fbBtn.textContent = FT().fab; }));
+}
 window.__dottinoLesson = () => L; // for automated checks
 setText();
 })();
