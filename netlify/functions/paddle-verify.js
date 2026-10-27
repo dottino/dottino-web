@@ -10,5 +10,5 @@ exports.handler = async (event) => {
     try { if (t.customer_id) email = (await paddle('/customers/' + t.customer_id)).data.email || ''; } catch (e) { /* ignore */ }
     const license = licenseFrom([t], email);
     return json(200, license ? { ok: true, license } : { ok: false, error: 'not paid' });
-  } catch (e) { return json(500, { ok: false, error: 'server' }); }
+  } catch (e) { return json(500, { ok: false, error: 'server', detail: String(e && e.message || e).slice(0, 80) }); }
 };

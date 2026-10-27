@@ -4,7 +4,8 @@ const API = () => (process.env.PADDLE_ENV === 'live' ? 'https://api.paddle.com' 
 const PRICE_GRADE = () => ({ [process.env.PRICE_G4 || 'pri_01m5y173swe9wpr5538rp338ee']: 4 });
 async function paddle(path) {
   const r = await fetch(API() + path, { headers: { Authorization: 'Bearer ' + process.env.PADDLE_API_KEY } });
-  if (!r.ok) throw new Error('paddle ' + r.status);
+  if (!process.env.PADDLE_API_KEY) throw new Error('no api key set');
+  if (!r.ok) throw new Error('paddle ' + r.status + ' ' + (process.env.PADDLE_ENV || 'sandbox'));
   return r.json();
 }
 const DAYS_ACCESS = 183; // 6 months
