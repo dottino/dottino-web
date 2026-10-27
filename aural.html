@@ -254,6 +254,51 @@ a { color: inherit; }
 .cue.count{background:var(--ink);color:var(--paper)}.cue.turn{background:var(--good-soft);color:var(--good)}
 .cue.on i{display:inline-block;width:4px;height:14px;border-radius:2px;background:var(--coral);animation:eq .8s ease-in-out infinite}.cue.on i:nth-child(2){animation-delay:.15s}.cue.on i:nth-child(3){animation-delay:.3s}
 @keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+/* vector Basso: the two dots of the bass clef are his mood lights */
+:root { --vb-ink: #211C2F; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --vb-ink: #2c2640; } }
+.buddy .face.vector { width: 96px; height: 96px; background: transparent; overflow: visible; }
+.buddy .face.vector > :not(#vb) { display: none !important; }
+.vb { width: 96px; height: 96px; overflow: visible; }
+.vb .vb-core { transform-origin: 256px 300px; animation: vbBreathe 4.4s ease-in-out infinite; }
+.vb .vb-curl { transform-origin: 300px 192px; animation: vbCurl 4.4s ease-in-out infinite; }
+.vb .vb-gaze { transition: transform .18s cubic-bezier(.18,.65,.3,1); }
+.vb .vb-eye { transform-box: fill-box; transform-origin: center; animation: vbBlink 6.3s ease-in-out infinite; } .vb .vb-eye2 { animation-delay: .06s; }
+.vb .vb-dot { fill: #F36C51; transform-box: fill-box; transform-origin: center; transition: fill .25s; }
+.vb .vb-tie { opacity: 0; transition: opacity .3s; }
+.vb[data-state="listen"] .vb-core { animation: vbListen 2.5s ease-in-out infinite; }
+.vb[data-state="listen"] .vb-dot { animation: vbGlow 1.6s ease-in-out infinite; } .vb[data-state="listen"] .vb-dot2 { animation-delay: .3s; }
+.vb[data-state="wait"] .vb-dot1 { animation: vbAlt 1.2s ease-in-out infinite; } .vb[data-state="wait"] .vb-dot2 { animation: vbAlt 1.2s ease-in-out infinite .6s; }
+.vb[data-state="correct"] .vb-core { animation: vbHappy .75s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="correct"] .vb-dot { fill: #3FB27F; animation: vbPop .7s ease-out 1; }
+.vb[data-state="search"] .vb-core { animation: vbThink 1.7s ease-in-out infinite; } .vb[data-state="search"] .vb-dot { fill: #F2A23A; animation: vbSearch 1s ease-in-out infinite; } .vb[data-state="search"] .vb-dot2 { animation-delay: .5s; }
+.vb[data-state="found"] .vb-core { animation: vbHappy .8s cubic-bezier(.24,.8,.25,1) 1; } .vb[data-state="found"] .vb-dot { fill: #E8B931; filter: drop-shadow(0 0 6px rgba(232,185,49,.7)); animation: vbPop .8s ease-out 1; }
+.vb[data-state="celebrate"] .vb-core { animation: vbCeleb .96s ease-in-out 1; } .vb[data-state="celebrate"] .vb-dot { animation: vbRainbow .8s ease-in-out infinite alternate; } .vb[data-state="celebrate"] .vb-dot2 { animation-delay: -.4s; }
+.vb[data-state="exam"] .vb-core { animation: none; } .vb[data-state="exam"] .vb-dot { fill: #8DB4E2; } .vb[data-state="exam"] .vb-tie { opacity: 1; }
+@keyframes vbBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02,.985); } }
+@keyframes vbCurl { 0%,100% { transform: rotate(0); } 50% { transform: rotate(2deg); } }
+@keyframes vbListen { 0%,100% { transform: rotate(-4deg) translateY(1px); } 50% { transform: rotate(-6deg) translateY(-3px); } }
+@keyframes vbThink { 0%,100% { transform: rotate(7deg) translateX(2px); } 50% { transform: rotate(10deg) translateX(4px); } }
+@keyframes vbBlink { 0%,41%,44%,100% { transform: scaleY(1); } 42%,43% { transform: scaleY(.12); } }
+@keyframes vbHappy { 0%,100% { transform: none; } 27% { transform: translateY(-26px) scale(1.03,.97); } 61% { transform: translateY(3px) scale(.98,1.03); } }
+@keyframes vbCeleb { 0%,100% { transform: none; } 28% { transform: translateY(-30px) rotate(-6deg); } 55% { transform: translateY(2px) rotate(6deg); } 78% { transform: translateY(-10px) rotate(-2deg); } }
+@keyframes vbGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes vbAlt { 0%,100% { opacity: .35; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes vbPop { 0%,100% { transform: scale(1); } 40% { transform: scale(1.4); } }
+@keyframes vbSearch { 0%,100% { opacity: .45; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.18); } }
+@keyframes vbRainbow { 0% { fill: #F36C51; } 25% { fill: #F6B34C; } 50% { fill: #72BD96; } 75% { fill: #66B8E4; } 100% { fill: #9885D9; } }
+@media (prefers-reduced-motion: reduce) { .vb * { animation: none !important; } .vb[data-state="search"] .vb-dot { fill: #F2A23A; } .vb[data-state="correct"] .vb-dot { fill: #3FB27F; } }
+/* three-stage feel for every answer button: press, release, result */
+.ans { transition: transform .1s ease-out, box-shadow .2s, background-color .2s, border-color .2s; }
+.ans:active:not(:disabled) { transform: scale(.97); transition-duration: .08s; }
+.ans.right { animation: ansRight .32s ease-out; box-shadow: 0 0 0 4px rgba(27,122,69,.14); }
+.ans.wrong { animation: ansWrong .22s ease-in-out; }
+@keyframes ansRight { 0% { transform: scale(.97); } 55% { transform: scale(1.03); } 100% { transform: none; } }
+@keyframes ansWrong { 0%,100% { transform: none; } 30% { transform: translateX(-4px); } 70% { transform: translateX(3px); } }
+.wk:active, .bk.on:active { filter: brightness(.95); }
+.viz { margin: 10px 0 4px; } .viz b { display: block; font-size: 13px; margin-bottom: 4px; } .viz svg { width: 100%; max-width: 340px; height: auto; display: block; }
+.choices { margin: 16px 0 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .choice-q { grid-column: 1 / -1; margin: 0 0 2px; font-weight: 700; }
+.choice { font: inherit; font-weight: 700; display: flex; align-items: center; gap: 8px; text-align: left; border: 1.5px solid var(--ink); background: var(--card); color: var(--ink); border-radius: 16px; padding: 12px 14px; cursor: pointer; transition: transform .1s; } .choice:active { transform: scale(.97); } .choice span { font-size: 20px; }
+.ans.guess { box-shadow: 0 0 0 3px rgba(242,162,58,.35); } .guess-tag { font-style: normal; font-size: 12px; font-weight: 700; color: #B86E12; }
 </style>
 <script src="pay.js"></script>
 <script src="pieces.js"></script>
@@ -318,7 +363,7 @@ a { color: inherit; }
     <div class="lhead"><h2 id="l-title"></h2><button class="btn ghost sm" id="btn-quit">Exit</button></div>
     <div class="bar"><i id="l-bar"></i></div>
     <div class="stage"><span id="l-stage"></span><span id="l-level"></span></div>
-    <div class="buddy"><div class="face" id="b-face"><video id="b-idle" class="bv" muted loop playsinline preload="auto" poster="video/basso-idle.jpg" aria-hidden="true"><source src="video/basso-idle.webm" type="video/webm"><source src="video/basso-idle.mp4" type="video/mp4"></video><img id="b-img" src="img/wave-noeyes.png" alt="Basso"><svg class="beyes" viewBox="0 0 360 360" aria-hidden="true"><g class="blink" fill="none" stroke="#F2EDE4" stroke-width="11" stroke-linecap="round"><path d="M128.5 233 A16.5 16.5 0 1 1 161.5 233"/><path d="M203 247 A16.5 16.5 0 1 1 236 247"/></g></svg><video id="b-vid" class="bv" muted loop playsinline preload="auto" hidden><source src="video/basso-dizzy.webm" type="video/webm"><source src="video/basso-dizzy.mp4" type="video/mp4"></video><video id="b-clip" class="clipv" muted playsinline preload="none" hidden aria-hidden="true"></video></div><div class="bubble" id="b-say" aria-live="polite"></div></div>
+    <div class="buddy"><div class="face vector" id="b-face"><svg id="vb" class="vb" viewBox="40 60 400 400" data-state="idle" aria-hidden="true"><g class="vb-core"><circle cx="256" cy="290" r="111" fill="var(--vb-ink)"/><g class="vb-curl"><path d="M230 138 C224 118 247 91 270 91 C299 84 325 101 330 126 C338 154 318 179 289 198" fill="none" stroke="var(--vb-ink)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><circle cx="231" cy="139" r="24" fill="var(--vb-ink)"/></g><g class="vb-gaze"><rect class="vb-eye" x="209" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/><rect class="vb-eye vb-eye2" x="281" y="261" width="22" height="46" rx="11" fill="#F5F1E8"/></g><g class="vb-tie"><path d="M256 352 L208 326 L208 378 Z M256 352 L304 326 L304 378 Z" fill="#8DB4E2"/><circle cx="256" cy="352" r="12" fill="#5E8CC2"/></g></g><circle class="vb-dot vb-dot1" cx="360" cy="104" r="13"/><circle class="vb-dot vb-dot2" cx="366" cy="149" r="13"/></svg><video id="b-idle" class="bv" muted loop playsinline preload="auto" poster="video/basso-idle.jpg" aria-hidden="true"><source src="video/basso-idle.webm" type="video/webm"><source src="video/basso-idle.mp4" type="video/mp4"></video><img id="b-img" src="img/wave-noeyes.png" alt="Basso"><svg class="beyes" viewBox="0 0 360 360" aria-hidden="true"><g class="blink" fill="none" stroke="#F2EDE4" stroke-width="11" stroke-linecap="round"><path d="M128.5 233 A16.5 16.5 0 1 1 161.5 233"/><path d="M203 247 A16.5 16.5 0 1 1 236 247"/></g></svg><video id="b-vid" class="bv" muted loop playsinline preload="auto" hidden><source src="video/basso-dizzy.webm" type="video/webm"><source src="video/basso-dizzy.mp4" type="video/mp4"></video><video id="b-clip" class="clipv" muted playsinline preload="none" hidden aria-hidden="true"></video></div><div class="bubble" id="b-say" aria-live="polite"></div></div>
     <div class="trailbox"><div class="trail" id="trail" aria-hidden="true"></div><div class="combo" id="combo"></div></div>
     <section class="card">
       <div class="prompt" id="l-prompt"></div>
@@ -359,6 +404,7 @@ a { color: inherit; }
       <div class="sticker" id="d-sticker"></div>
       <div class="summary" id="d-summary"></div>
       <p class="muted" id="d-note"></p>
+      <div class="choices" id="d-choices"></div>
       <div class="actions"><button class="btn coral" id="btn-nextlesson">Next lesson</button><button class="btn ghost" id="btn-week">Back to week 1</button></div>
     </section>
   </main>
@@ -390,7 +436,7 @@ const T = {
     home: 'Dottino home', privacy: 'Privacy', keep: 'Progress stays in this browser only: it can’t be restored on another device or after clearing browser data. Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.',
     exit: 'Exit', replay: '▶ Play again', slow: '🐢 Slower', next: 'Next', finish: 'See how it went',
     up: 'Higher', down: 'Lower', same: 'Same', diff: 'Different', front: 'Near the start', back: 'Near the end',
-    seg: { intro: 'Warm-up', hl: 'Higher or lower', find: 'Find the note', contour: 'Which shape', echo: 'Play it back', same: 'Same or different', change: 'Spot the change', quiz: 'Week 1 check' },
+    seg: { intro: 'Warm-up', hl: 'Higher or lower', find: 'Find the note', contour: 'Which shape', echo: 'Play it back', same: 'Same or different', change: 'Spot the change', quiz: 'Week 1 challenge' },
     pMeter: 'Is it in 2, 3 or 4 time?', pMeter2: 'Is it in 2 or 3 time?', sMeter: 'Listen for the strong beat with the low note under it. Count from it: how many beats until it comes back?',
     timeOf: k => k + ' time', wrongMeter: (k, c) => 'It was in ' + k + ' time: ' + Array.from({ length: k }, (x, i) => i ? String(i + 1) : 'ONE').join(' ') + ', ' + Array.from({ length: k }, (x, i) => i ? String(i + 1) : 'ONE').join(' ') + '. Hear it again with a click on every beat.',
     hearCount: '▶ Hear it with the beats counted', sEcho4: 'Four notes, mostly steps, one small jump. Tap the keys in order.', sEcho5: 'Five notes between C and G. Play it again first if you need to.',
@@ -414,12 +460,12 @@ const T = {
         { t: 'Tap the beat', d: 'Tap along steadily while the tune plays, then say 2, 3 or 4 time.' },
         { t: 'Tap the rhythm back', d: 'Hear two bars of rhythm, then tap it back: one tap for every note.' },
         { t: 'Trickier rhythms', d: 'Dotted rhythms join in. Pick the picture, then tap them back.' },
-        { t: 'Week 5 check', d: 'Beats, rhythms, 2-3-4 time, a play-back and major or minor.' }
+        { t: 'Week 5 challenge', d: 'Beats, rhythms, 2-3-4 time, a play-back and major or minor.' }
       ],
-      seg: { tapbeat: 'Tap the beat', taprhythm: 'Tap the rhythm', rhythm: 'Which rhythm', quiz: 'Week 5 check', meter: 'Strong beat', echo: 'Play it back', mode: 'Major or minor' },
+      seg: { tapbeat: 'Tap the beat', taprhythm: 'Tap the rhythm', rhythm: 'Which rhythm', quiz: 'Week 5 challenge', meter: 'Strong beat', echo: 'Play it back', mode: 'Major or minor' },
       hi: ['Week 5! Tap along like a clock.', 'Rhythm echoes. Listen, then tap!', 'Dotted rhythms: long-short, long-short!', 'Last stop this week. Ready?'],
       dTitle: ['You can tap a steady beat', 'You can tap a rhythm back', 'You can handle dotted rhythms', 'Week 5 complete'],
-      dNote: ['Next time: tapping rhythms back.', 'Next time: dotted rhythms.', 'One more stop: the week 5 check.', 'Your week 5 card is ready on the week page.'],
+      dNote: ['Next time: tapping rhythms back.', 'Next time: dotted rhythms.', 'One more stop: the week 5 challenge.', 'Your week 5 card is ready on the week page.'],
       stickers: [['⏱️', 'Steady Beat', 'Taps a steady beat'], ['👏', 'Rhythm Echo', 'Taps a rhythm back'], ['🎵', 'Dotted Pro', 'Handles dotted rhythms'], ['⭐', 'Week 5 Star', 'Finished week 5']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 5 listening card', skills: { tapbeat: 'Tapping the beat + 2/3/4 time', taprhythm: 'Tapping a rhythm back', rhythm: 'Reading a rhythm by ear' },
@@ -433,12 +479,12 @@ const T = {
         { t: 'Loud, quiet, smooth, detached', d: 'Dynamics and articulation: getting louder or quieter, legato or staccato.' },
         { t: 'Speed and key', d: 'Does the tempo change? Major or minor, now in a whole piece.' },
         { t: 'What gives it character?', d: 'Choose the mood and the reasons, and learn how to say it in the exam.' },
-        { t: 'Week 6 check', d: 'Exam style: feature questions, character questions and a rhythm to tap.' }
+        { t: 'Week 6 challenge', d: 'Exam style: feature questions, character questions and a rhythm to tap.' }
       ],
-      seg: { feat: 'Musical features', char: 'Character', quiz: 'Week 6 check', taprhythm: 'Tap the rhythm', meter: 'Strong beat' },
+      seg: { feat: 'Musical features', char: 'Character', quiz: 'Week 6 challenge', taprhythm: 'Tap the rhythm', meter: 'Strong beat' },
       hi: ['Week 6! Listen like an examiner.', 'Speed and key. Ears ready?', 'Time to explain the mood.', 'Last stop this week. Ready?'],
       dTitle: ['You can hear dynamics and articulation', 'You can hear tempo and key', 'You can explain a piece’s character', 'Week 6 complete'],
-      dNote: ['Next time: speed and key.', 'Next time: describing character.', 'One more stop: the week 6 check.', 'Your week 6 card is ready on the week page.'],
+      dNote: ['Next time: speed and key.', 'Next time: describing character.', 'One more stop: the week 6 challenge.', 'Your week 6 card is ready on the week page.'],
       stickers: [['🔊', 'Dynamics Ear', 'Hears louder and quieter'], ['⏩', 'Tempo Ear', 'Hears the speed change'], ['🎭', 'Character Critic', 'Explains a piece’s mood'], ['⭐', 'Week 6 Star', 'Finished week 6']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 6 listening card', skills: { feat: 'Dynamics, articulation, tempo, key', char: 'Describing character, with reasons' },
@@ -468,12 +514,12 @@ const T = {
         { t: 'Sing it back', d: 'Match single notes with your voice, then read your first five notes.' },
         { t: 'Five notes in C major', d: 'Steps and small jumps of a third, starting and ending on home.' },
         { t: 'F and G major', d: 'New keys with a B♭ or an F♯, in treble or bass clef.' },
-        { t: 'Week 7 check', d: 'Exam style: three sight-singing tests, plus a review of Tests A and C.' }
+        { t: 'Week 7 challenge', d: 'Exam style: three sight-singing tests, plus a review of Tests A and C.' }
       ],
-      seg: { singmatch: 'Sing it back', sight: 'Sight-singing', quiz: 'Week 7 check', echo: 'Play it back', feat: 'Musical features', char: 'Character', taprhythm: 'Tap the rhythm', meter: 'Strong beat', tonic: 'Find the note' },
+      seg: { singmatch: 'Sing it back', sight: 'Sight-singing', quiz: 'Week 7 challenge', echo: 'Play it back', feat: 'Musical features', char: 'Character', taprhythm: 'Tap the rhythm', meter: 'Strong beat', tonic: 'Find the note' },
       hi: ['Week 7! Warm up your voice.', 'Five notes, starting at home.', 'New keys today!', 'Last stop this week. Ready?'],
       dTitle: ['You can match a note with your voice', 'You can sing five notes in C', 'You can sing in F and G major', 'Week 7 complete'],
-      dNote: ['Next time: five notes in C major.', 'Next time: F and G major.', 'One more stop: the week 7 check.', 'Your week 7 card is ready on the week page.'],
+      dNote: ['Next time: five notes in C major.', 'Next time: F and G major.', 'One more stop: the week 7 challenge.', 'Your week 7 card is ready on the week page.'],
       stickers: [['🎤', 'Pitch Match', 'Sings a note back'], ['🎼', 'Note Reader', 'Sings five notes in C'], ['🗝️', 'Key Explorer', 'Sings in F and G'], ['⭐', 'Week 7 Star', 'Finished week 7']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 7 listening card', skills: { sight: 'Sight-singing five notes (singing)', sightkeys: 'Reading five notes (on the keys, not sung)', singmatch: 'Matching a note with the voice', tonic: 'Finding a note from home (no microphone)' },
@@ -530,12 +576,12 @@ const T = {
         { t: 'Major or minor?', d: 'Hear a key chord, then a short tune. Bright or darker? You need this before playing back minor tunes.' },
         { t: 'Play back five notes', d: 'Key chord, starting note, the tune twice. Then play it back. C major and A minor.' },
         { t: 'Tunes with rhythm', d: 'Two bars with a count-in, in new keys. Play back the notes and the rhythm, like the real Test A.' },
-        { t: 'Week 4 check', d: 'Test A-style play-backs, major or minor, and two skills from earlier weeks.' }
+        { t: 'Week 4 challenge', d: 'Test A-style play-backs, major or minor, and two skills from earlier weeks.' }
       ],
-      seg: { mode: 'Major or minor', echo: 'Play it back', quiz: 'Week 4 check', meter: 'Strong beat', same: 'Same or different' },
+      seg: { mode: 'Major or minor', echo: 'Play it back', quiz: 'Week 4 challenge', meter: 'Strong beat', same: 'Same or different' },
       hi: ['Week 4: exam style! Major or minor?', 'Key chord, starting note, listen twice. Ready?', 'Now with rhythm. Feel the count-in!', 'Last stop this week. Ready?'],
       dTitle: ['You can hear major and minor', 'You can play back five notes, exam style', 'You can play back a tune with its rhythm', 'Week 4 complete'],
-      dNote: ['Next time: Test A play-backs.', 'Next time: six-note tunes.', 'One more stop: the week 4 check.', 'Your week 4 card is ready on the week page.'],
+      dNote: ['Next time: Test A play-backs.', 'Next time: six-note tunes.', 'One more stop: the week 4 challenge.', 'Your week 4 card is ready on the week page.'],
       stickers: [['🌗', 'Mood Reader', 'Hears major and minor'], ['🎯', 'Test A Starter', 'Plays back five notes, exam style'], ['🎹', 'Test A Player', 'Plays back six notes'], ['⭐', 'Week 4 Star', 'Finished week 4']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 4 listening card', skills: { mode: 'Major or minor', echo: 'Playing back (Test A style)' },
@@ -550,12 +596,12 @@ const T = {
         { t: 'Find the note from home', d: 'Hear C, then one note. Find it among C D E F G, then up to the next C.' },
         { t: 'Which rhythm?', d: 'Two bars on one note. Pick the picture that matches. First in 2 time, then 3 time too.' },
         { t: 'Five-note tunes', d: 'The exam’s play-back, step by step: four notes to warm up, then five.' },
-        { t: 'Week 3 check', d: 'Notes from home, rhythms, beats, play-back and one change to spot.' }
+        { t: 'Week 3 challenge', d: 'Notes from home, rhythms, beats, play-back and one change to spot.' }
       ],
-      seg: { tonic: 'Note from home', rhythm: 'Which rhythm', echo: 'Play it back', quiz: 'Week 3 check', meter: 'Strong beat', same: 'Same or different' },
+      seg: { tonic: 'Note from home', rhythm: 'Which rhythm', echo: 'Play it back', quiz: 'Week 3 challenge', meter: 'Strong beat', same: 'Same or different' },
       hi: ['Week 3! C is home. Ready?', 'Rhythm time. Tap your knee along!', 'Five notes now. You can do it!', 'Last stop this week. Ready?'],
       dTitle: ['You can find a note from home', 'You can match a rhythm', 'You can play back five notes', 'Week 3 complete'],
-      dNote: ['Next time: rhythms you can see.', 'Next time: five-note tunes.', 'One more stop: the week 3 check.', 'Your week 3 card is ready on the week page.'],
+      dNote: ['Next time: rhythms you can see.', 'Next time: five-note tunes.', 'One more stop: the week 3 challenge.', 'Your week 3 card is ready on the week page.'],
       stickers: [['🏠', 'Home Finder', 'Finds a note from home'], ['🥢', 'Rhythm Matcher', 'Matches a rhythm to its picture'], ['🎹', 'Echo Player', 'Plays back five notes'], ['🌈', 'Week 3 Star', 'Finished week 3']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 3 listening card', skills: { tonic: 'Finding a note from home', rhythm: 'Matching a rhythm', echo: 'Playing back five notes' },
@@ -570,12 +616,12 @@ const T = {
         { t: 'Find the strong beat', d: 'A short tune with a low note on every strong beat. Is it in 2 or 3 time? Then 4 joins in.' },
         { t: 'Remember the shape', d: 'Four notes, eight possible shapes. Then play a four-note tune back.' },
         { t: '2, 3 or 4 time?', d: 'Exam style: lighter accents and some quicker notes. Count from the strong beat.' },
-        { t: 'Week 2 check', d: 'A short check of the whole week: beats, shapes and playing back.' }
+        { t: 'Week 2 challenge', d: 'A short check of the whole week: beats, shapes and playing back.' }
       ],
-      seg: { meter: 'Strong beat', contour: 'Which shape', echo: 'Play it back', quiz: 'Week 2 check', same: 'Same or different' },
+      seg: { meter: 'Strong beat', contour: 'Which shape', echo: 'Play it back', quiz: 'Week 2 challenge', same: 'Same or different' },
       hi: ['Week 2! Can you find the strong beat?', 'Ears on: four notes this time.', 'Exam style today. Count from the strong beat!', 'Last stop this week. Ready?'],
       dTitle: ['You can find the strong beat', 'You can remember a four-note tune', 'You can tell 2, 3 and 4 time apart', 'Week 2 complete'],
-      dNote: ['Next time: remember a four-note tune.', 'Next time: 2, 3 or 4 time, exam style.', 'One more stop: the week 2 check.', 'Your week 2 card is ready on the week page.'],
+      dNote: ['Next time: remember a four-note tune.', 'Next time: 2, 3 or 4 time, exam style.', 'One more stop: the week 2 challenge.', 'Your week 2 card is ready on the week page.'],
       stickers: [['🥁', 'Beat Finder', 'Finds the strong beat'], ['🧠', 'Tune Keeper', 'Remembers a four-note tune'], ['🎼', 'Time Teller', 'Tells 2, 3 and 4 time apart'], ['🏅', 'Week 2 Star', 'Finished week 2']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 2 listening card', skills: { meter: '2, 3 or 4 time', contour: 'Shape of a four-note tune', echo: 'Playing back four notes' },
@@ -611,6 +657,13 @@ const T = {
     wrongEcho: 'Your notes in orange, the tune in green. Hear yours, then the tune.',
     sExamR: (b, k) => 'Like the exam: ' + k + '. The key chord and starting note, two bars counted in, then a ' + b + '-bar tune played twice. Play it back with its rhythm: notes and rhythm both count.',
     keyA: { C: 'C major', G: 'G major', F: 'F major', D: 'D major', A: 'A major', Bb: 'B♭ major', Eb: 'E♭ major', am: 'A minor', em: 'E minor', dm: 'D minor', bm: 'B minor', gm: 'G minor', cm: 'C minor' },
+    vizLoud: 'Basso’s volume meter', vizBeat: 'Basso’s beat ruler: each dot is a beat (closer = faster)', vizLen: 'Note lengths in the tune', vizKey: 'The home chord', vizHome: 'home', vizMaj3: 'major 3rd (bright)', vizMin3: 'minor 3rd (darker)', vizFifth: '5th', vizStart: 'start', vizEnd: 'end', featRight: n => 'Yes: ' + n.toLowerCase() + '. Here’s what Basso measured.',
+    tryTricky: '🎯 Just the tricky bit', allTogether: 'Great. Now let’s put it all together.', wholeThing: '▶ Now the whole thing', progressLine: (a, b, n) => (a ? a + (a === 1 ? ' note' : ' notes') + ', now ' : 'Now ') + (b === n ? 'all ' + n + '. Hear how much you’ve improved?' : b + ' of ' + n + '. Getting there!'),
+    whatNext: 'Nice work! What should we do next?', chChallenge: 'One more challenge', chAgain: 'Beat my last try', chHelp: 'Help Basso', chDone: 'I’m done for today',
+    challengeHi: 'Three trickier ones. Ready?', challengeEyebrow: 'Extra challenge', challengeDone: (r, n) => r + ' of ' + n + ' trickier ones!',
+    helpHi: 'Basso needs your ears today.', helpEyebrow: 'Helping Basso', helpDone: (r, n) => 'You helped Basso ' + r + ' of ' + n + ' times!',
+    helpAsk: g => 'Basso thinks: “' + g + '”… but he isn’t sure. Can you help him?', helpSub: 'Listen, then pick the answer you hear. Agree with Basso, or show him the right one.', bassoGuess: 'Basso’s guess', thisShape: 'this shape',
+    helpAgree: 'We agree! Basso’s ears and yours.', helpSaved: 'You saved me! I was listening for the wrong thing.',
     cueGet: 'Get ready…', cueListen: 'Listening…', cueTapNow: 'Tap along now!', cueTurn: ty => ty === 'sight' || ty === 'singmatch' ? 'Your turn: sing!' : ty === 'echo' ? 'Your turn: play it back' : ty === 'taprhythm' ? 'Your turn: tap it back' : 'Your turn',
     tryOne: '↻ Try a similar one', practiceOk: 'Yes! You heard it this time.',
     wrongEchoRh: 'All the notes were right. The rhythm was a little different: here are your taps and the real rhythm.',
@@ -644,7 +697,7 @@ const T = {
     L: [
       { t: '高还是低', d: '两个音，第二个是往上还是往下？从相隔很远，到相邻的两个音。' },
       { t: '旋律往哪走', d: '三个音、四种形状。最后在琴键上弹回一句三个音的旋律。' },
-      { t: '一样还是不一样', d: '同一句旋律听两遍，找出变化。最后是整周的小测。' },
+      { t: '一样还是不一样', d: '同一句旋律听两遍，找出变化。最后是整周的挑战。' },
       { t: '音高还是节奏？', d: '考试题型：一句旋律听两遍，有一处变化，变的是音高还是节奏？每次答错都会讲清楚，再换一道新题试试。' }
     ],
     start: '开始', again: '再做一次', locked: '先完成第 ', doneTag: (c, n) => '对了 ' + c + ' / ' + n,
@@ -655,7 +708,7 @@ const T = {
     home: 'Dottino 首页', privacy: '隐私', keep: '进度只保存在这个浏览器里，换设备或清除浏览器数据后无法恢复。Dottino 是独立开发的听力训练软件，与 ABRSM 没有隶属关系，也未获得其认可。',
     exit: '退出', replay: '▶ 再听一次', slow: '🐢 放慢', next: '下一题', finish: '看看结果',
     up: '更高', down: '更低', same: '一样', diff: '不一样', front: '靠前', back: '靠后',
-    seg: { intro: '热身', hl: '高还是低', find: '找出那个音', contour: '哪种形状', echo: '弹回来', same: '一样还是不一样', change: '找出变化', quiz: '第 1 周小测' },
+    seg: { intro: '热身', hl: '高还是低', find: '找出那个音', contour: '哪种形状', echo: '弹回来', same: '一样还是不一样', change: '找出变化', quiz: '第 1 周挑战' },
     pMeter: '是 2 拍、3 拍还是 4 拍？', pMeter2: '是 2 拍还是 3 拍？', sMeter: '找到下面有低音的那个强拍，从它开始数：数到几，强拍又回来了？',
     timeOf: k => k + ' 拍', wrongMeter: (k, c) => '是 ' + k + ' 拍子：' + Array.from({ length: k }, (x, i) => i ? String(i + 1) : '强').join(' ') + '，' + Array.from({ length: k }, (x, i) => i ? String(i + 1) : '强').join(' ') + '。再听一遍，这次每一拍都有提示音。',
     hearCount: '▶ 带着数拍再听一遍', sEcho4: '四个音，大多是级进，有一处小跳。按顺序按琴键。', sEcho5: '五个音，都在 C 到 G 之间。需要的话先再听一遍。',
@@ -679,12 +732,12 @@ const T = {
         { t: '跟着拍子拍', d: '音乐响起时稳稳地拍，然后说出 2、3 还是 4 拍。' },
         { t: '把节奏拍回来', d: '听两小节节奏，再拍回来：每个音拍一下。' },
         { t: '更难的节奏', d: '加入附点节奏。先选图，再拍回来。' },
-        { t: '第 5 周小测', d: '拍子、节奏、几拍子、弹回旋律和大调小调。' }
+        { t: '第 5 周挑战', d: '拍子、节奏、几拍子、弹回旋律和大调小调。' }
       ],
-      seg: { tapbeat: '跟着拍子拍', taprhythm: '拍回节奏', rhythm: '哪种节奏', quiz: '第 5 周小测', meter: '找强拍', echo: '弹回来', mode: '大调还是小调' },
+      seg: { tapbeat: '跟着拍子拍', taprhythm: '拍回节奏', rhythm: '哪种节奏', quiz: '第 5 周挑战', meter: '找强拍', echo: '弹回来', mode: '大调还是小调' },
       hi: ['第 5 周！像钟表一样跟着拍。', '节奏回声：先听，再拍！', '附点节奏：长—短，长—短！', '本周最后一站，准备好了吗？'],
       dTitle: ['你能稳稳地拍出拍子了', '你能把节奏拍回来了', '你能拍附点节奏了', '第 5 周完成'],
-      dNote: ['下一站：把节奏拍回来。', '下一站：附点节奏。', '还有一站：第 5 周小测。', '第 5 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：把节奏拍回来。', '下一站：附点节奏。', '还有一站：第 5 周挑战。', '第 5 周听力卡已经放在本周页面上。'],
       stickers: [['⏱️', '稳定节拍器', '拍得出稳定的拍子'], ['👏', '节奏回声', '能把节奏拍回来'], ['🎵', '附点高手', '能拍附点节奏'], ['⭐', '第 5 周之星', '完成了第 5 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 5 周听力卡', skills: { tapbeat: '跟拍 + 判断几拍子', taprhythm: '拍回节奏', rhythm: '听出节奏' },
@@ -698,12 +751,12 @@ const T = {
         { t: '强弱和连断', d: '力度和奏法：渐强还是渐弱，连奏还是断奏。' },
         { t: '速度和调性', d: '速度有没有变？在整段音乐里听大调小调。' },
         { t: '是什么造就了它的性格？', d: '选出情绪和理由，学会考试时怎么说。' },
-        { t: '第 6 周小测', d: '考试形式：特点题、性格题，再拍一段节奏。' }
+        { t: '第 6 周挑战', d: '考试形式：特点题、性格题，再拍一段节奏。' }
       ],
-      seg: { feat: '音乐特点', char: '音乐性格', quiz: '第 6 周小测', taprhythm: '拍回节奏', meter: '找强拍' },
+      seg: { feat: '音乐特点', char: '音乐性格', quiz: '第 6 周挑战', taprhythm: '拍回节奏', meter: '找强拍' },
       hi: ['第 6 周！像考官一样听。', '速度和调性，耳朵准备好了吗？', '来说说音乐的情绪吧。', '本周最后一站，准备好了吗？'],
       dTitle: ['你能听出力度和奏法了', '你能听出速度和调性了', '你能说出音乐的性格了', '第 6 周完成'],
-      dNote: ['下一站：速度和调性。', '下一站：描述音乐性格。', '还有一站：第 6 周小测。', '第 6 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：速度和调性。', '下一站：描述音乐性格。', '还有一站：第 6 周挑战。', '第 6 周听力卡已经放在本周页面上。'],
       stickers: [['🔊', '力度耳朵', '听得出渐强渐弱'], ['⏩', '速度耳朵', '听得出速度变化'], ['🎭', '性格评论家', '能说出音乐的情绪'], ['⭐', '第 6 周之星', '完成了第 6 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 6 周听力卡', skills: { feat: '力度、奏法、速度、调性', char: '描述音乐性格（带理由）' },
@@ -734,12 +787,12 @@ const T = {
         { t: '唱回一个音', d: '用声音模仿单个音，再读第一组五个音。' },
         { t: 'C 大调五个音', d: '级进和三度小跳，从主音开始、到主音结束。' },
         { t: 'F 大调和 G 大调', d: '带降 B 或升 F 的新调，高音谱号或低音谱号。' },
-        { t: '第 7 周小测', d: '考试形式：三道视唱，加上 A 题和 C 题复习。' }
+        { t: '第 7 周挑战', d: '考试形式：三道视唱，加上 A 题和 C 题复习。' }
       ],
-      seg: { singmatch: '唱回一个音', sight: '视唱', quiz: '第 7 周小测', echo: '弹回来', feat: '音乐特点', char: '音乐性格', taprhythm: '拍回节奏', meter: '找强拍', tonic: '找出那个音' },
+      seg: { singmatch: '唱回一个音', sight: '视唱', quiz: '第 7 周挑战', echo: '弹回来', feat: '音乐特点', char: '音乐性格', taprhythm: '拍回节奏', meter: '找强拍', tonic: '找出那个音' },
       hi: ['第 7 周！先开开嗓。', '五个音，从主音出发。', '今天有新调！', '本周最后一站，准备好了吗？'],
       dTitle: ['你能用声音唱准一个音了', '你能唱 C 大调五个音了', '你能唱 F 大调和 G 大调了', '第 7 周完成'],
-      dNote: ['下一站：C 大调五个音。', '下一站：F 大调和 G 大调。', '还有一站：第 7 周小测。', '第 7 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：C 大调五个音。', '下一站：F 大调和 G 大调。', '还有一站：第 7 周挑战。', '第 7 周听力卡已经放在本周页面上。'],
       stickers: [['🎤', '音准模仿', '能唱回一个音'], ['🎼', '读谱能手', '能唱 C 大调五个音'], ['🗝️', '调性探险家', '能唱 F 和 G 大调'], ['⭐', '第 7 周之星', '完成了第 7 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 7 周听力卡', skills: { sight: '视唱五个音（演唱）', sightkeys: '读五个音（点琴键，没有唱）', singmatch: '用声音唱准一个音', tonic: '从主音找音（没有麦克风）' },
@@ -796,12 +849,12 @@ const T = {
         { t: '大调还是小调？', d: '先听主和弦，再听一小段旋律，明亮还是暗一些？弹回小调旋律之前要先会听这个。' },
         { t: '弹回五个音', d: '主和弦、第一个音、旋律弹两遍，然后弹回来。C 大调和 a 小调。' },
         { t: '带节奏的旋律', d: '两小节，有数拍预备，新的调。音和节奏都要弹回来，和真正的 A 题一样。' },
-        { t: '第 4 周小测', d: 'A 题式的弹回、大调小调，再加两项前几周的能力。' }
+        { t: '第 4 周挑战', d: 'A 题式的弹回、大调小调，再加两项前几周的能力。' }
       ],
-      seg: { mode: '大调还是小调', echo: '弹回来', quiz: '第 4 周小测', meter: '找强拍', same: '一样还是不一样' },
+      seg: { mode: '大调还是小调', echo: '弹回来', quiz: '第 4 周挑战', meter: '找强拍', same: '一样还是不一样' },
       hi: ['第 4 周：考试题型！大调还是小调？', '主和弦、第一个音、听两遍，准备好了吗？', '这次有节奏了，跟着预备拍感受一下！', '本周最后一站，准备好了吗？'],
       dTitle: ['你能听出大调和小调了', '你能按考试方式弹回五个音了', '你能连节奏一起弹回旋律了', '第 4 周完成'],
-      dNote: ['下一站：A 题式的弹回。', '下一站：六个音的旋律。', '还有一站：第 4 周小测。', '第 4 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：A 题式的弹回。', '下一站：六个音的旋律。', '还有一站：第 4 周挑战。', '第 4 周听力卡已经放在本周页面上。'],
       stickers: [['🌗', '情绪聆听者', '听得出大调和小调'], ['🎯', 'A 题入门', '能按考试方式弹回五个音'], ['🎹', 'A 题高手', '能弹回六个音'], ['⭐', '第 4 周之星', '完成了第 4 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 4 周听力卡', skills: { mode: '大调还是小调', echo: '弹回旋律（A 题方式）' },
@@ -816,12 +869,12 @@ const T = {
         { t: '从主音找音', d: '先听 C，再听一个音，在 C D E F G 里找到它，之后扩展到高音 C。' },
         { t: '哪种节奏？', d: '同一个音的两小节节奏，选出一样的那张图。先是 2 拍，再加入 3 拍。' },
         { t: '五个音的旋律', d: '考试里的弹回旋律，一步一步来：先四个音热身，再五个音。' },
-        { t: '第 3 周小测', d: '从主音找音、节奏、拍子、弹回旋律，还有一道找变化。' }
+        { t: '第 3 周挑战', d: '从主音找音、节奏、拍子、弹回旋律，还有一道找变化。' }
       ],
-      seg: { tonic: '从主音找音', rhythm: '哪种节奏', echo: '弹回来', quiz: '第 3 周小测', meter: '找强拍', same: '一样还是不一样' },
+      seg: { tonic: '从主音找音', rhythm: '哪种节奏', echo: '弹回来', quiz: '第 3 周挑战', meter: '找强拍', same: '一样还是不一样' },
       hi: ['第 3 周！C 是家，准备好了吗？', '节奏时间，在腿上跟着拍！', '这次五个音，你可以的！', '本周最后一站，准备好了吗？'],
       dTitle: ['你能从主音找到音了', '你能认出节奏了', '你能弹回五个音的旋律了', '第 3 周完成'],
-      dNote: ['下一站：看得见的节奏。', '下一站：五个音的旋律。', '还有一站：第 3 周小测。', '第 3 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：看得见的节奏。', '下一站：五个音的旋律。', '还有一站：第 3 周挑战。', '第 3 周听力卡已经放在本周页面上。'],
       stickers: [['🏠', '找家高手', '能从主音找到音'], ['🥢', '节奏配对王', '能把节奏和图对上'], ['🎹', '回声演奏家', '能弹回五个音'], ['🌈', '第 3 周之星', '完成了第 3 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 3 周听力卡', skills: { tonic: '从主音找音', rhythm: '认出节奏', echo: '弹回五个音' },
@@ -836,12 +889,12 @@ const T = {
         { t: '找到强拍', d: '一小段旋律，每个强拍下面都有低音。是 2 拍还是 3 拍？之后加入 4 拍。' },
         { t: '记住形状', d: '四个音、八种形状。最后把一句四个音的旋律弹回来。' },
         { t: '2 拍、3 拍还是 4 拍？', d: '考试题型：重音更轻，还有一些快一点的音。从强拍开始数。' },
-        { t: '第 2 周小测', d: '整周的小测：拍子、形状和弹回旋律。' }
+        { t: '第 2 周挑战', d: '整周的挑战：拍子、形状和弹回旋律。' }
       ],
-      seg: { meter: '找强拍', contour: '哪种形状', echo: '弹回来', quiz: '第 2 周小测', same: '一样还是不一样' },
+      seg: { meter: '找强拍', contour: '哪种形状', echo: '弹回来', quiz: '第 2 周挑战', same: '一样还是不一样' },
       hi: ['第 2 周！能找到强拍吗？', '竖起耳朵：这次是四个音。', '今天是考试题型，从强拍开始数！', '本周最后一站，准备好了吗？'],
       dTitle: ['你能找到强拍了', '你能记住四个音的旋律了', '你能分清 2、3、4 拍了', '第 2 周完成'],
-      dNote: ['下一站：记住四个音的旋律。', '下一站：考试题型，2、3 还是 4 拍。', '还有一站：第 2 周小测。', '第 2 周听力卡已经放在本周页面上。'],
+      dNote: ['下一站：记住四个音的旋律。', '下一站：考试题型，2、3 还是 4 拍。', '还有一站：第 2 周挑战。', '第 2 周听力卡已经放在本周页面上。'],
       stickers: [['🥁', '强拍侦探', '找得到强拍'], ['🧠', '旋律记忆王', '记得住四个音的旋律'], ['🎼', '拍子分辨师', '分得清 2、3、4 拍'], ['🏅', '第 2 周之星', '完成了第 2 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 2 周听力卡', skills: { meter: '2、3 还是 4 拍', contour: '四个音的旋律形状', echo: '弹回四个音' },
@@ -877,6 +930,13 @@ const T = {
     wrongEcho: '橙色是你弹的，绿色是原来的旋律。先听你的，再听原来的。',
     sExamR: (b, k) => '和考试一样：' + k + '。先听主和弦和起始音，数两小节预备拍，再听一段 ' + b + ' 小节的旋律，弹两遍。连节奏一起弹回来：音和节奏都算分。',
     keyA: { C: 'C 大调', G: 'G 大调', F: 'F 大调', D: 'D 大调', A: 'A 大调', Bb: '降 B 大调', Eb: '降 E 大调', am: 'a 小调', em: 'e 小调', dm: 'd 小调', bm: 'b 小调', gm: 'g 小调', cm: 'c 小调' },
+    vizLoud: 'Basso 的音量仪', vizBeat: 'Basso 的节拍尺：每个点是一拍（越密越快）', vizLen: '旋律里每个音的长短', vizKey: '主和弦', vizHome: '主音', vizMaj3: '大三度（明亮）', vizMin3: '小三度（暗一些）', vizFifth: '五度', vizStart: '开头', vizEnd: '结尾', featRight: n => '对：' + n + '。来看看 Basso 量到了什么。',
+    tryTricky: '🎯 只练卡住的那一段', allTogether: '很好！现在把整段连起来试试。', wholeThing: '▶ 现在完整来一次', progressLine: (a, b, n) => (a ? '先是 ' + a + ' 个，现在' : '现在') + (b === n ? n + ' 个全对了。听到自己的进步了吗？' : '对了 ' + b + ' 个，越来越好！'),
+    whatNext: '真棒！接下来做什么？', chChallenge: '再来一个挑战', chAgain: '挑战刚才的成绩', chHelp: '帮帮 Basso', chDone: '今天就到这里',
+    challengeHi: '三道更难的，准备好了吗？', challengeEyebrow: '额外挑战', challengeDone: (r, n) => n + ' 道难题答对 ' + r + ' 道！',
+    helpHi: '今天 Basso 需要借你的耳朵。', helpEyebrow: '帮帮 Basso', helpDone: (r, n) => '你帮了 Basso ' + r + ' 次（共 ' + n + ' 次）！',
+    helpAsk: g => 'Basso 觉得是「' + g + '」……但他不太确定。你能帮帮他吗？', helpSub: '先听，再选出你听到的答案。同意 Basso，或者告诉他正确的。', bassoGuess: 'Basso 的猜测', thisShape: '这个形状',
+    helpAgree: '我们想的一样！', helpSaved: '你救了我！我刚才听错地方了。',
     cueGet: '准备…', cueListen: '正在播放…', cueTapNow: '现在跟着拍！', cueTurn: ty => ty === 'sight' || ty === 'singmatch' ? '轮到你：唱吧！' : ty === 'echo' ? '轮到你：弹回来' : ty === 'taprhythm' ? '轮到你：拍回来' : '轮到你了',
     tryOne: '↻ 同类再来一题', practiceOk: '对了！这次你听出来了。',
     wrongEchoRh: '音全对了，节奏有点不一样：下面是你按的节奏和原来的节奏。',
@@ -1452,6 +1512,25 @@ function judgeEchoR(q) {
   const rhythmOk = worst < 0.25; // a quarter of a beat: enough to tell even notes from long-short
   judge(pitchOk && rhythmOk, { pitchOk, rhythmOk, got });
 }
+// Basso's tools: what the feature looked like, shown after the answer
+function featViz(q) {
+  const p = q.piece, T_ = t(), W = 320, H = 86;
+  let body = '', title = '';
+  if (q.aspect === 'dyn') {
+    title = T_.vizLoud; const n = 16;
+    for (let i = 0; i < n; i++) { const tt = (i + 0.5) / n * p.T, v = dynAt(p, tt), h = 10 + v * 58, x = 8 + i * (W - 16) / n; const hot = (p.dyn === 'fp' || p.dyn === 'pf') && (i === n / 2 || i === n / 2 - 1); body += `<rect x="${x.toFixed(1)}" y="${(70 - h).toFixed(1)}" width="${((W - 16) / n - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${hot ? 'var(--coral)' : 'var(--ink)'}" opacity="${hot ? 1 : 0.45 + v * 0.5}"/>`; }
+  } else if (q.aspect === 'tempo') {
+    title = T_.vizBeat; const clk = pieceClock(p), tot = clk(p.T);
+    for (let b = 0; b <= p.T; b++) { const x = 10 + clk(b) / tot * (W - 20); body += `<circle cx="${x.toFixed(1)}" cy="38" r="${b % p.k === 0 ? 7 : 4.5}" fill="var(--ink)" opacity="${b % p.k === 0 ? 0.9 : 0.55}"/>`; }
+  } else if (q.aspect === 'art') {
+    title = T_.vizLen; const mel = p.ev.filter(e => e.mel).slice(0, 12), t0 = mel.length ? mel[0].t : 0, t1 = mel.length ? mel[mel.length - 1].t + mel[mel.length - 1].d : 1;
+    mel.forEach(e => { const x = 8 + (e.t - t0) / (t1 - t0) * (W - 16), w = Math.max(4, (p.art === 'staccato' ? Math.min(e.d * 0.35, 0.3) : e.d) / (t1 - t0) * (W - 16) - (p.art === 'staccato' ? 0 : 1)), y = 64 - ((e.m % 24) / 24) * 44; body += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="9" rx="4.5" fill="var(--ink)" opacity=".75"/>`; });
+  } else { // tonality: the home chord, with its middle note
+    title = T_.vizKey; const third = p.minor ? 3 : 4; [0, third, 7].forEach((st, i) => { const x = 70 + i * 90, y = 64 - st * 6; body += `<circle cx="${x}" cy="${y}" r="13" fill="${i === 1 ? 'var(--coral)' : 'var(--ink)'}"/><text x="${x}" y="82" text-anchor="middle" font-size="12" fill="var(--muted)">${i === 0 ? T_.vizHome : i === 1 ? (p.minor ? T_.vizMin3 : T_.vizMaj3) : T_.vizFifth}</text>`; });
+  }
+  const ends = q.aspect === 'ton' ? '' : `<text x="8" y="84" font-size="11" fill="var(--muted)">${T_.vizStart}</text><text x="${W - 8}" y="84" text-anchor="end" font-size="11" fill="var(--muted)">${T_.vizEnd}</text>`;
+  return `<div class="viz"><b>🔎 ${title}</b><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">${body}${ends}</svg></div>`;
+}
 // a feature question about a given piece (exam: the same piece for the feature and the character question)
 function featFrom(pc) {
   const aspects = ['art', 'ton', 'tempo'].concat(['cresc', 'dim', 'fp', 'pf'].includes(pc.dyn) ? ['dyn'] : []), a = pick(aspects);
@@ -1653,7 +1732,22 @@ function clip(name, loop) {
   try { c.currentTime = 0; const pr = c.play(); if (pr && pr.catch) pr.catch(() => { /* autoplay blocked: the poster stays */ }); } catch (e) { /* ignore */ }
   return true;
 }
+let vbMood = 'idle', vbT = null;
+function basso(state) {
+  const el = $('vb'); if (!el) return;
+  clearTimeout(vbT);
+  if (['correct', 'search', 'found', 'celebrate'].includes(state)) { el.dataset.state = state; vbT = setTimeout(() => { el.dataset.state = vbMood; }, state === 'search' ? 1600 : 1100); }
+  else { vbMood = state; el.dataset.state = state; }
+}
+function bassoLook(x, y) { const g = document.querySelector('#vb .vb-gaze'); if (!g) return; g.style.transform = `translate(${((Math.max(0, Math.min(1, x)) - 0.5) * 14).toFixed(1)}px, ${((Math.max(0, Math.min(1, y == null ? 0.7 : y)) - 0.5) * 8).toFixed(1)}px)`; clearTimeout(bassoLook.t); bassoLook.t = setTimeout(() => { g.style.transform = ''; }, 1400); }
 function say(img, text, bounce, clipName, loop) {
+  if ($('vb')) { // the vector Basso: moods instead of clips
+    const exam = L && L.seg && L.seg.exam && !L.reviewing;
+    const st = exam ? null : (img === 'party' || clipName === 'party' || clipName === 'party2') ? 'celebrate' : img === 'think' ? 'search' : (clipName === 'happy' || clipName === 'cheer' || bounce) && img !== 'wave' ? 'correct' : (clipName === 'happy' || clipName === 'cheer') ? 'correct' : null;
+    if (st) basso(st);
+    $('b-say').textContent = text;
+    return;
+  }
   const i = $('b-img'), v = $('b-vid'), ey = document.querySelector('.beyes'), iv = $('b-idle');
   // Basso has just peeked in to say hello: keep him there for the next friendly line instead of swapping back
   const cc = $('b-clip');
@@ -1674,6 +1768,21 @@ function say(img, text, bounce, clipName, loop) {
   $('b-say').textContent = text;
 }
 function toast(text) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = text; document.body.appendChild(d); setTimeout(() => d.remove(), 1900); }
+// musical rewards, only after the answer: rhythm → light percussion, singing/playing back → a soft cadence in the key, a run of three → Basso's motif
+function wood(when, hi) { if (!ctx) return; const t0 = ctx.currentTime + when, o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.setValueAtTime(hi ? 1500 : 1100, t0); o.frequency.exponentialRampToValueAtTime(hi ? 900 : 700, t0 + 0.05); f.type = 'bandpass'; f.frequency.value = hi ? 1400 : 1000; g.gain.setValueAtTime(0.32, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.09); o.connect(f); f.connect(g); g.connect(outBus()); o.start(t0); o.stop(t0 + 0.1); }
+function reward(q) {
+  const ty = q && q.type;
+  if (['rhythm', 'taprhythm', 'tapbeat', 'meter'].includes(ty)) { wood(0.03, false); wood(0.17, true); return; }
+  if (['sight', 'singmatch', 'echo'].includes(ty)) {
+    const home = ty === 'echo' ? (q.chord ? q.chord[0] : q.notes[q.notes.length - 1]) : ty === 'sight' ? (q.homeMidi || q.notes[0]) : q.target;
+    const h = 48 + ((home % 12) + 12) % 12, minor = !!q.minor;
+    [h + 7, h + 11, h + 14].forEach(m => play(m + 12, 0.05, 0.28, false, 0.5));
+    [h, h + (minor ? 3 : 4), h + 7].forEach(m => play(m + 12, 0.55, 0.3, false, 1.1)); play(h, 0.55, 0.3, false, 1.1);
+    return;
+  }
+  chime(false);
+}
+function motif() { [72, 76, 79, 84].forEach((m, i) => play(m, 0.04 + i * 0.11, 0.32, false, i === 3 ? 0.9 : 0.25)); }
 function chime(big) { play(79, 0.02, 0.28); play(84, 0.12, 0.28); if (big) play(88, 0.22, 0.28); }
 const NOTE_FX = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5a3 3 0 1 1-2-2.83V4l12-2v12.5a3 3 0 1 1-2-2.83V6.2L9 7.6v10.9z" fill="currentColor"/></svg>';
 function burstFrom(el) {
@@ -1749,7 +1858,7 @@ function resetUI() {
 }
 function header() {
   const T_ = t(), g = L.seg;
-  $('l-title').textContent = T_.stop(L.n + 1) + ' · ' + T_.L[L.n].t;
+  $('l-title').textContent = L.mini ? (L.mini === 'help' ? T_.helpEyebrow : T_.challengeEyebrow) : T_.stop(L.n + 1) + ' · ' + T_.L[L.n].t;
   $('l-stage').textContent = g.type === 'same' && g.level >= 1 ? T_.seg.change : T_.seg[g.type];
   const lvName = (g.type === 'hl' && !g.fixed) ? T_.hlLv[g.lv] : (g.type === 'contour' && !g.fixed) ? T_.ctLv[g.lv] : '';
   $('l-level').textContent = lvName ? T_.level(lvName) : '';
@@ -1788,8 +1897,9 @@ function ask() {
   else q = makeQ(g.type === 'singmatch' && !S.sing ? 'tonic' : g.type, g.type === 'singmatch' && !S.sing ? 1 : g.lv, g.aspect);
   L.retry = null;
   L.q = q; L.answered = false; L.lastPick = null;
-  renderQ(); examUI(); cueThen(q, () => { playQ(); watchTurn(q); });
-  if (!calm && !clipBroken) { clip('listen', true); ['b-vid', 'b-idle', 'b-img'].forEach(id => { $(id).hidden = true; }); document.querySelector('.beyes').style.display = 'none'; }
+  if (g.help && !q.help) helpGuess(q);
+  renderQ(); examUI(); helpUI(); cueThen(q, () => { playQ(); watchTurn(q); });
+  if (!$('vb') && !calm && !clipBroken) { clip('listen', true); ['b-vid', 'b-idle', 'b-img'].forEach(id => { $(id).hidden = true; }); document.querySelector('.beyes').style.display = 'none'; }
 }
 function showReview() {
   stopAudio(); stopListen(); L.reviewShown = true; L.reviewing = true; L.reviewItem = null;
@@ -1803,14 +1913,48 @@ function showReview() {
   $('btn-next').textContent = T_.finish; $('next-row').hidden = false;
   say(right === L.review.length ? 'party' : 'wave', T_.revSay, true);
 }
+function helpGuess(q) {
+  const vals = q.type === 'feat' ? q.opts : q.type === 'char' ? q.options.map(o => o.id) : q.type === 'meter' ? (q.level === 0 ? [2, 3] : [2, 3, 4]).map(String) : q.type === 'mode' ? ['major', 'minor'] : q.type === 'contour' ? q.shapes : null;
+  if (!vals) return; const right = String(q.type === 'feat' ? q.ans : q.type === 'char' ? q.c : q.type === 'meter' ? q.k : q.type === 'mode' ? (q.minor ? 'minor' : 'major') : q.shape);
+  q.help = Math.random() < 0.5 ? right : pick(vals.filter(v => String(v) !== right).map(String));
+  q.helpRight = q.help === right;
+}
+function helpLabel(q) { const T_ = t(), v = q.help; return q.type === 'feat' ? T_.featName[v] : q.type === 'char' ? T_.charName[(q.options.find(o => o.id === v) || {}).c] : q.type === 'meter' ? T_.timeOf(+v) : q.type === 'mode' ? T_[v] : T_.thisShape; }
+function freshCopy(q) { return Object.assign({}, q, { got: [], tapT: q.tapT ? [] : undefined, taps: [], idx: 0, missed: [], done: [], over: false, ready: false, tricky: false }); }
+function practise(nq) { L.practice = true; L.q = nq; L.answered = false; L.lastPick = null; renderQ(); cueThen(nq, () => { playQ(); watchTurn(nq); }); }
+// just the part that went wrong: one bar of rhythm, three notes of a tune, or one step of the sight-singing
+function trickyFor(q, info) {
+  const barOf = (pattern, idx) => { const bars = pattern.split(',|,'); let n = 0; for (let b = 0; b < bars.length; b++) { const c = bars[b].split(',').length; if (idx < n + c) return { b, from: n, pat: bars[b] }; n += c; } return { b: 0, from: 0, pat: bars[0] }; };
+  if (q.type === 'taprhythm' || (q.type === 'echo' && q.rhythm && info.pitchOk)) {
+    const want = onsetsOf(q.pattern); let idx = 0;
+    if (info.got) { idx = want.findIndex((w, i) => Math.abs(w - info.got[i]) >= 0.25); if (idx < 0) idx = 0; } else idx = 0;
+    const bb = barOf(q.pattern, idx), n = bb.pat.split(',').length, notes = q.notes ? q.notes.slice(bb.from, bb.from + n) : null;
+    if (n < 2) return null;
+    return { type: 'taprhythm', k: q.k, pattern: bb.pat, notes, level: q.level, taps: [], tricky: true, sec: q.sec };
+  }
+  if (q.type === 'echo' && q.got) {
+    let idx = q.got.findIndex((m, i) => m !== q.notes[i]); if (idx < 0) return null;
+    const st = Math.max(0, Math.min(idx - 1, q.notes.length - 3)), notes = q.notes.slice(st, st + 3);
+    return Object.assign({}, q, { notes, durs: undefined, pattern: undefined, rhythm: false, given: notes[0], got: [], tapT: undefined, tricky: true });
+  }
+  if (q.type === 'sight') {
+    const idx = q.missed.findIndex(Boolean); if (idx < 1) return null;
+    const steps = [q.steps[idx - 1], q.steps[idx]];
+    return Object.assign({}, q, { steps, notes: steps.map(ds => midiOfStep(ds, q.key)), homeMidi: q.homeMidi || q.notes[0], idx: 0, missed: [], done: [], over: false, ready: false, tricky: true });
+  }
+  return null;
+}
 function offerSimilar(q) {
   if (!L || (L.seg && L.seg.exam) || L.practice || ['same', 'intro', 'find'].includes(q.type)) return;
-  addRetry(() => { const nq = makeQ(q.type === 'singmatch' && !S.sing ? 'tonic' : q.type, q.level, q.aspect); if (q.sec) nq.sec = q.sec; L.practice = true; L.q = nq; L.answered = false; L.lastPick = null; renderQ(); cueThen(nq, () => { playQ(); watchTurn(nq); }); });
+  const info = (L.lastJudge && L.lastJudge.info) || {}, tb = trickyFor(q, info);
+  if (tb) addRetry(() => { L.trickyFull = q; L.chainFirst = scoreOf(q, info); practise(tb); }, t().tryTricky);
+  addRetry(() => { const nq = makeQ(q.type === 'singmatch' && !S.sing ? 'tonic' : q.type, q.level, q.aspect); if (q.sec) nq.sec = q.sec; L.trickyFull = null; practise(nq); });
 }
-function addRetry(fn) {
+function scoreOf(q, info) { if (q.type === 'sight') return { r: q.notes.length - q.missed.filter(Boolean).length, n: q.notes.length }; if (q.type === 'echo' && q.got) return { r: q.got.filter((m, i) => m === q.notes[i]).length, n: q.notes.length }; return null; }
+function addRetry(fn, label) {
   const fb = $('fb'); if (!fb || fb.hidden) return;
   let row = fb.querySelector('.actions'); if (!row) { row = document.createElement('div'); row.className = 'actions'; fb.appendChild(row); }
-  const b = document.createElement('button'); b.className = 'btn coral sm'; b.textContent = t().tryOne; b.onclick = () => { stopAudio(); fn(); }; row.appendChild(b);
+  const b = document.createElement('button'); b.className = 'btn coral sm'; b.textContent = label || t().tryOne; b.onclick = () => { stopAudio(); fn(); }; row.appendChild(b);
 }
 function openReview(i) {
   const r = L.review[i], T_ = t();
@@ -1930,17 +2074,23 @@ function cueThen(q, go) {
 }
 function watchTurn(q) {
   const c = $('cue'); if (!c || !ctx) return;
-  const T_ = t(); c.hidden = false; c.className = 'cue on';
+  const T_ = t(); c.hidden = false; c.className = 'cue on'; if (!(L && L.seg && L.seg.exam && !L.reviewing)) basso('listen');
   c.innerHTML = '<i></i><i></i><i></i> ' + (q.type === 'tapbeat' && q.stage === 'tap' ? T_.cueTapNow : T_.cueListen);
   const tick2 = () => {
     if (!L || L.q !== q) return;
     if (L.answered) { c.hidden = true; return; }
-    if (ctx.currentTime >= audioEnd - 0.25) { c.className = 'cue turn'; c.textContent = T_.cueTurn(q.type); return; }
+    if (ctx.currentTime >= audioEnd - 0.25) { c.className = 'cue turn'; c.textContent = T_.cueTurn(q.type); if (!(L && L.seg && L.seg.exam && !L.reviewing)) basso('wait'); return; }
     cueT.push(setTimeout(tick2, 150));
   };
   cueT.push(setTimeout(tick2, 200));
 }
-function examUI() { if (!L || !L.seg || !L.seg.exam || L.reviewing) return; $('btn-replay').hidden = true; const h = $('sb-help'); if (h) h.hidden = true; }
+function helpUI() {
+  const q = L && L.q; if (!q || !q.help || L.answered) return; const T_ = t();
+  $('l-prompt').textContent = T_.helpAsk(helpLabel(q)); $('l-sub').textContent = T_.helpSub;
+  const b = $('answers').querySelector('[data-v="' + q.help + '"]'); if (b) { b.classList.add('guess'); b.insertAdjacentHTML('beforeend', `<em class="guess-tag">${T_.bassoGuess}</em>`); }
+  basso('search');
+}
+function examUI() { if (L && L.seg) basso(L.seg.exam && !L.reviewing ? 'exam' : 'idle'); if (!L || !L.seg || !L.seg.exam || L.reviewing) return; $('btn-replay').hidden = true; const h = $('sb-help'); if (h) h.hidden = true; }
 function playQ(slow) {
   stopAudio();
   const q = L.q; if (!q) return;
@@ -1948,7 +2098,7 @@ function playQ(slow) {
   if (q.type === 'feat' || q.type === 'char') { playPiece(q.piece); return; }
   if (q.type === 'singmatch') { stopListen(); play(q.target, 0.1); play(q.target, 1.0); setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 1900); return; }
   if (q.type === 'sight') {
-    stopListen(); const h = q.notes[0], ch = [h, h + (q.key === 'C' || q.key === 'F' || q.key === 'G' ? 4 : 3), h + 7];
+    stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (q.key === 'C' || q.key === 'F' || q.key === 'G' ? 4 : 3), h + 7];
     ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach(m => play(m, 1.1, 0.55)); play(h, 2.2, 0.85);
     setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
   }
@@ -1964,7 +2114,7 @@ function playQ(slow) {
 }
 function answers(list, onPick) {
   $('answers').innerHTML = list.map(([v, icon, label]) => `<button class="ans${label ? ' big' : ''}" data-v="${v}">${icon.startsWith('<svg') ? icon : '<span aria-hidden="true" style="font-size:26px">' + icon + '</span>'}${label ? '<span>' + label + '</span>' : ''}</button>`).join('');
-  $('answers').querySelectorAll('.ans').forEach(b => { b.onclick = () => { if (L.answered) return; L.lastPick = b.dataset.v; onPick(b.dataset.v); }; });
+  $('answers').querySelectorAll('.ans').forEach(b => { b.onclick = () => { if (L.answered) return; const r = $('answers').getBoundingClientRect(), rb = b.getBoundingClientRect(); bassoLook((rb.left + rb.width / 2 - r.left) / r.width, 0.9); if (navigator.vibrate) try { navigator.vibrate(8); } catch (e) { /* ignore */ } L.lastPick = b.dataset.v; onPick(b.dataset.v); }; });
 }
 function markAns(v, ok) { const b = $('answers').querySelector('[data-v="' + v + '"]'); if (b) b.classList.add(ok ? 'right' : 'wrong'); $('answers').querySelectorAll('.ans').forEach(x => { x.disabled = true; }); }
 function shapeSvg(s) {
@@ -1984,7 +2134,7 @@ function buildKeys(lo, hi, opts) {
   let html = whites.map(m => `<button class="wk${m === 60 ? ' mid' : ''}${opts.given === m ? ' given' : ''}" data-m="${m}" aria-label="${letterOf(m)}${Math.floor(m / 12) - 1}"><b>${W > 10 ? (m % 12 === 0 ? nameOf(m) : '') : nameOf(m)}</b>${W > 10 ? '' : '<span>' + (S.naming === 'solfege' ? letterOf(m) : SOLF[letterOf(m)]) + '</span>'}</button>`).join('');
   whites.forEach((m, i) => { if (i < W - 1 && whites[i + 1] - m === 2) { const st = `left:${((i + 1) / W * 100).toFixed(3)}%;width:${(58 / W).toFixed(2)}%`; html += opts.blacks ? `<button class="bk on" data-m="${m + 1}" style="${st}" aria-label="${letterOf(m + 1)}"></button>` : `<i class="bk" style="${st}" aria-hidden="true"></i>`; } });
   $('keys').innerHTML = html; $('keys').hidden = false;
-  $('keys').onpointerdown = e => { const b = e.target.closest('.wk, .bk.on'); if (!b) return; e.preventDefault(); unlock(); b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 160); opts.onTap(+b.dataset.m); };
+  $('keys').onpointerdown = e => { const b = e.target.closest('.wk, .bk.on'); if (!b) return; e.preventDefault(); unlock(); { const r = $('keys').getBoundingClientRect(); bassoLook((e.clientX - r.left) / r.width, 0.95); } b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 160); opts.onTap(+b.dataset.m); };
   $('keys').onkeydown = e => { if (e.key !== 'Enter' && e.key !== ' ') return; const b = e.target.closest('.wk'); if (b) { e.preventDefault(); opts.onTap(+b.dataset.m); } };
 }
 function keyMark(m, cls) { const b = $('keys').querySelector('[data-m="' + m + '"]'); if (b) b.classList.add(cls); }
@@ -2028,7 +2178,11 @@ function judge(ok, info) {
   if (L.answered) return; L.answered = true;
   if (L.practice) { // a fresh try from the review or after a mistake: feedback only, not counted
     const q = L.q, T_ = t(); if (L.lastPick) markAns(L.lastPick, ok); L.lastPick = null; L.lastJudge = { ok, info: info || {} };
-    if (ok) { chime(false); say('party', T_.practiceOk, true, 'cheer', true); feedback(true, T_.practiceOk, q.type === 'char' ? `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>` : ''); }
+    if (ok) {
+      reward(q); basso('found');
+      if (q.tricky && L.trickyFull) { $('b-say').textContent = T_.allTogether; feedback(true, T_.allTogether, ''); const full = L.trickyFull; L.trickyFull = null; L.chainFull = true; addRetry(() => practise(freshCopy(full)), T_.wholeThing); }
+      else { const sc = L.chainFull ? scoreOf(q, info || {}) : null, line = sc && L.chainFirst && L.chainFirst.r < sc.n ? T_.progressLine(L.chainFirst.r, sc.r, sc.n) : T_.practiceOk; L.chainFull = false; L.chainFirst = null; $('b-say').textContent = line; feedback(true, line, q.type === 'char' ? `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>` : q.type === 'feat' ? featViz(q) : ''); }
+    }
     else { say('think', pick(T_.oops), true, 'think', true); explain(q, info || {}); }
     $('btn-next').textContent = L.reviewing ? T_.revBack : T_.next; $('next-row').hidden = false;
     return;
@@ -2073,15 +2227,16 @@ function judge(ok, info) {
   if (ok) {
     const src = document.querySelector('#answers .ans.right') || ($('slots').hidden === false && $('slots')) || $('keys');
     if (L.combo >= 5 && L.combo % 5 === 0) { // every 5 in a row: a new sticker
-      chime(true); say('party', T_.comboSay(L.combo), true, 'party', false); burstFrom(src); hopFace();
+      motif(); say('party', T_.comboSay(L.combo), true, 'party', false); burstFrom(src); hopFace();
       const tr = $('trail'); tr.classList.remove('flash'); void tr.offsetWidth; tr.classList.add('flash');
       stickerToast(T_.goldSticker(L.combo / 5));
     } else if (L.combo >= 3) { // 3 or more: a little jump
-      chime(false); say('party', T_.comboSay(L.combo), false, 'cheer', true); hopFace(); burstFrom(src);
+      if (L.combo === 3) motif(); else reward(q); say('party', T_.comboSay(L.combo), false, 'cheer', true); hopFace(); burstFrom(src);
     } else { // one right: a happy blink
-      chime(false); say('wave', pick(T_.cheer), false, pick(['happy', 'cheer']), true); blinkFace(); setTimeout(blinkFace, 240);
+      reward(q); say('wave', q.help ? (q.helpRight ? T_.helpAgree : T_.helpSaved) : pick(T_.cheer), false, pick(['happy', 'cheer']), true); basso(q.help && !q.helpRight ? 'found' : 'correct'); blinkFace(); setTimeout(blinkFace, 240);
       if (src && src.classList && src.classList.contains('ans')) { src.classList.remove('pop'); void src.offsetWidth; src.classList.add('pop'); }
     }
+    if (q.type === 'feat') { feedback(true, T_.featRight(T_.featName[q.ans]), featViz(q) + pieceLine(q)); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
@@ -2111,7 +2266,7 @@ function explain(q, info) {
     const over = {}; over[{ dyn: 'dyn', art: 'art', tempo: 'tch', ton: 'minor' }[q.aspect]] = q.aspect === 'ton' ? info.chose === 'minor' : info.chose;
     const mine = Object.assign({}, q.piece, over);
     const noSwap = q.piece.real && q.aspect === 'ton'; // a real piece can't be moved to the other mode: just hear it again
-    feedback(false, T_.wrongFeat(q.aspect, q.ans, info.chose) + pieceLine(q), '', noSwap ? () => playPiece(q.piece) : () => { const d = playPiece(mine); playPiece(q.piece, d / 1000 + 0.5); }, false, noSwap ? T_.hearAgain : T_.hearChoseThen);
+    feedback(false, T_.wrongFeat(q.aspect, q.ans, info.chose) + pieceLine(q), featViz(q), noSwap ? () => playPiece(q.piece) : () => { const d = playPiece(mine); playPiece(q.piece, d / 1000 + 0.5); }, false, noSwap ? T_.hearAgain : T_.hearChoseThen);
   }
   else if (q.type === 'char') {
     const o = q.options.find(x => x.id === info.chose);
@@ -2185,8 +2340,28 @@ function feedbackSame(q, info) {
 }
 
 // ---------- end of lesson ----------
+// a short extra round chosen by the child: a harder challenge, or helping Basso
+const LV_MAX = { echo: 6, sight: 2, feat: 1, char: 1, meter: 2, rhythm: 2, taprhythm: 1, contour: 4, hl: 3, same: 2, tonic: 1, mode: 1, tapbeat: 1, singmatch: 0, find: 0 };
+function stopTypes(n) { const out = []; (LESSONS[n] || []).forEach(g => { if (g.type === 'quiz') g.items.forEach(k => { if (typeof k === 'string') out.push({ type: k, level: 1 }); else if (k.t !== 'cpair' && k.t !== 'cii') out.push({ type: k.t, level: k.lv || 0, aspect: k.a }); else out.push({ type: 'char', level: 1 }); }); else if (g.type !== 'intro' && g.type !== 'weak') out.push({ type: g.type, level: g.level || 0, aspect: g.aspect }); }); return out; }
+function startMini(n, kind) {
+  unlock();
+  let segs;
+  if (kind === 'challenge') { const ts = stopTypes(n).filter(x => x.type !== 'find'); const b = ts[ts.length - 1] || { type: 'meter', level: 1 }; segs = [{ type: b.type, level: Math.min(LV_MAX[b.type] == null ? 1 : LV_MAX[b.type], (b.level || 0) + 1), aspect: b.aspect, fixed: true, count: 3 }]; }
+  else { const pool = ['feat', 'char', 'meter', 'mode', 'contour'].filter(ty => LESSONS.some(st => stopTypes(LESSONS.indexOf(st)).some(x => x.type === ty))); const ty = pool.length ? pick(pool) : 'meter'; segs = [{ type: ty, level: ty === 'contour' ? 4 : 1, fixed: true, count: 3, help: true }]; }
+  L = { n, segs, si: -1, q: null, stats: {}, total: 0, right: 0, quizQs: [], quizI: 0, combo: 0, bestCombo: 0, mini: kind };
+  show('lesson'); $('trail').innerHTML = ''; $('combo').textContent = '';
+  say('wave', kind === 'help' ? t().helpHi : t().challengeHi, true);
+  nextSeg();
+}
 function endLesson() {
   stopListen(); stopAudio();
+  if (L.mini) { // extra rounds are just for fun: nothing is overwritten
+    const T_ = t(), n = L.n, r = L.right, tot = L.total; show('done');
+    $('d-eyebrow').textContent = L.mini === 'help' ? T_.helpEyebrow : T_.challengeEyebrow; $('d-title').textContent = L.mini === 'help' ? T_.helpDone(r, tot) : T_.challengeDone(r, tot);
+    $('d-stars').innerHTML = ''; $('d-sticker').innerHTML = ''; $('d-summary').innerHTML = ''; $('d-note').textContent = '';
+    basso(r === tot ? 'celebrate' : 'correct'); if (r === tot) motif();
+    renderChoices(n); $('btn-nextlesson').hidden = n >= LESSONS.length - 1; L = null; return;
+  }
   const T_ = t(), n = L.n;
   const prev = saved.lessons[n] || {};
   const rate = L.total ? L.right / L.total : 0, stars = rate >= .9 ? 3 : rate >= .7 ? 2 : 1;
@@ -2212,7 +2387,13 @@ function endLesson() {
   if (WEEK === 8) { const ss = secStats(L.stats); $('d-summary').innerHTML += `<div style="flex-basis:100%;text-align:left;font-size:14px;line-height:1.8;margin-top:6px">${['A', 'B', 'Bk', 'Ci', 'Cii'].filter(k => ss[k].asked).map(k => T_.secLine(T_.secLong[k], ss[k].right, ss[k].asked, T_.ready[readyOf(ss[k])])).join('<br>')}</div>`; }
   $('d-note').textContent = T_.starLine(stars, L.bestCombo) + ' ' + T_.dNote[n];
   $('btn-nextlesson').hidden = n >= LESSONS.length - 1;
+  renderChoices(n);
   L = null;
+}
+function renderChoices(n) {
+  const T_ = t(), c = $('d-choices'); if (!c) return;
+  c.innerHTML = `<p class="choice-q">${T_.whatNext}</p>` + [['challenge', '⚡', T_.chChallenge], ['again', '↻', T_.chAgain], ['help', '🤝', T_.chHelp], ['done', '✓', T_.chDone]].map(([v, i, l]) => `<button class="choice" data-v="${v}"><span>${i}</span>${l}</button>`).join('');
+  c.querySelectorAll('.choice').forEach(b => { b.onclick = () => { track('choice-' + b.dataset.v); if (b.dataset.v === 'again') startLesson(n); else if (b.dataset.v === 'done') show('week'); else startMini(n, b.dataset.v); }; });
 }
 
 // ---------- completion ceremony ----------
@@ -2349,7 +2530,7 @@ function rerender() {
   const j = L.lastJudge || {}, q = L.q, T_ = t(), nr = !$('next-row').hidden;
   renderQ(); $('singbar').hidden = true;
   if (j.pick != null) markAns(String(j.pick), j.ok);
-  if (!j.ok) { explain(q, j.info || {}); if (!L.reviewing) offerSimilar(q); } else if (q.type === 'char') feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`);
+  if (!j.ok) { explain(q, j.info || {}); if (!L.reviewing) offerSimilar(q); } else if (q.type === 'feat' && !L.reviewing) feedback(true, T_.featRight(T_.featName[q.ans]), featViz(q) + pieceLine(q)); else if (q.type === 'char') feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`);
   if (nr) { $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; }
 }
 $('lang-en').onclick = () => { S.lang = 'en'; saveShared(); rerender(); };
