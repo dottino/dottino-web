@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dottino · Sound lab</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--paper:#F4EFE6;--card:#FFFDF9;--ink:#1E1B2E;--muted:#6A6475;--line:#E2DACD;--coral:#E9553A;--good:#1B7A45}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"PingFang SC",sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 60px}h1{font-size:26px;margin:0 0 6px}p{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0}
+.card h2{font-size:18px;margin:0 0 4px}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{font:inherit;font-weight:700;border-radius:999px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 14px;cursor:pointer}
+button.new{background:var(--ink);color:#fff}button.stop{border-color:var(--coral);color:var(--coral)}
+small{color:var(--muted)}#st{font-size:14px;color:var(--good)}
+</style></head><body><main>
+<h1>Dottino 声音实验室</h1>
+<p>同一段音乐，左边是现在网站用的音色，右边是新钢琴：真实三角钢琴采样（Salamander Grand Piano，Yamaha C5，CC-BY 3.0）、按力度换采样层、房间混响、连奏时用踏板、轻微的人性化（时间和力度不完全机械）。请戴耳机比较。</p>
+<p id="st">正在加载钢琴采样…</p>
+<div id="demos"></div>
+<div class="card"><h2>单音对比</h2><small>同一个中央 C：轻（p）、中（mf）、强（f）</small><div class="row">
+<button onclick="oneOld()">▶ 现在</button><button class="new" onclick="oneNew()">▶ 新钢琴 p · mf · f</button></div></div>
+<p><small>采样来源：Salamander Grand Piano V3 by Alexander Holm，CC-BY 3.0（sfzinstruments 版本）。只用于对比试听，未接入正式练习。</small></p>
+</main>
+<script>
+const rnd = n => Math.floor(Math.random() * n), pick = a => a[rnd(a.length)];
+let ctx = null; const ensure = () => { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; };
+let bus = null; function newBus() { if (bus) { const b = bus; b.gain.setTargetAtTime(0, ctx.currentTime, 0.02); setTimeout(() => b.disconnect(), 200); } bus = ctx.createGain(); bus.connect(ctx.destination); return bus; }
+function stopAll() { ensure(); newBus(); }
+
+// ---- old engine (current site) ----
+const oldBuf = {};
+async function loadOld() { for (let m = 36; m <= 84; m += 3) { try { const r = await fetch('audio/p' + m + '.mp3'); oldBuf[m] = await ctx.decodeAudioData(await r.arrayBuffer()); } catch (e) {} } }
+function playOld(midi, when, vol, len) {
+  const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3)); if (!oldBuf[base]) return;
+  const at = ctx.currentTime + when, g = ctx.createGain(); g.gain.value = vol; g.connect(bus);
+  const s = ctx.createBufferSource(); s.buffer = oldBuf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12); s.connect(g); s.start(at);
+  if (len) { g.gain.setTargetAtTime(0, at + len, len < 0.3 ? 0.04 : 0.15); } else g.gain.setTargetAtTime(0, at + 0.85, 0.2);
+}
+
+// ---- new engine: Salamander samples, velocity layers, reverb, pedal, humanising ----
+const NM = ['C', 'Ds', 'Fs', 'A'], LAYERS = [4, 9, 14], LGAIN = { 4: 1.9, 9: 1.15, 14: 0.85 };
+const sal = {}; let verb = null, dry = null, wet = null;
+const sname = (m, v) => NM[((m - 36) / 3) % 4] + (Math.floor(m / 12) - 1) + 'v' + v;
+async function loadNew() {
+  for (const v of [9, 4, 14]) await Promise.all(Array.from({ length: 21 }, (x, i) => 36 + i * 3).map(async m => { try { const r = await fetch('audio/sal/' + sname(m, v) + '.mp3'); sal[m + ':' + v] = await ctx.decodeAudioData(await r.arrayBuffer()); } catch (e) {} }));
+}
+function makeVerb() {
+  const len = ctx.sampleRate * 2.2, ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2) * (i < 200 ? i / 200 : 1); }
+  verb = ctx.createConvolver(); verb.buffer = ir;
+}
+function newOut() { if (!verb) makeVerb(); dry = ctx.createGain(); dry.gain.value = 0.9; wet = ctx.createGain(); wet.gain.value = 0.28; dry.connect(bus); verb.connect(wet); wet.connect(bus); const inp = ctx.createGain(); inp.connect(dry); inp.connect(verb); return inp; }
+let out = null;
+function playNew(midi, when, vel, len, sustainTo) {
+  const base = Math.max(36, Math.min(96, 36 + Math.round((midi - 36) / 3) * 3));
+  const v = vel < 0.42 ? 4 : vel < 0.78 ? 9 : 14, buf = sal[base + ':' + v] || sal[base + ':9']; if (!buf) return;
+  const at = ctx.currentTime + when + (Math.random() - 0.5) * 0.012;
+  const g = ctx.createGain(); g.gain.value = (0.55 + 0.6 * vel) * LGAIN[v] * (1 + (Math.random() - 0.5) * 0.1); g.connect(out);
+  const s = ctx.createBufferSource(); s.buffer = buf; s.playbackRate.value = Math.pow(2, (midi - base) / 12); s.connect(g); s.start(at);
+  const end = sustainTo != null ? ctx.currentTime + sustainTo : at + (len || 1.2);
+  g.gain.setTargetAtTime(0, end, len && len < 0.3 && sustainTo == null ? 0.07 : 0.22); s.stop(end + 2);
+}
+const MEL = { maj: [67, 69, 71, 72, 74, 76, 77, 79, 81], min: [64, 65, 67, 69, 71, 72, 74, 76, 77] }; // tonic at index 3
+const CH = { maj: [[48, 52, 55], [53, 57, 60], [43, 47, 50], [48, 52, 55]], maj2: [[48, 52, 55], [45, 48, 52], [43, 47, 50], [48, 52, 55]], min: [[45, 48, 52], [50, 53, 57], [52, 55, 59], [45, 48, 52]] };
+const RH = { 2: [[1, 1], [0.5, 0.5, 1], [1, 0.5, 0.5]], 3: [[1, 1, 1], [2, 1], [0.5, 0.5, 1, 1], [1, 0.5, 0.5, 1]], 4: [[1, 1, 1, 1], [0.5, 0.5, 1, 1, 1], [1, 1, 0.5, 0.5, 1], [2, 1, 1], [1, 1, 2], [1.5, 0.5, 1, 1]] };
+const RH_END = { 2: [[1, 1], [2]], 3: [[1, 2], [3]], 4: [[1, 1, 2], [2, 2]] };
+function makePiece(o) {
+  const p = Object.assign({ minor: false, k: 4, tempo: 'mid', tch: 'steady', dyn: 'mf', art: 'legato', lh: 'broken' }, o);
+  const sc = p.minor ? MEL.min : MEL.maj, chords = p.minor ? CH.min : (Math.random() < 0.5 ? CH.maj : CH.maj2);
+  const ev = []; let d = pick([3, 5, 3]), t0 = 0;
+  for (let bar = 0; bar < 4; bar++) {
+    const rh = bar === 3 ? pick(RH_END[p.k]) : pick(RH[p.k]), pcs = chords[bar].map(m => m % 12);
+    rh.forEach((dur, i) => {
+      if (bar === 3 && i === rh.length - 1) d = 3;
+      else if (i === 0 && bar > 0) { // strong beat: nearest chord tone
+        let best = d, bd = 99; for (let j = 0; j < sc.length; j++) if (pcs.includes(sc[j] % 12) && Math.abs(j - d) < bd) { bd = Math.abs(j - d); best = j; } d = best;
+      } else if (!(bar === 0 && i === 0)) { d += pick([-1, 1, 1, -1, 2, -2]); d = Math.max(0, Math.min(8, d)); }
+      ev.push({ t: t0, d: dur, m: sc[d], mel: true });
+      t0 += dur;
+    });
+    // left hand
+    const c = chords[bar], b0 = bar * p.k;
+    if (p.lh === 'held') { ev.push({ t: b0, d: p.k, m: c[0] - 12 }); c.forEach(m => ev.push({ t: b0, d: p.k, m })); }
+    else if (p.lh === 'oompah') { for (let b = 0; b < p.k; b++) { if (b === 0) ev.push({ t: b0, d: 1, m: c[0] - 12 }); else [c[1], c[2]].forEach(m => ev.push({ t: b0 + b, d: 1, m })); } }
+    else { const pat = [c[0] - 12, c[2] - 12, c[1], c[2] - 12]; for (let h = 0; h < p.k * 2; h++) ev.push({ t: b0 + h * 0.5, d: 0.5, m: pat[h % 4] + (h % 4 === 2 ? -12 : 0) }); }
+  }
+  p.ev = ev; p.T = 4 * p.k;
+  return p;
+}
+// seconds from the start for a time t (in beats), with a slow-down or speed-up in the second half
+function pieceClock(p) {
+  const B = { slow: 0.78, mid: 0.58, fast: 0.4 }[p.tempo], T = p.T;
+  const f = t => p.tch === 'slower' ? (t < T * 0.45 ? 1 : 1 + 0.85 * (t - T * 0.45) / (T * 0.55)) : p.tch === 'faster' ? (t < T * 0.3 ? 1 : 1 - 0.42 * (t - T * 0.3) / (T * 0.7)) : 1;
+  const cum = [0]; for (let i = 0; i < T * 4 + 8; i++) cum.push(cum[i] + B * f(i / 4 + 0.125) / 4);
+  return t => { const i = Math.min(cum.length - 2, Math.floor(t * 4)); return cum[i] + (cum[i + 1] - cum[i]) * (t * 4 - i); };
+}
+function dynAt(p, t) {
+  const x = t / p.T;
+  switch (p.dyn) { case 'p': return 0.3; case 'f': return 0.95; case 'cresc': return 0.18 + 0.85 * x; case 'dim': return 1.0 - 0.82 * x; case 'fp': return x < 0.5 ? 0.95 : 0.24; case 'pf': return x < 0.5 ? 0.24 : 0.95; default: return 0.6; }
+}
+const CHARS = {
+  cheerful: { o: () => ({ minor: false, tempo: 'fast', art: 'staccato', dyn: pick(['f', 'mf']), k: pick([2, 4]), lh: 'oompah' }), why: ['fast', 'major', 'detached'], icon: '☀' },
+  calm: { o: () => ({ minor: false, tempo: 'slow', tch: pick(['steady', 'steady', 'slower']), art: 'legato', dyn: 'p', k: pick([3, 4]), lh: 'broken' }), why: ['slow', 'smooth', 'quiet'], icon: '☾' },
+  sad: { o: () => ({ minor: true, tempo: 'slow', tch: pick(['steady', 'slower']), art: 'legato', dyn: pick(['p', 'dim']), k: pick([3, 4]), lh: 'held' }), why: ['minor', 'slow', 'smooth'], icon: '☂' },
+  march: { o: () => ({ minor: false, tempo: 'mid', art: 'staccato', dyn: 'f', k: pick([2, 4]), lh: 'oompah' }), why: ['loud', 'steady', 'detached'], icon: '♩' },
+  mysterious: { o: () => ({ minor: true, tempo: 'mid', art: 'staccato', dyn: 'p', k: pick([2, 4]), lh: 'oompah' }), why: ['minor', 'quiet', 'detached'], icon: '☁' },
+  stormy: { o: () => ({ minor: true, tempo: 'fast', tch: pick(['steady', 'faster']), art: 'legato', dyn: pick(['f', 'cresc']), k: 4, lh: 'broken' }), why: ['minor', 'fast', 'loud'], icon: '⚡' },
+  dance: { o: () => ({ minor: false, tempo: 'mid', art: 'legato', dyn: 'mf', k: 3, lh: 'oompah' }), why: ['lilt', 'smooth', 'major'], icon: '∿' }
+};
+
+// the same piece on either engine. new: velocity from the dynamic, a phrase arch, accents on beat 1, pedal for legato
+function playPieceOld(p) {
+  const clk = pieceClock(p), s0 = 0.15;
+  p.ev.forEach(e => { const at = s0 + clk(e.t), dur = clk(e.t + e.d) - clk(e.t); const len = p.art === 'staccato' ? Math.min(0.13, dur * 0.4) : dur + (e.mel ? 0.06 : 0.25); playOld(e.m, at, Math.min(1, dynAt(p, e.t) * (e.mel ? 1 : 0.55)), len); });
+}
+function playPieceNew(p) {
+  out = newOut(); const clk = pieceClock(p), s0 = 0.15;
+  p.ev.forEach(e => {
+    const at = s0 + clk(e.t), dur = clk(e.t + e.d) - clk(e.t);
+    const beatIn = e.t % p.k, arch = 1 + 0.08 * Math.sin(Math.PI * e.t / p.T), acc = beatIn === 0 ? 1.08 : 1;
+    const vel = Math.min(1, dynAt(p, e.t) * arch * acc * (e.mel ? 1 : 0.62));
+    if (p.art === 'staccato') playNew(e.m, at, vel, Math.min(0.16, dur * 0.45));
+    else { const barEnd = s0 + clk((Math.floor(e.t / p.k) + 1) * p.k); playNew(e.m, at, vel, dur + 0.05, e.mel ? null : barEnd + 0.04); } // left hand held by the pedal to the end of the bar
+  });
+}
+const DEMOS = [
+  { t: '平静温柔（calm）', o: () => CHARS.calm.o() },
+  { t: '雄壮，像进行曲（march）', o: () => CHARS.march.o() },
+  { t: '激烈，像暴风雨（stormy）', o: () => CHARS.stormy.o() },
+  { t: '忧伤沉思（sad）', o: () => CHARS.sad.o() },
+  { t: '渐强（crescendo）', o: () => ({ minor: false, k: 4, tempo: 'mid', dyn: 'cresc', art: 'legato', lh: 'broken' }) },
+  { t: '断奏（staccato）', o: () => ({ minor: false, k: 2, tempo: 'mid', dyn: 'mf', art: 'staccato', lh: 'oompah' }) },
+  { t: '连奏（legato）', o: () => ({ minor: false, k: 3, tempo: 'mid', dyn: 'mf', art: 'legato', lh: 'broken' }) },
+  { t: '渐慢（rallentando）', o: () => ({ minor: true, k: 4, tempo: 'mid', tch: 'slower', dyn: 'mf', art: 'legato', lh: 'held' }) }
+];
+const pieces = DEMOS.map(d => makePiece(d.o()));
+document.getElementById('demos').innerHTML = DEMOS.map((d, i) => `<div class="card"><h2>${d.t}</h2><div class="row"><button onclick="go(${i},0)">▶ 现在</button><button class="new" onclick="go(${i},1)">▶ 新钢琴</button><button onclick="fresh(${i})">换一段</button><button class="stop" onclick="stopAll()">■</button></div></div>`).join('');
+function go(i, n) { ensure(); newBus(); n ? playPieceNew(pieces[i]) : playPieceOld(pieces[i]); }
+function fresh(i) { pieces[i] = makePiece(DEMOS[i].o()); go(i, 1); }
+function oneOld() { ensure(); newBus(); [0.4, 0.65, 0.95].forEach((v, i) => playOld(60, 0.1 + i * 1.3, v, 1.1)); }
+function oneNew() { ensure(); newBus(); out = newOut(); [0.3, 0.65, 0.95].forEach((v, i) => playNew(60, 0.1 + i * 1.3, v, 1.1)); }
+let loaded = false;
+async function boot() { if (loaded) return; loaded = true; ensure(); newBus(); await loadOld(); await loadNew(); document.getElementById('st').textContent = '采样已加载，可以开始比较。'; }
+document.addEventListener('pointerdown', boot, { once: true });
+document.getElementById('st').textContent = '点页面任意处开始加载（浏览器要求先点一下才能出声）。';
+</script></body></html>
