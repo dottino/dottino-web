@@ -7,7 +7,7 @@
 <meta name="description" content="Grade 4 aural ear training, week 1, free (built around the ABRSM aural test format): three 10-minute lessons that teach a child to hear which way the notes go, then play them back. By Tim, pianist and music education researcher.">
 <title>Dottino · Grade 4 Aural, Week 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Music&display=swap">
 <style>
 :root {
   --paper: #F4EFE6; --card: #FFFDF9; --ink: #1E1B2E; --muted: #6A6475; --line: #E2DACD;
@@ -228,6 +228,16 @@ a { color: inherit; }
 #answers.rh .ans small{display:block;font-weight:500;font-size:13px;color:var(--muted);margin-top:3px}
 .say-it{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--coral-soft);font-size:14px;line-height:1.55}
 .say-it q{font-weight:700;quotes:"“" "”"}
+.staffbox{margin:12px 0 4px;position:relative}.staffbox svg{width:100%;height:auto;max-height:180px;display:block}
+.clefsw{display:flex;gap:4px;justify-content:flex-end;margin-bottom:2px}.clefsw button{font:inherit;font-size:12px;border:1.5px solid var(--line,#d9d2c5);background:transparent;color:var(--muted);border-radius:999px;padding:3px 10px}.clefsw button.on{background:var(--ink);color:var(--paper,#fff);border-color:var(--ink)}
+.singbar{margin:8px 0 4px;display:flex;flex-direction:column;gap:10px}
+.meterbar{position:relative;height:36px;border-radius:18px;background:var(--disc);overflow:hidden}
+.meterbar .zone{position:absolute;left:38.5%;width:23%;top:0;bottom:0;background:var(--good-soft)}
+.meterbar .mid{position:absolute;left:50%;top:7px;bottom:7px;width:3px;margin-left:-1.5px;background:var(--good);border-radius:2px;opacity:.6}
+.meterbar .dot{position:absolute;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--coral);transition:left .08s linear,background .15s}
+.meterbar .dot.ok{background:var(--good)}.meterbar .dot.off{opacity:.2}
+.singrow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}.singrow .heard{font-weight:700}.modesw{display:flex;gap:6px;flex-wrap:wrap}
+.bk.on{pointer-events:auto;border:0;z-index:2;cursor:pointer;padding:0}.bk.on.hit{background:#4a4458}.bk.on.ok{background:var(--good)}.bk.on.no{background:var(--coral)}
 </style>
 <script src="pay.js"></script>
 </head>
@@ -297,6 +307,8 @@ a { color: inherit; }
       <p class="sub" id="l-sub"></p>
       <div class="actions"><button class="btn ghost sm" id="btn-replay">▶ Play again</button><button class="btn ghost sm" id="btn-slow" hidden>🐢 Slower</button><button class="btn ghost sm" id="btn-undo" hidden>↩ Undo</button></div>
       <div class="echo-slots" id="slots" hidden></div>
+      <div class="staffbox" id="staffbox" hidden></div>
+      <div class="singbar" id="singbar" hidden></div>
       <div class="answers" id="answers"></div>
       <div class="piano" id="keys" role="group" aria-label="Piano keys" hidden></div>
       <div class="lohi" id="lohi" hidden><span id="t-low">← low</span><span id="t-high">high →</span></div>
@@ -337,7 +349,7 @@ a { color: inherit; }
 <script>
 (() => {
 // which week of the Grade 4 plan this page shows (?w=2 for week 2)
-const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 6 ? w : 1; } catch (e) { return 1; } })();
+const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 7 ? w : 1; } catch (e) { return 1; } })();
 // ---------- text ----------
 const T = {
   en: {
@@ -427,6 +439,36 @@ const T = {
       sayIt(c) { return 'In the exam you could say: <q>' + this.sentence(c) + '</q>'; },
       charRight: n => 'Yes: ' + n.toLowerCase() + '.',
       wrongChar: (n, sameWord) => sameWord ? 'Right mood, but those reasons don’t match what you heard. Here are the real ones.' : 'This one is ' + n.toLowerCase() + '. Here is why.'
+    },
+    w7: {
+      eyebrow: 'Exam-style practice · Week 7 · Grade 4 aural, Test B (ABRSM format)', h1: 'Read five notes. Sing them.',
+      intro: 'In Test B your child sings five notes from a score: C, F or G major, starting and ending on home, never more than a third away from it. The examiner plays the key chord and the starting note first. This week Basso listens through the microphone and shows whether each note is in tune; any octave counts. No microphone? Your child can tap the notes on the keys instead. Four stops, about 10 minutes each.',
+      lessons: 'Four stops, about 10 minutes each',
+      L: [
+        { t: 'Sing it back', d: 'Match single notes with your voice, then read your first five notes.' },
+        { t: 'Five notes in C major', d: 'Steps and small jumps of a third, starting and ending on home.' },
+        { t: 'F and G major', d: 'New keys with a B♭ or an F♯, in treble or bass clef.' },
+        { t: 'Week 7 check', d: 'Exam style: three sight-singing tests, plus a review of Tests A and C.' }
+      ],
+      seg: { singmatch: 'Sing it back', sight: 'Sight-singing', quiz: 'Week 7 check', echo: 'Play it back', feat: 'Musical features', char: 'Character', taprhythm: 'Tap the rhythm', meter: 'Strong beat', tonic: 'Find the note' },
+      hi: ['Week 7! Warm up your voice.', 'Five notes, starting at home.', 'New keys today!', 'Last stop this week. Ready?'],
+      dTitle: ['You can match a note with your voice', 'You can sing five notes in C', 'You can sing in F and G major', 'Week 7 complete'],
+      dNote: ['Next time: five notes in C major.', 'Next time: F and G major.', 'One more stop: the week 7 check.', 'Your week 7 card is ready on the week page.'],
+      stickers: [['🎤', 'Pitch Match', 'Sings a note back'], ['🎼', 'Note Reader', 'Sings five notes in C'], ['🗝️', 'Key Explorer', 'Sings in F and G'], ['⭐', 'Week 7 Star', 'Finished week 7']],
+      cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
+      wcEyebrow: 'Week 7 listening card', skills: { sight: 'Sight-singing five notes', singmatch: 'Matching a note with the voice' },
+      card: (rows, date) => 'Dottino · Grade 4 aural · Week 7 (Test B)\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=7',
+      pMatch: 'Sing this note back', sMatch: 'Basso plays one note twice. Sing it to “la” and hold it until the dot turns green. Any octave is fine.',
+      pSight: 'Sing these five notes', pSightKeys: 'Read these five notes and tap them',
+      sSight: k => k + '. First the key chord and the starting note (home). Then sing each note to “la” and hold it until it turns green. Any octave is fine.',
+      sSightKeys: k => k + '. First the key chord and home. Then tap the five notes on the keys, reading left to right.',
+      keyName: { C: 'C major', F: 'F major (B♭)', G: 'G major (F♯)' }, clefName: { treble: 'Treble clef', bass: 'Bass clef' },
+      micFirst: 'Basso needs your microphone to hear you sing.', startSing: 'Start singing', micNo: 'No microphone, so let’s tap the keys instead.',
+      singNow: 'Sing now…', playNote: '▶ Play this note', useKeys: 'Use the keys instead', singInstead: 'Sing instead', hearFive: '▶ Hear the five notes',
+      youSing: (n, rel) => Math.abs(rel) <= 0.5 ? 'You: ' + n + ' ✓' : Math.abs(rel) <= 1.5 ? 'You: a little ' + (rel > 0 ? 'high' : 'low') : 'You: ' + n,
+      nudge: rel => rel == null ? 'Take your time. Press ▶ Play this note if you need help.' : Math.abs(rel) > 1.5 ? 'Not quite. Think: step up, step down, or a jump of a third?' : rel > 0 ? 'A bit high. Slide down to it.' : 'A bit low. Slide up to it.',
+      wrongSight: (n, tot) => n + ' of ' + tot + ' right first time. The orange notes needed a second try. Here are their names. Hear all five, then try the next one.',
+      wrongMatch: (n, rel) => 'The note was ' + n + '. ' + (rel == null ? '' : rel > 0 ? 'You started a little high. ' : 'You started a little low. ') + 'Hear it again and hum along.'
     },
 
     pMode: 'Major or minor?', sMode: 'Listen to the chord: major sounds bright and open, minor sounds darker.', sMode2: 'Now a short tune that ends on home. Does it feel major or minor?', major: 'Major', minor: 'Minor',
@@ -629,6 +671,36 @@ const T = {
       charRight: n => '对：' + n + '。',
       wrongChar: (n, sameWord) => sameWord ? '情绪选对了，但这些理由和你听到的不一样。下面是真正的理由。' : '这段是「' + n + '」。原因在这里。'
     },
+    w7: {
+      eyebrow: '考试题型练习 · 第 7 周 · 四级听力 B 题（ABRSM 题型）', h1: '看五个音，唱出来。',
+      intro: 'B 题里，孩子要看谱唱五个音：C、F 或 G 大调，从主音开始、到主音结束，离主音不超过三度。考官会先弹主和弦和起始音。这一周 Basso 通过麦克风听孩子唱，显示每个音准不准，高低八度都算对。没有麦克风？也可以在琴键上点出这五个音。四站，每站约 10 分钟。',
+      lessons: '四站，每站约 10 分钟',
+      L: [
+        { t: '唱回一个音', d: '用声音模仿单个音，再读第一组五个音。' },
+        { t: 'C 大调五个音', d: '级进和三度小跳，从主音开始、到主音结束。' },
+        { t: 'F 大调和 G 大调', d: '带降 B 或升 F 的新调，高音谱号或低音谱号。' },
+        { t: '第 7 周小测', d: '考试形式：三道视唱，加上 A 题和 C 题复习。' }
+      ],
+      seg: { singmatch: '唱回一个音', sight: '视唱', quiz: '第 7 周小测', echo: '弹回来', feat: '音乐特点', char: '音乐性格', taprhythm: '拍回节奏', meter: '找强拍', tonic: '找出那个音' },
+      hi: ['第 7 周！先开开嗓。', '五个音，从主音出发。', '今天有新调！', '本周最后一站，准备好了吗？'],
+      dTitle: ['你能用声音唱准一个音了', '你能唱 C 大调五个音了', '你能唱 F 大调和 G 大调了', '第 7 周完成'],
+      dNote: ['下一站：C 大调五个音。', '下一站：F 大调和 G 大调。', '还有一站：第 7 周小测。', '第 7 周听力卡已经放在本周页面上。'],
+      stickers: [['🎤', '音准模仿', '能唱回一个音'], ['🎼', '读谱能手', '能唱 C 大调五个音'], ['🗝️', '调性探险家', '能唱 F 和 G 大调'], ['⭐', '第 7 周之星', '完成了第 7 周']],
+      cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
+      wcEyebrow: '第 7 周听力卡', skills: { sight: '视唱五个音', singmatch: '用声音唱准一个音' },
+      card: (rows, date) => 'Dottino · 四级听力 · 第 7 周（B 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=7',
+      pMatch: '把这个音唱回来', sMatch: 'Basso 弹一个音两遍。用 “la” 唱出来，保持住，直到圆点变绿。高低八度都可以。',
+      pSight: '唱出这五个音', pSightKeys: '看这五个音，在琴键上点出来',
+      sSight: k => k + '。先听主和弦和起始音（主音），然后用 “la” 一个一个唱，每个音保持到变绿。高低八度都可以。',
+      sSightKeys: k => k + '。先听主和弦和主音，然后从左到右，在琴键上点出这五个音。',
+      keyName: { C: 'C 大调', F: 'F 大调（降 B）', G: 'G 大调（升 F）' }, clefName: { treble: '高音谱号', bass: '低音谱号' },
+      micFirst: 'Basso 需要用麦克风听你唱。', startSing: '开始唱', micNo: '没有麦克风，我们改成点琴键吧。',
+      singNow: '现在唱吧…', playNote: '▶ 弹这个音', useKeys: '改用琴键', singInstead: '改成唱', hearFive: '▶ 听这五个音',
+      youSing: (n, rel) => Math.abs(rel) <= 0.5 ? '你唱的：' + n + ' ✓' : Math.abs(rel) <= 1.5 ? '你唱的：稍微' + (rel > 0 ? '高了' : '低了') : '你唱的：' + n,
+      nudge: rel => rel == null ? '慢慢来。需要的话点 ▶ 弹这个音。' : Math.abs(rel) > 1.5 ? '不太对。想一想：往上一级、往下一级，还是跳三度？' : rel > 0 ? '稍微高了，往下滑一点。' : '稍微低了，往上滑一点。',
+      wrongSight: (n, tot) => tot + ' 个音里有 ' + n + ' 个一次唱对。橙色的音试了第二次。下面标出了音名。先听一遍五个音，再做下一题。',
+      wrongMatch: (n, rel) => '这个音是 ' + n + '。' + (rel == null ? '' : rel > 0 ? '你一开始稍微高了。' : '你一开始稍微低了。') + '再听一次，跟着哼。'
+    },
 
     pMode: '大调还是小调？', sMode: '听这个和弦：大调听起来明亮、开阔，小调听起来暗一些。', sMode2: '这次是一小段回到主音的旋律，感觉是大调还是小调？', major: '大调', minor: '小调',
     wrongMode: m => '是' + (m ? '小调' : '大调') + '。先听它，再听同样的和弦变成' + (m ? '大调' : '小调') + '：注意中间那个音的变化。', hearMajMin: m => m ? '▶ 先小调，再大调' : '▶ 先大调，再小调',
@@ -755,15 +827,16 @@ try { const r = new URLSearchParams(location.search).get('ref'); if (r) { shared
 
 const S = {
   lang: shared.lang || ((navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en'),
-  naming: shared.naming || 'letter'
+  naming: shared.naming || 'letter',
+  sing: shared.sing !== false && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia), clef: shared.clef || 'treble'
 };
 const $ = id => document.getElementById(id);
-const t = () => { const b = T[S.lang], w = WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const o = Object.assign({}, b, w); o.seg = Object.assign({}, b.seg, w.seg); return o; };
+const t = () => { const b = T[S.lang], w = WEEK === 7 ? b.w7 : WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const x = WEEK >= 7 ? b.w6 : {}; const o = Object.assign({}, b, x, w); o.seg = Object.assign({}, b.seg, x.seg, w.seg); return o; };
 const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
 const letterOf = m => LET[((m % 12) + 12) % 12] || (LET[(m - 1) % 12] + '♯');
 const nameOf = m => { const l = letterOf(m); return S.naming === 'solfege' ? (SOLF[l[0]] || l) + (l[1] || '') : l; };
-const saveShared = () => { shared.lang = S.lang; shared.naming = S.naming; try { localStorage.setItem('dottino:v1', JSON.stringify(shared)); } catch (e) { /* ignore */ } };
+const saveShared = () => { shared.lang = S.lang; shared.naming = S.naming; shared.sing = S.sing; shared.clef = S.clef; try { localStorage.setItem('dottino:v1', JSON.stringify(shared)); } catch (e) { /* ignore */ } };
 
 // ---------- audio ----------
 // iPhone: Web Audio is silenced by the side switch unless the page first plays an <audio> element,
@@ -881,6 +954,15 @@ const LESSONS_W6 = [
     { type: 'char', level: 1, fixed: true, count: 4 } ],
   [ { type: 'quiz', items: [{ t: 'feat', lv: 1, a: 'dyn' }, { t: 'char', lv: 1 }, { t: 'feat', lv: 1, a: 'art' }, { t: 'feat', lv: 1, a: 'tempo' }, { t: 'char', lv: 1 }, { t: 'feat', lv: 1, a: 'ton' }, { t: 'taprhythm', lv: 1 }, { t: 'meter', lv: 2 }] } ]
 ];
+// week 7 (Test B): read five notes and sing them; the microphone checks the pitch (any octave). Without a microphone: tap them on the keys.
+const LESSONS_W7 = [
+  [ { type: 'singmatch', fixed: true, count: 6 },
+    { type: 'sight', level: 0, fixed: true, count: 3 } ],
+  [ { type: 'sight', level: 0, fixed: true, count: 2, warm: true },
+    { type: 'sight', level: 1, fixed: true, count: 5 } ],
+  [ { type: 'sight', level: 2, fixed: true, count: 6 } ],
+  [ { type: 'quiz', items: [{ t: 'sight', lv: 2 }, { t: 'sight', lv: 2 }, { t: 'echo', lv: 3 }, { t: 'feat', lv: 1 }, { t: 'sight', lv: 2 }, { t: 'char', lv: 1 }, { t: 'taprhythm', lv: 1 }, { t: 'meter', lv: 2 }] } ]
+];
 const LESSONS_W1 = [
   [ { type: 'intro' },
     { type: 'hl', level: 0, up: 4, target: 2, streak: 6, max: 26 },
@@ -896,7 +978,7 @@ const LESSONS_W1 = [
     { type: 'same', level: 1, fixed: true, count: 10 },
     { type: 'same', level: 2, fixed: true, count: 5 } ]
 ];
-const LESSONS = WEEK === 6 ? LESSONS_W6 : WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1;
+const LESSONS = WEEK === 7 ? LESSONS_W7 : WEEK === 6 ? LESSONS_W6 : WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1;
 
 let L = null; // running lesson state
 // play a 'meter' tune; count = add a click on every beat (higher click on beat 1) so the strong beat is easy to hear
@@ -991,6 +1073,125 @@ function tick(when, strong) {
   o.type = 'square'; o.frequency.value = strong ? 1760 : 1175; g.gain.setValueAtTime(strong ? 0.18 : 0.09, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
   o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.06);
 }
+// ---------- week 7: reading and singing (Test B) ----------
+// keys C, F or G major; five notes start and end on home, within a third either side, steps and thirds only
+const KEYS7 = { C: { l: 0, acc: {} }, F: { l: 3, acc: { 6: -1 } }, G: { l: 4, acc: { 3: 1 } } };
+const STEPS = [0, 2, 4, 5, 7, 9, 11];
+function midiOfStep(ds, key) { const l = ((ds % 7) + 7) % 7, o = Math.floor(ds / 7); return 12 * (o + 1) + STEPS[l] + (KEYS7[key].acc[l] || 0); }
+function makeSight(level) {
+  const key = level >= 2 ? pick(['C', 'F', 'G']) : 'C', clef = S.clef;
+  const home = KEYS7[key].l + 7 * (clef === 'bass' ? 3 : 4);
+  let offs, tries = 0;
+  do {
+    offs = [0]; let d = 0;
+    for (let i = 0; i < 3; i++) { d += level >= 1 ? pick([-2, -1, -1, 1, 1, 2]) : pick([-1, 1, 1]); offs.push(d); }
+    offs.push(0); tries++;
+  } while ((offs.some(x => level >= 1 ? x < -2 || x > 2 : x < 0 || x > 2) || offs.some((x, i) => i && Math.abs(x - offs[i - 1]) > 2) || offs.slice(1).every((x, i) => x === offs[i]) || offs[1] === 0) && tries < 200);
+  const steps = offs.map(o => home + o);
+  return { type: 'sight', key, clef, steps, notes: steps.map(ds => midiOfStep(ds, key)), home, idx: 0, missed: [], done: [], level };
+}
+// a five-line staff with clef, key signature and note heads; st: per-note 'ok' | 'miss' | 'now'
+function staffSvg(q, names) {
+  const W = 360, yB = 104, sp = 6, bass = q.clef === 'bass', bot = bass ? 18 : 30;
+  const y = ds => yB - (ds - bot) * sp;
+  let h = `<svg viewBox="0 0 ${W} 150" role="img" aria-label="${q.notes.map(m => letterOf(m)).join(' ')}">`;
+  for (let i = 0; i < 5; i++) h += `<line x1="8" x2="${W - 8}" y1="${yB - i * 12}" y2="${yB - i * 12}" stroke="var(--ink)" stroke-width="1.3"/>`;
+  h += bass ? `<text x="14" y="${yB - 21}" font-size="44" font-family="'Noto Music',serif" fill="var(--ink)">𝄢</text>` : `<text x="10" y="${yB + 4}" font-size="66" font-family="'Noto Music',serif" fill="var(--ink)">𝄞</text>`;
+  let x0 = 66;
+  if (q.key === 'F') { h += `<text x="${x0}" y="${y(bass ? 20 : 34) + 6}" font-size="28" font-family="'Noto Music',serif" fill="var(--ink)">♭</text>`; x0 += 18; }
+  if (q.key === 'G') { h += `<text x="${x0}" y="${y(bass ? 24 : 38) + 8}" font-size="26" font-family="'Noto Music',serif" fill="var(--ink)">♯</text>`; x0 += 18; }
+  const gap = (W - x0 - 30) / 5;
+  q.steps.forEach((ds, i) => {
+    const x = x0 + 16 + gap * (i + 0.5), yy = y(ds);
+    for (let s2 = bot - 2; s2 >= ds; s2 -= 2) h += `<line x1="${x - 15}" x2="${x + 15}" y1="${y(s2)}" y2="${y(s2)}" stroke="var(--ink)" stroke-width="1.3"/>`;
+    for (let s2 = bot + 10; s2 <= ds; s2 += 2) h += `<line x1="${x - 15}" x2="${x + 15}" y1="${y(s2)}" y2="${y(s2)}" stroke="var(--ink)" stroke-width="1.3"/>`;
+    const stt = q.done[i] ? (q.missed[i] ? 'miss' : 'ok') : (i === q.idx && !q.over ? 'now' : '');
+    const col = stt === 'ok' ? 'var(--good)' : stt === 'miss' ? 'var(--coral)' : 'var(--ink)';
+    if (stt === 'now') h += `<circle cx="${x}" cy="${yy}" r="15" fill="var(--coral-soft)" stroke="var(--coral)" stroke-width="2"/>`;
+    h += `<ellipse cx="${x}" cy="${yy}" rx="8.2" ry="6" transform="rotate(-20 ${x} ${yy})" fill="${col}"/>`;
+    if (names) h += `<text x="${x}" y="144" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">${nameOf(q.notes[i])}</text>`;
+  });
+  return h + '</svg>';
+}
+function drawStaff(q, names) { $('staffbox').hidden = false; const cs = $('clefsw'); $('staffbox').innerHTML = staffSvg(q, names); if (cs && !q.idx && !q.over) $('staffbox').prepend(cs); }
+
+// microphone pitch (YIN). Any octave counts: only the note name matters.
+let mic = null, micGranted = false, listenT = null;
+async function micStart() {
+  if (window.__fakePitch) { mic = { fake: true }; micGranted = true; return true; }
+  try {
+    ensureCtx(); if (ctx.state === 'suspended') await ctx.resume();
+    try { if (navigator.audioSession) navigator.audioSession.type = 'play-and-record'; } catch (e) { /* older browsers */ }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    const src = ctx.createMediaStreamSource(stream), an = ctx.createAnalyser(); an.fftSize = 2048; src.connect(an);
+    mic = { stream, src, an, buf: new Float32Array(2048) }; micGranted = true; track('mic-on');
+    return true;
+  } catch (e) { track('mic-denied'); return false; }
+}
+function micStop() {
+  if (!mic) return;
+  if (mic.stream) mic.stream.getTracks().forEach(x => x.stop());
+  try { if (mic.src) mic.src.disconnect(); } catch (e) { /* ignore */ }
+  mic = null;
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ignore */ }
+}
+function yin(b, sr) {
+  const n = b.length; let rms = 0; for (let i = 0; i < n; i++) rms += b[i] * b[i];
+  if (Math.sqrt(rms / n) < 0.01) return 0;
+  const Wn = n >> 1, maxT = Math.min(Wn - 1, Math.floor(sr / 70)), minT = Math.floor(sr / 1100);
+  const d = new Float32Array(maxT + 1);
+  for (let t2 = 1; t2 <= maxT; t2++) { let sum = 0; for (let i = 0; i < Wn; i++) { const x = b[i] - b[i + t2]; sum += x * x; } d[t2] = sum; }
+  let run = 0, T0 = -1; const c = new Float32Array(maxT + 1); c[0] = 1;
+  for (let t2 = 1; t2 <= maxT; t2++) { run += d[t2]; c[t2] = run ? d[t2] * t2 / run : 1; }
+  for (let t2 = minT; t2 <= maxT; t2++) if (c[t2] < 0.15) { while (t2 + 1 <= maxT && c[t2 + 1] < c[t2]) t2++; T0 = t2; break; }
+  if (T0 < 0) return 0;
+  const a = c[T0 - 1] || c[T0], bb = c[T0], cc = c[T0 + 1] || c[T0], den = a + cc - 2 * bb;
+  return sr / (T0 + (den ? (a - cc) / (2 * den) : 0));
+}
+function micHz() { if (!mic) return 0; if (mic.fake) return window.__fakePitch() || 0; mic.an.getFloatTimeDomainData(mic.buf); return yin(mic.buf, ctx.sampleRate); }
+function stopListen() { clearInterval(listenT); listenT = null; micStop(); }
+// listen until the target note is held (0.35 s); a wrong note held 0.9 s counts as a miss for that note
+function listenFor(q, target, onHit, onMiss) {
+  clearInterval(listenT);
+  let key = null, since = 0, missed = false, started = performance.now();
+  const dot = () => $('singbar').querySelector('.dot'), heard = () => $('singbar').querySelector('.heard');
+  listenT = setInterval(() => {
+    if (!L || L.q !== q || L.answered) { stopListen(); return; }
+    const f = micHz(), now = performance.now();
+    let k = 'silent', rel = 0;
+    if (f) { const m = 69 + 12 * Math.log2(f / 440); rel = ((m - target) % 12 + 18) % 12 - 6; k = Math.abs(rel) <= 0.5 ? 'ok' : 'w' + ((Math.round(m) % 12) + 12) % 12; if (heard()) heard().textContent = t().youSing(nameOf(Math.round(m)), rel); }
+    else if (heard()) heard().textContent = t().singNow;
+    const dd = dot(); if (dd) { dd.style.left = (50 + Math.max(-2, Math.min(2, rel)) / 2 * 46).toFixed(1) + '%'; dd.classList.toggle('ok', k === 'ok'); dd.classList.toggle('off', k === 'silent'); }
+    if (k !== key) { key = k; since = now; return; }
+    if (k === 'ok' && now - since >= 350) { clearInterval(listenT); listenT = null; onHit(missed); }
+    else if (k[0] === 'w' && now - since >= 900 && !missed) { missed = true; onMiss(rel); }
+    else if (now - started > 9000 && !missed) { missed = true; onMiss(null); }
+  }, 50);
+}
+// play something with the microphone off, then switch it back on
+function pausedPlay(fn, ms, then) { stopListen(); fn(); setTimeout(() => { if (!L || L.answered) return; micStart().then(ok => { if (ok) then(); }); }, ms); }
+function singbar(q) {
+  const T_ = t(); $('singbar').hidden = false;
+  $('singbar').innerHTML = `<div class="meterbar"><i class="zone"></i><i class="mid"></i><i class="dot off" style="left:50%"></i></div>
+    <div class="singrow"><span class="heard">${micGranted ? T_.singNow : T_.micFirst}</span><span class="modesw"><button class="btn ghost sm" id="sb-help">${T_.playNote}</button><button class="btn ghost sm" id="sb-keys">${T_.useKeys}</button></span></div>
+    ${micGranted ? '' : `<button class="btn coral" id="sb-start">🎤 ${T_.startSing}</button>`}`;
+  $('sb-keys').onclick = () => { S.sing = false; saveShared(); stopListen(); track('sing-to-keys'); if (q.type === 'singmatch') { ask(); return; } renderQ(); };
+  $('sb-help').onclick = () => { const tg = q.type === 'sight' ? q.notes[q.idx] : q.target; if (q.type === 'sight') { q.missed[q.idx] = true; drawStaff(q); } else q.missed = true; pausedPlay(() => play(tg, 0.05), 1100, () => beginListen(q)); };
+  if ($('sb-start')) $('sb-start').onclick = () => { unlock(); micStart().then(ok => { if (!ok) { S.sing = false; saveShared(); toast(T_.micNo); if (q.type === 'singmatch') { ask(); return; } renderQ(); return; } singbar(q); beginListen(q); }); };
+}
+function beginListen(q) {
+  if (!S.sing || !micGranted || !L || L.q !== q || L.answered) return;
+  const go = () => {
+    if (q.type === 'singmatch') listenFor(q, q.target, () => judge(!q.missed, {}), rel => { q.missed = true; q.firstRel = rel; say('think', t().nudge(rel), false); });
+    else listenFor(q, q.notes[q.idx], () => {
+      q.done[q.idx] = true; q.idx++; drawStaff(q); blinkFace();
+      if (q.idx >= q.notes.length) { q.over = true; drawStaff(q); stopListen(); judge(!q.missed.some(Boolean), {}); return; }
+      setTimeout(() => beginListen(q), 250);
+    }, rel => { q.missed[q.idx] = true; drawStaff(q); say('think', t().nudge(rel), false); });
+  };
+  if (mic) go(); else micStart().then(ok => { if (ok) go(); });
+}
+
 // ---------- week 6: little pieces with a character ----------
 // o: { minor, k (beats per bar), tempo: slow|mid|fast, tch: steady|slower|faster, dyn: p|mf|f|cresc|dim|fp|pf, art: legato|staccato, lh: oompah|broken|held }
 const MEL = { maj: [67, 69, 71, 72, 74, 76, 77, 79, 81], min: [64, 65, 67, 69, 71, 72, 74, 76, 77] }; // tonic at index 3
@@ -1054,6 +1255,8 @@ const CHARS = {
 const CHAR_CLASH = { cheerful: ['march'], march: ['cheerful'], dance: ['calm'], calm: ['dance'] }; // too close to tell apart from a 4-bar piece
 const WHY_FLIP = { fast: 'slow', slow: 'fast', major: 'minor', minor: 'major', detached: 'smooth', smooth: 'detached', quiet: 'loud', loud: 'quiet', steady: 'speeding', lilt: 'march2' };
 function makeQ(type, level, force) {
+  if (type === 'sight') return makeSight(level);
+  if (type === 'singmatch') return { type, target: pick([60, 62, 64, 65, 67, 69, 71]), missed: false, level: 0 };
   if (type === 'feat') {
     const a = force || pick(['dyn', 'art', 'tempo', 'ton']);
     const base = { minor: Math.random() < 0.4, k: pick([2, 3, 4]), tempo: 'mid', art: pick(['legato', 'staccato']), lh: pick(['broken', 'oompah']) };
@@ -1305,6 +1508,7 @@ function progress() {
 
 // ---------- rendering a question ----------
 function resetUI() {
+  stopListen(); $('staffbox').hidden = true; $('singbar').hidden = true;
   $('answers').innerHTML = ''; $('answers').classList.remove('rh'); $('fb').hidden = true; $('next-row').hidden = true; $('slots').hidden = true; $('keys').hidden = true; $('btn-slow').hidden = true;
   $('btn-replay').hidden = false; $('lohi').hidden = true; $('btn-undo').hidden = true;
 }
@@ -1345,7 +1549,7 @@ function ask() {
   let q;
   if (g.type === 'quiz') q = L.quizQs[g.asked];
   else if (g.type === 'same' && L.retry) { q = makeQ('same', g.lv, L.retry); q.retry = true; }
-  else q = makeQ(g.type, g.lv, g.aspect);
+  else q = makeQ(g.type === 'singmatch' && !S.sing ? 'tonic' : g.type, g.type === 'singmatch' && !S.sing ? 1 : g.lv, g.aspect);
   L.retry = null;
   L.q = q; L.answered = false; L.lastPick = null;
   renderQ(); playQ();
@@ -1376,6 +1580,27 @@ function renderQ() {
       play(m); q.got.push(m); drawSlots(); $('btn-undo').disabled = false;
       if (q.got.length === q.notes.length) judge(q.got.every((x, i) => x === q.notes[i]), {});
     } });
+  } else if (type === 'singmatch') {
+    $('l-prompt').textContent = T_.pMatch; $('l-sub').textContent = T_.sMatch;
+    singbar(q); if (q.ready) beginListen(q);
+  } else if (type === 'sight') {
+    $('l-prompt').textContent = S.sing ? T_.pSight : T_.pSightKeys; $('l-sub').textContent = (S.sing ? T_.sSight : T_.sSightKeys)(T_.keyName[q.key]);
+    { const oc = $('clefsw'); if (oc) oc.remove(); }
+    drawStaff(q);
+    if (S.sing) { singbar(q); if (q.ready) beginListen(q); }
+    else {
+      const lo = q.notes.reduce((a, b) => Math.min(a, b)) - 3, hi = q.notes.reduce((a, b) => Math.max(a, b)) + 3;
+      buildKeys(LET[lo % 12] ? lo : lo - 1, LET[hi % 12] ? hi : hi + 1, { blacks: true, onTap: m => {
+        play(m); if (L.answered) return;
+        if (m === q.notes[q.idx]) { q.done[q.idx] = true; q.idx++; keyMark(m, 'ok'); setTimeout(() => $('keys').querySelectorAll('.ok').forEach(x => x.classList.remove('ok')), 300); drawStaff(q); if (q.idx >= q.notes.length) { q.over = true; drawStaff(q); judge(!q.missed.some(Boolean), {}); } }
+        else { q.missed[q.idx] = true; keyMark(m, 'no'); setTimeout(() => $('keys').querySelectorAll('.no').forEach(x => x.classList.remove('no')), 400); drawStaff(q); }
+      } });
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { const b = document.createElement('button'); b.className = 'btn ghost sm'; b.textContent = '🎤 ' + T_.singInstead; b.style.marginTop = '10px'; b.onclick = () => { S.sing = true; saveShared(); renderQ(); }; $('keys').after(b); b.id = 'sb-sing'; }
+    }
+    const cs = document.createElement('div'); cs.className = 'clefsw'; cs.id = 'clefsw';
+    cs.innerHTML = ['treble', 'bass'].map(c => `<button class="${S.clef === c ? 'on' : ''}" data-c="${c}">${T_.clefName[c]}</button>`).join('');
+    cs.querySelectorAll('button').forEach(b => { b.onclick = () => { if (S.clef === b.dataset.c || q.idx) return; S.clef = b.dataset.c; saveShared(); const nq = makeSight(q.level); L.q = nq; renderQ(); playQ(); }; });
+    $('staffbox').prepend(cs);
   } else if (type === 'feat') {
     $('l-prompt').textContent = T_.pFeat[q.aspect]; $('l-sub').textContent = T_.sFeat[q.aspect];
     answers(q.opts.map(v => [v, T_.featIcon[v], T_.featName[v]]), v => judge(v === q.ans, { chose: v }));
@@ -1430,6 +1655,12 @@ function playQ(slow) {
   const q = L.q; if (!q) return;
   const gap = slow ? 0.95 : 0.62;
   if (q.type === 'feat' || q.type === 'char') { playPiece(q.piece); return; }
+  if (q.type === 'singmatch') { stopListen(); play(q.target, 0.1); play(q.target, 1.0); setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 1900); return; }
+  if (q.type === 'sight') {
+    stopListen(); const h = q.notes[0], ch = [h, h + (q.key === 'C' || q.key === 'F' || q.key === 'G' ? 4 : 3), h + 7];
+    ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach(m => play(m, 1.1, 0.55)); play(h, 2.2, 0.85);
+    setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
+  }
   if (q.type === 'meter') { playMeter(q, slow, false); return; }
   if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach(m => play(m, 0.2 + 3 * g2, 0.55)); if (q.tune) seq(q.tune, slow ? 0.75 : 0.55, 0.3 + 3 * g2 + 1.1); return; }
   if (q.type === 'echo' && q.exam) { playExam(q, slow); return; }
@@ -1460,9 +1691,9 @@ function buildKeys(lo, hi, opts) {
   const whites = []; for (let m = lo; m <= hi; m++) if (LET[m % 12]) whites.push(m);
   const W = whites.length;
   let html = whites.map(m => `<button class="wk${m === 60 ? ' mid' : ''}${opts.given === m ? ' given' : ''}" data-m="${m}" aria-label="${letterOf(m)}${Math.floor(m / 12) - 1}"><b>${W > 10 ? (m % 12 === 0 ? nameOf(m) : '') : nameOf(m)}</b>${W > 10 ? '' : '<span>' + (S.naming === 'solfege' ? letterOf(m) : SOLF[letterOf(m)]) + '</span>'}</button>`).join('');
-  whites.forEach((m, i) => { if (i < W - 1 && whites[i + 1] - m === 2) html += `<i class="bk" style="left:${((i + 1) / W * 100).toFixed(3)}%;width:${(58 / W).toFixed(2)}%" aria-hidden="true"></i>`; });
+  whites.forEach((m, i) => { if (i < W - 1 && whites[i + 1] - m === 2) { const st = `left:${((i + 1) / W * 100).toFixed(3)}%;width:${(58 / W).toFixed(2)}%`; html += opts.blacks ? `<button class="bk on" data-m="${m + 1}" style="${st}" aria-label="${letterOf(m)}♯"></button>` : `<i class="bk" style="${st}" aria-hidden="true"></i>`; } });
   $('keys').innerHTML = html; $('keys').hidden = false;
-  $('keys').onpointerdown = e => { const b = e.target.closest('.wk'); if (!b) return; e.preventDefault(); unlock(); b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 160); opts.onTap(+b.dataset.m); };
+  $('keys').onpointerdown = e => { const b = e.target.closest('.wk, .bk.on'); if (!b) return; e.preventDefault(); unlock(); b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 160); opts.onTap(+b.dataset.m); };
   $('keys').onkeydown = e => { if (e.key !== 'Enter' && e.key !== ' ') return; const b = e.target.closest('.wk'); if (b) { e.preventDefault(); opts.onTap(+b.dataset.m); } };
 }
 function keyMark(m, cls) { const b = $('keys').querySelector('[data-m="' + m + '"]'); if (b) b.classList.add(cls); }
@@ -1553,6 +1784,13 @@ function judge(ok, info) {
   if (q.type === 'hl') { html = pitchSvg([{ notes: q.notes, color: 'var(--good)' }]); feedback(false, T_.wrongHl(q.dir), html, replay); }
   else if (q.type === 'find') { keyMark(info.tapped, 'no'); keyMark(q.target, 'ok'); html = pitchSvg([{ notes: [q.given, q.target], color: 'var(--good)' }, { notes: [q.given, info.tapped], color: 'var(--coral)', dx: 6 }]); feedback(false, T_.wrongFind(nameOf(q.target)), html, replay, true); }
   else if (q.type === 'contour') { html = pitchSvg([{ notes: q.notes, color: 'var(--good)' }]); feedback(false, T_.wrongCt, html, replay); }
+  else if (q.type === 'sight') {
+    const first = q.missed.filter(Boolean).length;
+    feedback(false, T_.wrongSight(q.notes.length - first, q.notes.length), staffSvg(q, true), () => seq(q.notes, 0.8), false, T_.hearFive);
+  }
+  else if (q.type === 'singmatch') {
+    feedback(false, T_.wrongMatch(nameOf(q.target), q.firstRel), '', () => play(q.target, 0.05), false, T_.hearAgain);
+  }
   else if (q.type === 'feat') {
     const over = {}; over[{ dyn: 'dyn', art: 'art', tempo: 'tch', ton: 'minor' }[q.aspect]] = q.aspect === 'ton' ? info.chose === 'minor' : info.chose;
     const mine = Object.assign({}, q.piece, over);
@@ -1584,7 +1822,7 @@ function judge(ok, info) {
     replay = () => { const d = seq(q.got, 0.62); seq(q.notes, 0.62, d / 1000 + 0.6); };
     feedback(false, T_.wrongEcho, html, replay, true, T_.hearMine);
   } else if (q.type === 'same') { feedbackSame(q, info || {}); }
-  if (q.type !== 'feat' && q.type !== 'char') setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
+  if (!['feat', 'char', 'sight', 'singmatch'].includes(q.type)) setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
 }
 function feedback(ok, text, svg, replay, legend, replayLabel) {
   const T_ = t(), fb = $('fb');
@@ -1627,6 +1865,7 @@ function feedbackSame(q, info) {
 
 // ---------- end of lesson ----------
 function endLesson() {
+  stopListen();
   const T_ = t(), n = L.n;
   const prev = saved.lessons[n] || {};
   const rate = L.total ? L.right / L.total : 0, stars = rate >= .9 ? 3 : rate >= .7 ? 2 : 1;
@@ -1738,7 +1977,7 @@ function renderWeek() {
       `<button class="btn ${d ? 'ghost' : open ? 'coral' : 'locked'} sm go" data-l="${i}" ${open ? '' : 'disabled'}>${locked ? PT().lockBtn : d ? T_.again : open ? T_.start : T_.locked + i + (S.lang === 'zh' ? ' 站后解锁' : '')}</button></li>`;
   }).join('');
   $('lessons').querySelectorAll('.go').forEach(b => { b.onclick = () => startLesson(+b.dataset.l); });
-  const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 6;
+  const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 7;
   $('weeknav').innerHTML = WEEK === 1 ? `<a href="${wl(2)}">${T_.weekNext}</a>` : `<a href="${wl(WEEK - 1)}">${T_.weekN(WEEK - 1, -1)}</a>` + (WEEK < LAST ? ` · <a href="${wl(WEEK + 1)}">${T_.weekN(WEEK + 1, 1)}</a>` : '');
   // week card once the core stops are done (week 1: stops 1–3; week 2: all four)
   const CARD = WEEK >= 2 ? [0, 1, 2, 3] : [0, 1, 2];
@@ -1749,7 +1988,7 @@ function renderWeek() {
     CARD.forEach(i => { const st = saved.lessons[i].stats || {}; Object.keys(st).forEach(k => { const a = agg[k] = agg[k] || { asked: 0, right: 0, endLv: 0 }; a.asked += st[k].asked; a.right += st[k].right; a.endLv = Math.max(a.endLv, st[k].endLv || 0); }); });
     const lvl = k => { const a = agg[k]; if (!a) return 0; if (WEEK >= 2) { const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; } if (k === 'hl') return Math.min(4, a.endLv + 1); if (k === 'contour') return Math.min(4, a.endLv + 1); const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; };
     const desc = k => { const a = agg[k]; if (!a) return ''; if (WEEK >= 2) return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; if (k === 'hl') return T_.hlLv[Math.min(3, a.endLv)]; if (k === 'contour') return T_.ctLv[Math.min(3, a.endLv)]; return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; };
-    const keys = WEEK === 6 ? ['feat', 'char'] : WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : []);
+    const keys = WEEK === 7 ? ['sight', 'singmatch'] : WEEK === 6 ? ['feat', 'char'] : WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : []);
     if (WEEK === 1 && saved.lessons[3]) { const kd = saved.lessons[3].kinds; agg.change = { asked: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.a, 0) : 0, right: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.r, 0) : 0 }; if (!agg.change.asked) agg.change = { asked: 1, right: 0 }; }
     $('skills').innerHTML = keys.map(k => `<li><div class="row"><b>${T_.skills[k]}</b><span class="muted">${desc(k)}</span></div><div class="meter">${[1, 2, 3, 4].map(i => `<i class="${i <= lvl(k) ? 'on' : ''}"></i>`).join('')}</div></li>`).join('');
     $('wc-text').value = T_.card(keys.map(k => '· ' + T_.skills[k] + ': ' + desc(k)), saved.lessons[CARD[CARD.length - 1]].date);
@@ -1780,7 +2019,7 @@ $('btn-replay').onclick = () => { unlock(); playQ(); $('btn-slow').hidden = !!(L
 $('btn-slow').onclick = () => playQ(true);
 $('btn-undo').onclick = () => { const q = L && L.q; if (!q || L.answered || q.type !== 'echo' || !q.got.length) return; q.got.pop(); drawSlots(); $('btn-undo').disabled = !q.got.length; };
 $('btn-next').onclick = () => { if (L && L.seg.type === 'intro') return nextSeg(); if (L && L.afterWrong) { track('continue-after-wrong'); L.afterWrong = false; } ask(); };
-$('btn-quit').onclick = () => { L = null; show('week'); };
+$('btn-quit').onclick = () => { stopListen(); L = null; show('week'); };
 $('btn-week').onclick = () => show('week');
 $('btn-nextlesson').onclick = () => { const n = LESSONS.map((x, i) => i).find(i => !saved.lessons[i]); startLesson(n == null ? LESSONS.length - 1 : n); };
 $('btn-copy').onclick = () => {
