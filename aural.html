@@ -225,6 +225,9 @@ a { color: inherit; }
 .foot { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 .paybox h3{margin:0 0 6px}.paybox.lock{border:2px solid var(--coral,#F2613F)}.paybox details{margin-top:10px}.paybox summary{cursor:pointer}
+#answers.rh .ans small{display:block;font-weight:500;font-size:13px;color:var(--muted);margin-top:3px}
+.say-it{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--coral-soft);font-size:14px;line-height:1.55}
+.say-it q{font-weight:700;quotes:"“" "”"}
 </style>
 <script src="pay.js"></script>
 </head>
@@ -334,7 +337,7 @@ a { color: inherit; }
 <script>
 (() => {
 // which week of the Grade 4 plan this page shows (?w=2 for week 2)
-const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 5 ? w : 1; } catch (e) { return 1; } })();
+const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 6 ? w : 1; } catch (e) { return 1; } })();
 // ---------- text ----------
 const T = {
   en: {
@@ -390,6 +393,40 @@ const T = {
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 5 listening card', skills: { tapbeat: 'Tapping the beat + 2/3/4 time', taprhythm: 'Tapping a rhythm back', rhythm: 'Reading a rhythm by ear' },
       card: (rows, date) => 'Dottino · Grade 4 aural · Week 5 (Test D)\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=5'
+    },
+    w6: {
+      eyebrow: 'Exam-style practice · Week 6 · Grade 4 aural, Test C (ABRSM format)', h1: 'Listen closely. Say what you hear.',
+      intro: 'In Test C the examiner plays a short piece, then asks two questions: one about a feature (dynamics, articulation, tempo, or major and minor) and one about its character, meaning what gives the music its mood. This week your child hears short pieces and learns the words and reasons examiners listen for. Four stops, about 10 minutes each.',
+      lessons: 'Four stops, about 10 minutes each',
+      L: [
+        { t: 'Loud, quiet, smooth, detached', d: 'Dynamics and articulation: getting louder or quieter, legato or staccato.' },
+        { t: 'Speed and key', d: 'Does the tempo change? Major or minor, now in a whole piece.' },
+        { t: 'What gives it character?', d: 'Choose the mood and the reasons, and learn how to say it in the exam.' },
+        { t: 'Week 6 check', d: 'Exam style: feature questions, character questions and a rhythm to tap.' }
+      ],
+      seg: { feat: 'Musical features', char: 'Character', quiz: 'Week 6 check', taprhythm: 'Tap the rhythm', meter: 'Strong beat' },
+      hi: ['Week 6! Listen like an examiner.', 'Speed and key. Ears ready?', 'Time to explain the mood.', 'Last stop this week. Ready?'],
+      dTitle: ['You can hear dynamics and articulation', 'You can hear tempo and key', 'You can explain a piece’s character', 'Week 6 complete'],
+      dNote: ['Next time: speed and key.', 'Next time: describing character.', 'One more stop: the week 6 check.', 'Your week 6 card is ready on the week page.'],
+      stickers: [['🔊', 'Dynamics Ear', 'Hears louder and quieter'], ['⏩', 'Tempo Ear', 'Hears the speed change'], ['🎭', 'Character Critic', 'Explains a piece’s mood'], ['⭐', 'Week 6 Star', 'Finished week 6']],
+      cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
+      wcEyebrow: 'Week 6 listening card', skills: { feat: 'Dynamics, articulation, tempo, key', char: 'Describing character, with reasons' },
+      card: (rows, date) => 'Dottino · Grade 4 aural · Week 6 (Test C)\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=6',
+      pFeat: { dyn: 'This question is about dynamics. How did the loudness change?', art: 'This question is about articulation. Were the notes smooth or detached?', tempo: 'This question is about tempo. Did the speed change?', ton: 'This question is about tonality. Major or minor key?' },
+      sFeat: { dyn: 'Listen to the whole piece. Is the end louder or quieter than the start? Little by little, or all of a sudden?', art: 'Follow the tune: do the notes join up, or are there tiny gaps between them?', tempo: 'Tap the beat on your knee. Does it stay the same, get slower, or get faster near the end?', ton: 'Bright and open, or darker? Listen to the last chord most of all.' },
+      featName: { cresc: 'Gets louder', dim: 'Gets quieter', fp: 'Loud, then suddenly quiet', pf: 'Quiet, then suddenly loud', legato: 'Smooth (legato)', staccato: 'Detached (staccato)', steady: 'Stays the same', slower: 'Slows down', faster: 'Speeds up', major: 'Major', minor: 'Minor' },
+      featIcon: { cresc: '◢', dim: '◣', fp: '▮▫', pf: '▫▮', legato: '⁀', staccato: '⋯', steady: '⟶', slower: '🐢', faster: '🐇', major: '☀', minor: '☁' },
+      featLong: { cresc: 'got gradually louder (a crescendo)', dim: 'got gradually quieter (a diminuendo)', fp: 'started loud, then suddenly went quiet', pf: 'started quiet, then suddenly went loud', legato: 'was smooth, each note joined to the next (legato)', staccato: 'had short, detached notes (staccato)', steady: 'kept the same speed all the way', slower: 'slowed down near the end (a rallentando)', faster: 'got faster near the end (an accelerando)', major: 'was in a major key', minor: 'was in a minor key' },
+      wrongFeat(a, ans) { return 'The music ' + this.featLong[ans] + '. Hear the version you chose, then the real one.'; },
+      hearChoseThen: '▶ What you chose, then what it was',
+      pChar: 'What gives this music its character?', sChar: 'Pick the description that matches what you heard: the mood, and the reasons for it.', sChar2: 'Careful: one choice has the right mood but the wrong reasons. In the exam, the reasons are what count.',
+      charName: { cheerful: 'Cheerful and bouncy', calm: 'Calm and gentle', sad: 'Sad and thoughtful', march: 'Bold, like a march', mysterious: 'Mysterious, like tiptoeing', stormy: 'Stormy and dramatic', dance: 'Graceful, like a waltz' },
+      whyShort: { fast: 'fast', slow: 'slow', major: 'major key', minor: 'minor key', detached: 'short, detached notes', smooth: 'smooth notes', quiet: 'quiet', loud: 'loud', steady: 'steady marching beat', speeding: 'keeps speeding up', lilt: 'swinging 3-beat lilt', march2: 'marching 2-beat feel' },
+      whyLong: { fast: 'it is fast', slow: 'it is slow', major: 'it is in a major key', minor: 'it is in a minor key', detached: 'the notes are short and detached', smooth: 'the notes are smooth and joined up', quiet: 'it is quiet', loud: 'it is loud', steady: 'it has a steady marching beat', lilt: 'it has a swinging three-beat lilt' },
+      sentence(c) { const w = CHARS[c].why.map(x => this.whyLong[x]); return 'It sounds ' + this.charName[c].toLowerCase() + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
+      sayIt(c) { return 'In the exam you could say: <q>' + this.sentence(c) + '</q>'; },
+      charRight: n => 'Yes: ' + n.toLowerCase() + '.',
+      wrongChar: (n, sameWord) => sameWord ? 'Right mood, but those reasons don’t match what you heard. Here are the real ones.' : 'This one is ' + n.toLowerCase() + '. Here is why.'
     },
 
     pMode: 'Major or minor?', sMode: 'Listen to the chord: major sounds bright and open, minor sounds darker.', sMode2: 'Now a short tune that ends on home. Does it feel major or minor?', major: 'Major', minor: 'Minor',
@@ -557,6 +594,41 @@ const T = {
       wcEyebrow: '第 5 周听力卡', skills: { tapbeat: '跟拍 + 判断几拍子', taprhythm: '拍回节奏', rhythm: '听出节奏' },
       card: (rows, date) => 'Dottino · 四级听力 · 第 5 周（D 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=5'
     },
+    w6: {
+      eyebrow: '考试题型练习 · 第 6 周 · 四级听力 C 题（ABRSM 题型）', h1: '仔细听，说出你听到的。',
+      intro: 'C 题里，考官弹一段短曲，然后问两个问题：一个关于音乐特点（力度、奏法、速度变化，或大调小调），一个关于性格：是什么让这段音乐有这种情绪。这一周孩子会听很多短曲，学会考官想听到的说法和理由。四站，每站约 10 分钟。',
+      lessons: '四站，每站约 10 分钟',
+      L: [
+        { t: '强弱和连断', d: '力度和奏法：渐强还是渐弱，连奏还是断奏。' },
+        { t: '速度和调性', d: '速度有没有变？在整段音乐里听大调小调。' },
+        { t: '是什么造就了它的性格？', d: '选出情绪和理由，学会考试时怎么说。' },
+        { t: '第 6 周小测', d: '考试形式：特点题、性格题，再拍一段节奏。' }
+      ],
+      seg: { feat: '音乐特点', char: '音乐性格', quiz: '第 6 周小测', taprhythm: '拍回节奏', meter: '找强拍' },
+      hi: ['第 6 周！像考官一样听。', '速度和调性，耳朵准备好了吗？', '来说说音乐的情绪吧。', '本周最后一站，准备好了吗？'],
+      dTitle: ['你能听出力度和奏法了', '你能听出速度和调性了', '你能说出音乐的性格了', '第 6 周完成'],
+      dNote: ['下一站：速度和调性。', '下一站：描述音乐性格。', '还有一站：第 6 周小测。', '第 6 周听力卡已经放在本周页面上。'],
+      stickers: [['🔊', '力度耳朵', '听得出渐强渐弱'], ['⏩', '速度耳朵', '听得出速度变化'], ['🎭', '性格评论家', '能说出音乐的情绪'], ['⭐', '第 6 周之星', '完成了第 6 周']],
+      cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
+      wcEyebrow: '第 6 周听力卡', skills: { feat: '力度、奏法、速度、调性', char: '描述音乐性格（带理由）' },
+      card: (rows, date) => 'Dottino · 四级听力 · 第 6 周（C 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=6',
+      pFeat: { dyn: '这题问力度：音量是怎么变化的？', art: '这题问奏法：音是连着的，还是断开的？', tempo: '这题问速度：速度有没有变？', ton: '这题问调性：大调还是小调？' },
+      sFeat: { dyn: '听完整段。结尾比开头更响还是更轻？是慢慢变，还是突然变？', art: '跟着旋律听：音和音是连起来的，还是中间有小空隙？', tempo: '在腿上轻拍拍子。快结束时，速度是不变、变慢，还是变快？', ton: '明亮开阔，还是暗一些？最后一个和弦最关键。' },
+      featName: { cresc: '越来越响', dim: '越来越轻', fp: '先响，突然变轻', pf: '先轻，突然变响', legato: '连奏（legato）', staccato: '断奏（staccato）', steady: '速度不变', slower: '变慢了', faster: '变快了', major: '大调', minor: '小调' },
+      featIcon: { cresc: '◢', dim: '◣', fp: '▮▫', pf: '▫▮', legato: '⁀', staccato: '⋯', steady: '⟶', slower: '🐢', faster: '🐇', major: '☀', minor: '☁' },
+      featLong: { cresc: '是慢慢变响的（渐强，crescendo）', dim: '是慢慢变轻的（渐弱，diminuendo）', fp: '开头很响，然后突然变轻', pf: '开头很轻，然后突然变响', legato: '是连奏的，每个音都连到下一个音（legato）', staccato: '是短促断开的音（staccato）', steady: '从头到尾速度都没变', slower: '快结束时变慢了（rallentando）', faster: '快结束时变快了（accelerando）', major: '是大调', minor: '是小调' },
+      wrongFeat(a, ans) { return '这段音乐' + this.featLong[ans] + '。先听你选的版本，再听真正的那段。'; },
+      hearChoseThen: '▶ 先听你选的，再听原来的',
+      pChar: '是什么造就了这段音乐的性格？', sChar: '选出和你听到的一致的描述：情绪，以及原因。', sChar2: '注意：有一个选项情绪对了，但理由错了。考试里理由才是得分关键。',
+      charName: { cheerful: '欢快跳跃', calm: '平静温柔', sad: '忧伤沉思', march: '雄壮，像进行曲', mysterious: '神秘，像踮着脚走', stormy: '激烈，像暴风雨', dance: '优雅，像圆舞曲' },
+      whyShort: { fast: '快', slow: '慢', major: '大调', minor: '小调', detached: '短促断开的音', smooth: '连贯的音', quiet: '轻', loud: '响', steady: '稳定的进行曲拍子', speeding: '越来越快', lilt: '摇摆的三拍子', march2: '进行曲般的二拍子' },
+      whyLong: { fast: 'it is fast', slow: 'it is slow', major: 'it is in a major key', minor: 'it is in a minor key', detached: 'the notes are short and detached', smooth: 'the notes are smooth and joined up', quiet: 'it is quiet', loud: 'it is loud', steady: 'it has a steady marching beat', lilt: 'it has a swinging three-beat lilt' },
+      charEn: { cheerful: 'cheerful and bouncy', calm: 'calm and gentle', sad: 'sad and thoughtful', march: 'bold, like a march', mysterious: 'mysterious, like tiptoeing', stormy: 'stormy and dramatic', dance: 'graceful, like a waltz' },
+      sentence(c) { const w = CHARS[c].why.map(x => this.whyLong[x]); return 'It sounds ' + this.charEn[c] + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
+      sayIt(c) { return '考试时可以用英文这样回答：<q>' + this.sentence(c) + '</q><br><span class="muted">意思是：听起来' + this.charName[c] + '，因为' + CHARS[c].why.map(x => this.whyShort[x]).join('、') + '。</span>'; },
+      charRight: n => '对：' + n + '。',
+      wrongChar: (n, sameWord) => sameWord ? '情绪选对了，但这些理由和你听到的不一样。下面是真正的理由。' : '这段是「' + n + '」。原因在这里。'
+    },
 
     pMode: '大调还是小调？', sMode: '听这个和弦：大调听起来明亮、开阔，小调听起来暗一些。', sMode2: '这次是一小段回到主音的旋律，感觉是大调还是小调？', major: '大调', minor: '小调',
     wrongMode: m => '是' + (m ? '小调' : '大调') + '。先听它，再听同样的和弦变成' + (m ? '大调' : '小调') + '：注意中间那个音的变化。', hearMajMin: m => m ? '▶ 先小调，再大调' : '▶ 先大调，再小调',
@@ -686,7 +758,7 @@ const S = {
   naming: shared.naming || 'letter'
 };
 const $ = id => document.getElementById(id);
-const t = () => { const b = T[S.lang], w = WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const o = Object.assign({}, b, w); o.seg = Object.assign({}, b.seg, w.seg); return o; };
+const t = () => { const b = T[S.lang], w = WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const o = Object.assign({}, b, w); o.seg = Object.assign({}, b.seg, w.seg); return o; };
 const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
 const letterOf = m => LET[((m % 12) + 12) % 12] || (LET[(m - 1) % 12] + '♯');
@@ -713,16 +785,16 @@ function unlock() {
   try { const a = new Audio('audio/silent.mp3'); a.setAttribute('playsinline', ''); a.volume = 0.01; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ }
 }
 ['pointerdown', 'keydown', 'touchend'].forEach(ev => addEventListener(ev, unlock, { once: false, passive: true }));
-function play(midi, when, vol, waited) {
+function play(midi, when, vol, waited, len) {
   if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
   const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3));
-  if (!buf[base] && loads[base] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true); }; loads[base].then(go); setTimeout(go, 900); return; }
+  if (!buf[base] && loads[base] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len); }; loads[base].then(go); setTimeout(go, 900); return; }
   const at = ctx.currentTime + (when || 0);
   const g = ctx.createGain(); g.gain.value = vol || 0.85; g.connect(ctx.destination);
   if (buf[base]) {
     const s = ctx.createBufferSource(); s.buffer = buf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12);
-    s.connect(g); s.start(at); g.gain.setTargetAtTime(0, at + 0.85, 0.2);
+    s.connect(g); s.start(at); if (len) { g.gain.setTargetAtTime(0, at + len, len < 0.3 ? 0.04 : 0.15); s.stop(at + len + 1.2); } else g.gain.setTargetAtTime(0, at + 0.85, 0.2);
   } else {
     const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
     o.connect(g); g.gain.setValueAtTime(0.3, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.8); o.start(at); o.stop(at + 0.85);
@@ -797,6 +869,18 @@ const LESSONS_W5 = [
     { type: 'taprhythm', level: 1, fixed: true, count: 5 } ],
   [ { type: 'quiz', items: [{ t: 'tapbeat', lv: 1 }, { t: 'tapbeat', lv: 1 }, { t: 'taprhythm', lv: 1 }, { t: 'taprhythm', lv: 1 }, { t: 'rhythm', lv: 2 }, { t: 'meter', lv: 2 }, { t: 'echo', lv: 3 }, { t: 'mode', lv: 1 }] } ]
 ];
+// week 6 (Test C): hear a short piece, then answer about one feature, then about its character
+const LESSONS_W6 = [
+  [ { type: 'feat', aspect: 'dyn', level: 0, fixed: true, count: 4 },
+    { type: 'feat', aspect: 'art', level: 0, fixed: true, count: 4 },
+    { type: 'feat', aspect: 'dyn', level: 1, fixed: true, count: 3 } ],
+  [ { type: 'feat', aspect: 'tempo', level: 0, fixed: true, count: 3 },
+    { type: 'feat', aspect: 'tempo', level: 1, fixed: true, count: 3 },
+    { type: 'feat', aspect: 'ton', level: 0, fixed: true, count: 4 } ],
+  [ { type: 'char', level: 0, fixed: true, count: 3 },
+    { type: 'char', level: 1, fixed: true, count: 4 } ],
+  [ { type: 'quiz', items: [{ t: 'feat', lv: 1, a: 'dyn' }, { t: 'char', lv: 1 }, { t: 'feat', lv: 1, a: 'art' }, { t: 'feat', lv: 1, a: 'tempo' }, { t: 'char', lv: 1 }, { t: 'feat', lv: 1, a: 'ton' }, { t: 'taprhythm', lv: 1 }, { t: 'meter', lv: 2 }] } ]
+];
 const LESSONS_W1 = [
   [ { type: 'intro' },
     { type: 'hl', level: 0, up: 4, target: 2, streak: 6, max: 26 },
@@ -812,7 +896,7 @@ const LESSONS_W1 = [
     { type: 'same', level: 1, fixed: true, count: 10 },
     { type: 'same', level: 2, fixed: true, count: 5 } ]
 ];
-const LESSONS = WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1;
+const LESSONS = WEEK === 6 ? LESSONS_W6 : WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1;
 
 let L = null; // running lesson state
 // play a 'meter' tune; count = add a click on every beat (higher click on beat 1) so the strong beat is easy to hear
@@ -907,7 +991,92 @@ function tick(when, strong) {
   o.type = 'square'; o.frequency.value = strong ? 1760 : 1175; g.gain.setValueAtTime(strong ? 0.18 : 0.09, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
   o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.06);
 }
+// ---------- week 6: little pieces with a character ----------
+// o: { minor, k (beats per bar), tempo: slow|mid|fast, tch: steady|slower|faster, dyn: p|mf|f|cresc|dim|fp|pf, art: legato|staccato, lh: oompah|broken|held }
+const MEL = { maj: [67, 69, 71, 72, 74, 76, 77, 79, 81], min: [64, 65, 67, 69, 71, 72, 74, 76, 77] }; // tonic at index 3
+const CH = { maj: [[48, 52, 55], [53, 57, 60], [43, 47, 50], [48, 52, 55]], maj2: [[48, 52, 55], [45, 48, 52], [43, 47, 50], [48, 52, 55]], min: [[45, 48, 52], [50, 53, 57], [52, 55, 59], [45, 48, 52]] };
+const RH = { 2: [[1, 1], [0.5, 0.5, 1], [1, 0.5, 0.5]], 3: [[1, 1, 1], [2, 1], [0.5, 0.5, 1, 1], [1, 0.5, 0.5, 1]], 4: [[1, 1, 1, 1], [0.5, 0.5, 1, 1, 1], [1, 1, 0.5, 0.5, 1], [2, 1, 1], [1, 1, 2], [1.5, 0.5, 1, 1]] };
+const RH_END = { 2: [[1, 1], [2]], 3: [[1, 2], [3]], 4: [[1, 1, 2], [2, 2]] };
+function makePiece(o) {
+  const p = Object.assign({ minor: false, k: 4, tempo: 'mid', tch: 'steady', dyn: 'mf', art: 'legato', lh: 'broken' }, o);
+  const sc = p.minor ? MEL.min : MEL.maj, chords = p.minor ? CH.min : (Math.random() < 0.5 ? CH.maj : CH.maj2);
+  const ev = []; let d = pick([3, 5, 3]), t0 = 0;
+  for (let bar = 0; bar < 4; bar++) {
+    const rh = bar === 3 ? pick(RH_END[p.k]) : pick(RH[p.k]), pcs = chords[bar].map(m => m % 12);
+    rh.forEach((dur, i) => {
+      if (bar === 3 && i === rh.length - 1) d = 3;
+      else if (i === 0 && bar > 0) { // strong beat: nearest chord tone
+        let best = d, bd = 99; for (let j = 0; j < sc.length; j++) if (pcs.includes(sc[j] % 12) && Math.abs(j - d) < bd) { bd = Math.abs(j - d); best = j; } d = best;
+      } else if (!(bar === 0 && i === 0)) { d += pick([-1, 1, 1, -1, 2, -2]); d = Math.max(0, Math.min(8, d)); }
+      ev.push({ t: t0, d: dur, m: sc[d], mel: true });
+      t0 += dur;
+    });
+    // left hand
+    const c = chords[bar], b0 = bar * p.k;
+    if (p.lh === 'held') { ev.push({ t: b0, d: p.k, m: c[0] - 12 }); c.forEach(m => ev.push({ t: b0, d: p.k, m })); }
+    else if (p.lh === 'oompah') { for (let b = 0; b < p.k; b++) { if (b === 0) ev.push({ t: b0, d: 1, m: c[0] - 12 }); else [c[1], c[2]].forEach(m => ev.push({ t: b0 + b, d: 1, m })); } }
+    else { const pat = [c[0] - 12, c[2] - 12, c[1], c[2] - 12]; for (let h = 0; h < p.k * 2; h++) ev.push({ t: b0 + h * 0.5, d: 0.5, m: pat[h % 4] + (h % 4 === 2 ? -12 : 0) }); }
+  }
+  p.ev = ev; p.T = 4 * p.k;
+  return p;
+}
+// seconds from the start for a time t (in beats), with a slow-down or speed-up in the second half
+function pieceClock(p) {
+  const B = { slow: 0.78, mid: 0.58, fast: 0.4 }[p.tempo], T = p.T;
+  const f = t => p.tch === 'slower' ? (t < T * 0.45 ? 1 : 1 + 0.85 * (t - T * 0.45) / (T * 0.55)) : p.tch === 'faster' ? (t < T * 0.3 ? 1 : 1 - 0.42 * (t - T * 0.3) / (T * 0.7)) : 1;
+  const cum = [0]; for (let i = 0; i < T * 4 + 8; i++) cum.push(cum[i] + B * f(i / 4 + 0.125) / 4);
+  return t => { const i = Math.min(cum.length - 2, Math.floor(t * 4)); return cum[i] + (cum[i + 1] - cum[i]) * (t * 4 - i); };
+}
+function dynAt(p, t) {
+  const x = t / p.T;
+  switch (p.dyn) { case 'p': return 0.3; case 'f': return 0.95; case 'cresc': return 0.18 + 0.85 * x; case 'dim': return 1.0 - 0.82 * x; case 'fp': return x < 0.5 ? 0.95 : 0.24; case 'pf': return x < 0.5 ? 0.24 : 0.95; default: return 0.6; }
+}
+function playPiece(p, start) {
+  const clk = pieceClock(p), s0 = start || 0.1; let end = 0;
+  p.ev.forEach(e => {
+    const at = s0 + clk(e.t), dur = clk(e.t + e.d) - clk(e.t);
+    const len = p.art === 'staccato' ? Math.min(0.13, dur * 0.4) : dur + (e.mel ? 0.06 : 0.25);
+    play(e.m, at, Math.min(1, dynAt(p, e.t) * (e.mel ? 1 : 0.55)), false, len);
+    end = Math.max(end, at + dur);
+  });
+  return (end + 0.6) * 1000;
+}
+// characters: the piece settings that make each one, and the features that explain it
+const CHARS = {
+  cheerful: { o: () => ({ minor: false, tempo: 'fast', art: 'staccato', dyn: pick(['f', 'mf']), k: pick([2, 4]), lh: 'oompah' }), why: ['fast', 'major', 'detached'], icon: '☀' },
+  calm: { o: () => ({ minor: false, tempo: 'slow', art: 'legato', dyn: 'p', k: pick([3, 4]), lh: 'broken' }), why: ['slow', 'smooth', 'quiet'], icon: '☾' },
+  sad: { o: () => ({ minor: true, tempo: 'slow', art: 'legato', dyn: pick(['p', 'dim']), k: pick([3, 4]), lh: 'held' }), why: ['minor', 'slow', 'smooth'], icon: '☂' },
+  march: { o: () => ({ minor: false, tempo: 'mid', art: 'staccato', dyn: 'f', k: pick([2, 4]), lh: 'oompah' }), why: ['loud', 'steady', 'detached'], icon: '♩' },
+  mysterious: { o: () => ({ minor: true, tempo: 'mid', art: 'staccato', dyn: 'p', k: pick([2, 4]), lh: 'oompah' }), why: ['minor', 'quiet', 'detached'], icon: '☁' },
+  stormy: { o: () => ({ minor: true, tempo: 'fast', art: 'legato', dyn: pick(['f', 'cresc']), k: 4, lh: 'broken' }), why: ['minor', 'fast', 'loud'], icon: '⚡' },
+  dance: { o: () => ({ minor: false, tempo: 'mid', art: 'legato', dyn: 'mf', k: 3, lh: 'oompah' }), why: ['lilt', 'smooth', 'major'], icon: '∿' }
+};
+const CHAR_CLASH = { cheerful: ['march'], march: ['cheerful'], dance: ['calm'], calm: ['dance'] }; // too close to tell apart from a 4-bar piece
+const WHY_FLIP = { fast: 'slow', slow: 'fast', major: 'minor', minor: 'major', detached: 'smooth', smooth: 'detached', quiet: 'loud', loud: 'quiet', steady: 'speeding', lilt: 'march2' };
 function makeQ(type, level, force) {
+  if (type === 'feat') {
+    const a = force || pick(['dyn', 'art', 'tempo', 'ton']);
+    const base = { minor: Math.random() < 0.4, k: pick([2, 3, 4]), tempo: 'mid', art: pick(['legato', 'staccato']), lh: pick(['broken', 'oompah']) };
+    let opts, ans;
+    if (a === 'dyn') { opts = level >= 1 ? ['cresc', 'dim', 'fp', 'pf'] : ['cresc', 'dim']; ans = pick(opts); base.dyn = ans; }
+    else if (a === 'art') { opts = ['legato', 'staccato']; ans = pick(opts); base.art = ans; base.lh = ans === 'legato' ? pick(['broken', 'held']) : 'oompah'; }
+    else if (a === 'tempo') { opts = level >= 1 ? ['steady', 'slower', 'faster'] : ['steady', 'slower']; ans = pick(opts); base.tch = ans; }
+    else { opts = ['major', 'minor']; ans = pick(opts); base.minor = ans === 'minor'; }
+    return { type, aspect: a, opts, ans, piece: makePiece(base), level };
+  }
+  if (type === 'char') {
+    const keys = Object.keys(CHARS), c = pick(keys);
+    const others = keys.filter(x => x !== c && !(CHAR_CLASH[c] || []).includes(x));
+    const options = [{ id: c, c, why: CHARS[c].why }];
+    const o2 = pick(others); options.push({ id: o2, c: o2, why: CHARS[o2].why });
+    if (level >= 1) { // same word, wrong reasons: two of the three flipped
+      const why = CHARS[c].why.slice(); const keep = rnd(3); for (let i = 0; i < 3; i++) if (i !== keep) why[i] = WHY_FLIP[why[i]] || why[i];
+      options.push({ id: c + '-x', c, why });
+    }
+    for (let i = options.length - 1; i > 0; i--) { const j = rnd(i + 1); [options[i], options[j]] = [options[j], options[i]]; }
+    return { type, c, options, piece: makePiece(CHARS[c].o()), level };
+  }
+
   if (type === 'hl') {
     const iv = [12, 7, pick([3, 4]), pick([1, 2])][level];
     const dir = Math.random() < 0.5 ? 1 : -1;
@@ -1117,7 +1286,7 @@ function nextSeg() {
   if (L.si >= L.segs.length) return endLesson();
   const g = L.segs[L.si];
   L.seg = { ...g, asked: 0, run: 0, wrongRun: 0, lv: g.level || 0, startLv: g.level || 0 };
-  if (g.type === 'quiz') L.quizQs = g.items.map(k => typeof k === 'string' ? makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0) : makeQ(k.t, k.lv));
+  if (g.type === 'quiz') L.quizQs = g.items.map(k => typeof k === 'string' ? makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0) : makeQ(k.t, k.lv, k.a));
   if (g.type === 'intro') return showIntro();
   ask();
 }
@@ -1176,7 +1345,7 @@ function ask() {
   let q;
   if (g.type === 'quiz') q = L.quizQs[g.asked];
   else if (g.type === 'same' && L.retry) { q = makeQ('same', g.lv, L.retry); q.retry = true; }
-  else q = makeQ(g.type, g.lv);
+  else q = makeQ(g.type, g.lv, g.aspect);
   L.retry = null;
   L.q = q; L.answered = false; L.lastPick = null;
   renderQ(); playQ();
@@ -1207,6 +1376,13 @@ function renderQ() {
       play(m); q.got.push(m); drawSlots(); $('btn-undo').disabled = false;
       if (q.got.length === q.notes.length) judge(q.got.every((x, i) => x === q.notes[i]), {});
     } });
+  } else if (type === 'feat') {
+    $('l-prompt').textContent = T_.pFeat[q.aspect]; $('l-sub').textContent = T_.sFeat[q.aspect];
+    answers(q.opts.map(v => [v, T_.featIcon[v], T_.featName[v]]), v => judge(v === q.ans, { chose: v }));
+  } else if (type === 'char') {
+    $('l-prompt').textContent = T_.pChar; $('l-sub').textContent = q.level >= 1 ? T_.sChar2 : T_.sChar;
+    answers(q.options.map(o => [o.id, CHARS[o.c].icon, '<b>' + T_.charName[o.c] + '</b><small>' + o.why.map(w => T_.whyShort[w]).join(' · ') + '</small>']), v => judge(v === q.c, { chose: v }));
+    $('answers').classList.add('rh');
   } else if (type === 'mode') {
     $('l-prompt').textContent = T_.pMode; $('l-sub').textContent = q.level >= 1 ? T_.sMode2 : T_.sMode;
     answers([['major', '☀', T_.major], ['minor', '☁', T_.minor]], v => judge((v === 'minor') === q.minor, { chose: v }));
@@ -1253,6 +1429,7 @@ function renderQ() {
 function playQ(slow) {
   const q = L.q; if (!q) return;
   const gap = slow ? 0.95 : 0.62;
+  if (q.type === 'feat' || q.type === 'char') { playPiece(q.piece); return; }
   if (q.type === 'meter') { playMeter(q, slow, false); return; }
   if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach(m => play(m, 0.2 + 3 * g2, 0.55)); if (q.tune) seq(q.tune, slow ? 0.75 : 0.55, 0.3 + 3 * g2 + 1.1); return; }
   if (q.type === 'echo' && q.exam) { playExam(q, slow); return; }
@@ -1364,6 +1541,7 @@ function judge(ok, info) {
       chime(false); say('wave', pick(T_.cheer), false, pick(['happy', 'cheer']), true); blinkFace(); setTimeout(blinkFace, 240);
       if (src && src.classList && src.classList.contains('ans')) { src.classList.remove('pop'); void src.offsetWidth; src.classList.add('pop'); }
     }
+    if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
     setTimeout(() => { if (L && L.q === q) ask(); }, q.type === 'echo' || q.type === 'find' ? 1100 : 750);
@@ -1375,6 +1553,15 @@ function judge(ok, info) {
   if (q.type === 'hl') { html = pitchSvg([{ notes: q.notes, color: 'var(--good)' }]); feedback(false, T_.wrongHl(q.dir), html, replay); }
   else if (q.type === 'find') { keyMark(info.tapped, 'no'); keyMark(q.target, 'ok'); html = pitchSvg([{ notes: [q.given, q.target], color: 'var(--good)' }, { notes: [q.given, info.tapped], color: 'var(--coral)', dx: 6 }]); feedback(false, T_.wrongFind(nameOf(q.target)), html, replay, true); }
   else if (q.type === 'contour') { html = pitchSvg([{ notes: q.notes, color: 'var(--good)' }]); feedback(false, T_.wrongCt, html, replay); }
+  else if (q.type === 'feat') {
+    const over = {}; over[{ dyn: 'dyn', art: 'art', tempo: 'tch', ton: 'minor' }[q.aspect]] = q.aspect === 'ton' ? info.chose === 'minor' : info.chose;
+    const mine = Object.assign({}, q.piece, over);
+    feedback(false, T_.wrongFeat(q.aspect, q.ans, info.chose), '', () => { const d = playPiece(mine); playPiece(q.piece, d / 1000 + 0.5); }, false, T_.hearChoseThen);
+  }
+  else if (q.type === 'char') {
+    const o = q.options.find(x => x.id === info.chose);
+    feedback(false, T_.wrongChar(T_.charName[q.c], o && o.c === q.c), `<div class="say-it">${T_.sayIt(q.c)}</div>`, () => playPiece(q.piece), false, T_.hearAgain);
+  }
   else if (q.type === 'mode') {
     const other = q.minor ? [60, 64, 67] : [57, 60, 64];
     feedback(false, T_.wrongMode(q.minor), '', () => { const g2 = 0.5; q.chord.forEach((m, i) => play(m, 0.08 + i * g2)); other.forEach((m, i) => play(m, 2.2 + i * g2)); }, false, T_.hearMajMin(q.minor));
@@ -1397,7 +1584,7 @@ function judge(ok, info) {
     replay = () => { const d = seq(q.got, 0.62); seq(q.notes, 0.62, d / 1000 + 0.6); };
     feedback(false, T_.wrongEcho, html, replay, true, T_.hearMine);
   } else if (q.type === 'same') { feedbackSame(q, info || {}); }
-  setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
+  if (q.type !== 'feat' && q.type !== 'char') setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
 }
 function feedback(ok, text, svg, replay, legend, replayLabel) {
   const T_ = t(), fb = $('fb');
@@ -1551,7 +1738,7 @@ function renderWeek() {
       `<button class="btn ${d ? 'ghost' : open ? 'coral' : 'locked'} sm go" data-l="${i}" ${open ? '' : 'disabled'}>${locked ? PT().lockBtn : d ? T_.again : open ? T_.start : T_.locked + i + (S.lang === 'zh' ? ' 站后解锁' : '')}</button></li>`;
   }).join('');
   $('lessons').querySelectorAll('.go').forEach(b => { b.onclick = () => startLesson(+b.dataset.l); });
-  const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 5;
+  const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 6;
   $('weeknav').innerHTML = WEEK === 1 ? `<a href="${wl(2)}">${T_.weekNext}</a>` : `<a href="${wl(WEEK - 1)}">${T_.weekN(WEEK - 1, -1)}</a>` + (WEEK < LAST ? ` · <a href="${wl(WEEK + 1)}">${T_.weekN(WEEK + 1, 1)}</a>` : '');
   // week card once the core stops are done (week 1: stops 1–3; week 2: all four)
   const CARD = WEEK >= 2 ? [0, 1, 2, 3] : [0, 1, 2];
@@ -1562,7 +1749,7 @@ function renderWeek() {
     CARD.forEach(i => { const st = saved.lessons[i].stats || {}; Object.keys(st).forEach(k => { const a = agg[k] = agg[k] || { asked: 0, right: 0, endLv: 0 }; a.asked += st[k].asked; a.right += st[k].right; a.endLv = Math.max(a.endLv, st[k].endLv || 0); }); });
     const lvl = k => { const a = agg[k]; if (!a) return 0; if (WEEK >= 2) { const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; } if (k === 'hl') return Math.min(4, a.endLv + 1); if (k === 'contour') return Math.min(4, a.endLv + 1); const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; };
     const desc = k => { const a = agg[k]; if (!a) return ''; if (WEEK >= 2) return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; if (k === 'hl') return T_.hlLv[Math.min(3, a.endLv)]; if (k === 'contour') return T_.ctLv[Math.min(3, a.endLv)]; return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; };
-    const keys = WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : []);
+    const keys = WEEK === 6 ? ['feat', 'char'] : WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : []);
     if (WEEK === 1 && saved.lessons[3]) { const kd = saved.lessons[3].kinds; agg.change = { asked: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.a, 0) : 0, right: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.r, 0) : 0 }; if (!agg.change.asked) agg.change = { asked: 1, right: 0 }; }
     $('skills').innerHTML = keys.map(k => `<li><div class="row"><b>${T_.skills[k]}</b><span class="muted">${desc(k)}</span></div><div class="meter">${[1, 2, 3, 4].map(i => `<i class="${i <= lvl(k) ? 'on' : ''}"></i>`).join('')}</div></li>`).join('');
     $('wc-text').value = T_.card(keys.map(k => '· ' + T_.skills[k] + ': ' + desc(k)), saved.lessons[CARD[CARD.length - 1]].date);
@@ -1589,7 +1776,7 @@ $('lang-en').onclick = () => { S.lang = 'en'; saveShared(); rerender(); };
 $('lang-zh').onclick = () => { S.lang = 'zh'; saveShared(); rerender(); };
 $('nm-letter').onclick = () => { S.naming = 'letter'; saveShared(); rerender(); };
 $('nm-solfege').onclick = () => { S.naming = 'solfege'; saveShared(); rerender(); };
-$('btn-replay').onclick = () => { unlock(); playQ(); $('btn-slow').hidden = false; };
+$('btn-replay').onclick = () => { unlock(); playQ(); $('btn-slow').hidden = !!(L && L.q && (L.q.type === 'feat' || L.q.type === 'char')); };
 $('btn-slow').onclick = () => playQ(true);
 $('btn-undo').onclick = () => { const q = L && L.q; if (!q || L.answered || q.type !== 'echo' || !q.got.length) return; q.got.pop(); drawSlots(); $('btn-undo').disabled = !q.got.length; };
 $('btn-next').onclick = () => { if (L && L.seg.type === 'intro') return nextSeg(); if (L && L.afterWrong) { track('continue-after-wrong'); L.afterWrong = false; } ask(); };
