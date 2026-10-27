@@ -124,3 +124,9 @@
 - 老师卡片文字改用页面字体。
 - 已购买（有解锁）时不再显示创始会员登记框。
 - 拍子按钮改为立体按键，按下有下沉和水波效果。
+
+## 23. 新钢琴 + 真实曲目
+- 全站改用 Salamander Grand Piano（Yamaha C5，CC-BY 3.0）：三层力度采样（先加载中力度），房间混响，生成短曲的左手按小节用踏板，轻微人性化。文件在 `audio/sal/`，旧的 `audio/p*.mp3` 只留给声音实验室对比。
+- 真实曲目：`pieces.js`（由 `tools/make_pieces.py` 从 Mutopia Project 的 MIDI 生成）。20 首：Burgmüller Op.100 No.2/3/5/7/9/12/16/17，Schumann Op.68 No.1/2/3/4/5/6/8/10/14，Tchaikovsky Op.39 No.1/5/16。每段取开头 4–12 小节（约 10–16 秒），标好性格、理由、调式、拍子、奏法。
+- 性格题全部用真实曲目；答完显示曲名。模拟考与周测的 C(i)/C(ii) 用同一首适合拍节奏的真实曲目（有时加渐强/渐弱或渐慢）。单项特点练习仍用生成短曲，保留"你选的版本 vs 真正的版本"对比。
+- 授权：Burgmüller、Tchaikovsky 为公版；Schumann 为 CC BY-SA，`pieces.js` 以 CC BY-SA 3.0 共享，页脚已注明来源。

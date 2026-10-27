@@ -256,6 +256,7 @@ a { color: inherit; }
 @keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
 </style>
 <script src="pay.js"></script>
+<script src="pieces.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -307,7 +308,7 @@ a { color: inherit; }
       <div class="wl-row"><input type="email" id="wl-email" placeholder="you@example.com" aria-label="Email" autocomplete="email"><button class="btn" id="wl-btn" type="submit">Tell me</button></div>
       <div class="status" id="wl-status" aria-live="polite"></div>
     </form>
-    <p class="foot"><a href="/" id="t-home">Dottino home</a> · <a href="privacy.html" id="t-privacy">Privacy</a> · <a href="terms.html">Terms</a> · <span id="t-keep">Progress stays in this browser.</span></p>
+    <p class="foot"><a href="/" id="t-home">Dottino home</a> · <a href="privacy.html" id="t-privacy">Privacy</a> · <a href="terms.html">Terms</a> · <span class="credit">Piano sound: <a href="https://sfzinstruments.github.io/pianos/salamander" rel="noopener">Salamander Grand Piano</a> by Alexander Holm, CC-BY 3.0 · Music excerpts from <a href="https://www.mutopiaproject.org" rel="noopener">Mutopia Project</a> editions (Schumann: CC BY-SA)</span> · <span id="t-keep">Progress stays in this browser.</span></p>
   </main>
   <form name="feedback" data-netlify="true" netlify-honeypot="bot-field" hidden><textarea name="message"></textarea><input name="name"><input name="email"><input name="week"><input name="where"><input name="lang"><input name="settings"><input name="ua"><input name="ref"><input name="bot-field"></form>
 
@@ -450,11 +451,12 @@ const T = {
       wrongFeat(a, ans) { return 'The music ' + this.featLong[ans] + '. Hear the version you chose, then the real one.'; },
       hearChoseThen: '▶ What you chose, then what it was',
       pChar: 'What gives this music its character?', sChar: 'Pick the description that matches what you heard: the mood, and the reasons for it.', sChar2: 'Careful: one choice has the right mood but the wrong reasons. In the exam, the reasons are what count.',
-      charName: { cheerful: 'Cheerful and bouncy', calm: 'Calm and gentle', sad: 'Sad and thoughtful', march: 'Bold, like a march', mysterious: 'Mysterious, like tiptoeing', stormy: 'Stormy and dramatic', dance: 'Graceful, like a waltz' },
+      charName: { cheerful: 'Cheerful and bouncy', calm: 'Calm and gentle', sad: 'Sad and thoughtful', march: 'Bold, like a march', mysterious: 'Mysterious, like tiptoeing', stormy: 'Stormy and dramatic', dance: 'Graceful, like a waltz', energetic: 'Lively and energetic', flowing: 'Flowing and graceful', bold: 'Bold and exciting', solemn: 'Solemn and calm', wild: 'Wild and exciting' },
+      pieceWas: (c, tt) => 'The music: ' + c + ', ' + tt + '.',
       whyShort: { fast: 'fast', slow: 'slow', major: 'major key', minor: 'minor key', detached: 'short, detached notes', smooth: 'smooth notes', quiet: 'quiet', loud: 'loud', steady: 'steady marching beat', speeding: 'keeps speeding up', lilt: 'swinging 3-beat lilt', march2: 'marching 2-beat feel' },
       whyLong: { fast: 'it is fast', slow: 'it is slow', major: 'it is in a major key', minor: 'it is in a minor key', detached: 'the notes are short and detached', smooth: 'the notes are smooth and joined up', quiet: 'it is quiet', loud: 'it is loud', steady: 'it has a steady marching beat', lilt: 'it has a swinging three-beat lilt' },
-      sentence(c) { const w = CHARS[c].why.map(x => this.whyLong[x]); return 'It sounds ' + this.charName[c].toLowerCase() + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
-      sayIt(c) { return 'In the exam you could say: <q>' + this.sentence(c) + '</q>'; },
+      sentence(c, why) { const w = (why || CHARS[c].why).map(x => this.whyLong[x]); return 'It sounds ' + this.charName[c].toLowerCase() + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
+      sayIt(c, why) { return 'In the exam you could say: <q>' + this.sentence(c, why) + '</q>'; },
       charRight: n => 'Yes: ' + n.toLowerCase() + '.',
       wrongChar: (n, sameWord) => sameWord ? 'Right mood, but those reasons don’t match what you heard. Here are the real ones.' : 'This one is ' + n.toLowerCase() + '. Here is why.'
     },
@@ -714,12 +716,13 @@ const T = {
       wrongFeat(a, ans) { return '这段音乐' + this.featLong[ans] + '。先听你选的版本，再听真正的那段。'; },
       hearChoseThen: '▶ 先听你选的，再听原来的',
       pChar: '是什么造就了这段音乐的性格？', sChar: '选出和你听到的一致的描述：情绪，以及原因。', sChar2: '注意：有一个选项情绪对了，但理由错了。考试里理由才是得分关键。',
-      charName: { cheerful: '欢快跳跃', calm: '平静温柔', sad: '忧伤沉思', march: '雄壮，像进行曲', mysterious: '神秘，像踮着脚走', stormy: '激烈，像暴风雨', dance: '优雅，像圆舞曲' },
+      charName: { cheerful: '欢快跳跃', calm: '平静温柔', sad: '忧伤沉思', march: '雄壮，像进行曲', mysterious: '神秘，像踮着脚走', stormy: '激烈，像暴风雨', dance: '优雅，像圆舞曲', energetic: '活泼有活力', flowing: '流畅优美', bold: '勇敢激昂', solemn: '庄重安静', wild: '狂野激动' },
+      pieceWas: (c, tt) => '这段音乐是：' + c + '《' + tt + '》。',
       whyShort: { fast: '快', slow: '慢', major: '大调', minor: '小调', detached: '短促断开的音', smooth: '连贯的音', quiet: '轻', loud: '响', steady: '稳定的进行曲拍子', speeding: '越来越快', lilt: '摇摆的三拍子', march2: '进行曲般的二拍子' },
       whyLong: { fast: 'it is fast', slow: 'it is slow', major: 'it is in a major key', minor: 'it is in a minor key', detached: 'the notes are short and detached', smooth: 'the notes are smooth and joined up', quiet: 'it is quiet', loud: 'it is loud', steady: 'it has a steady marching beat', lilt: 'it has a swinging three-beat lilt' },
-      charEn: { cheerful: 'cheerful and bouncy', calm: 'calm and gentle', sad: 'sad and thoughtful', march: 'bold, like a march', mysterious: 'mysterious, like tiptoeing', stormy: 'stormy and dramatic', dance: 'graceful, like a waltz' },
-      sentence(c) { const w = CHARS[c].why.map(x => this.whyLong[x]); return 'It sounds ' + this.charEn[c] + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
-      sayIt(c) { return '考试时可以用英文这样回答：<q>' + this.sentence(c) + '</q><br><span class="muted">意思是：听起来' + this.charName[c] + '，因为' + CHARS[c].why.map(x => this.whyShort[x]).join('、') + '。</span>'; },
+      charEn: { cheerful: 'cheerful and bouncy', calm: 'calm and gentle', sad: 'sad and thoughtful', march: 'bold, like a march', mysterious: 'mysterious, like tiptoeing', stormy: 'stormy and dramatic', dance: 'graceful, like a waltz', energetic: 'lively and energetic', flowing: 'flowing and graceful', bold: 'bold and exciting', solemn: 'solemn and calm', wild: 'wild and exciting' },
+      sentence(c, why) { const w = (why || CHARS[c].why).map(x => this.whyLong[x]); return 'It sounds ' + this.charEn[c] + ' because ' + w[0] + ', ' + w[1] + ', and ' + w[2] + '.'; },
+      sayIt(c, why) { return '考试时可以用英文这样回答：<q>' + this.sentence(c, why) + '</q><br><span class="muted">意思是：听起来' + this.charName[c] + '，因为' + (why || CHARS[c].why).map(x => this.whyShort[x]).join('、') + '。</span>'; },
       charRight: n => '对：' + n + '。',
       wrongChar: (n, sameWord) => sameWord ? '情绪选对了，但这些理由和你听到的不一样。下面是真正的理由。' : '这段是「' + n + '」。原因在这里。'
     },
@@ -929,14 +932,28 @@ const saveShared = () => { shared.lang = S.lang; shared.naming = S.naming; share
 // iPhone: Web Audio is silenced by the side switch unless the page first plays an <audio> element,
 // which moves the page into the "media playback" category. Newer iOS also accepts navigator.audioSession.
 let ctx = null; const buf = {}; let unlocked = false;
-// samples start loading as soon as the page opens, so the very first note is already the piano
-const loads = {};
+// piano: Salamander Grand Piano (Yamaha C5, CC-BY 3.0), sampled every minor third C2–C7 in three velocity layers.
+// The middle layer loads first (enough to play everything); the soft and loud layers follow for real dynamics.
+const loads = {}, NM3 = ['C', 'Ds', 'Fs', 'A'], LAYER_GAIN = { 4: 1.9, 9: 1.15, 14: 0.85 };
+const salName = (m, v) => NM3[((m - 36) / 3) % 4] + (Math.floor(m / 12) - 1) + 'v' + v;
 function ensureCtx() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } return ctx; }
+function loadLayer(v) {
+  for (let m = 36; m <= 96; m += 3) { const k = m + ':' + v; if (!loads[k]) loads[k] = fetch('audio/sal/' + salName(m, v) + '.mp3').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b2 => { buf[k] = b2; return b2; }).catch(() => null); }
+}
 function loadSamples() {
   if (!ensureCtx()) return;
-  for (let m = 36; m <= 84; m += 3) if (!loads[m]) loads[m] = fetch('audio/p' + m + '.mp3').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buf[m] = b; return b; }).catch(() => null);
+  loadLayer(9);
+  if (!loads.more) loads.more = Promise.all(Array.from({ length: 21 }, (x, i) => loads[(36 + i * 3) + ':9'])).then(() => { loadLayer(4); loadLayer(14); });
 }
 loadSamples();
+// a little room around the piano (one reverb per audio bus, so stopping the audio also stops the echo)
+let roomIR = null;
+function roomIn() {
+  const b0 = outBus(); if (b0.verb) return b0.verb;
+  if (!roomIR || roomIR.sampleRate !== ctx.sampleRate) { const len = Math.floor(ctx.sampleRate * 2); roomIR = ctx.createBuffer(2, len, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = roomIR.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.4) * (i < 240 ? i / 240 : 1); } }
+  const cv = ctx.createConvolver(); cv.buffer = roomIR; const wet = ctx.createGain(); wet.gain.value = 0.24; cv.connect(wet); wet.connect(b0); b0.verb = cv;
+  return cv;
+}
 function unlock() {
   loadSamples();
   if (ctx && ctx.state === 'suspended') ctx.resume();
@@ -954,18 +971,21 @@ function stopAudio() {
   if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); } catch (e) { /* ignore */ } }, 150); }
   bus = null;
 }
-function play(midi, when, vol, waited, len) {
+function play(midi, when, vol, waited, len, holdTo) {
   if (!ctx) return;
   const gen = audioGen;
   if (ctx.state === 'suspended') ctx.resume();
-  const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3));
-  if (!buf[base] && loads[base] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done || gen !== audioGen) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len); }; loads[base].then(go); setTimeout(go, 900); return; }
+  const base = Math.max(36, Math.min(96, 36 + Math.round((midi - 36) / 3) * 3)), v0 = vol == null ? 0.85 : vol;
+  const want = v0 < 0.42 ? 4 : v0 < 0.78 ? 9 : 14, key = buf[base + ':' + want] ? base + ':' + want : base + ':9', layer = buf[base + ':' + want] ? want : 9;
+  if (!buf[key] && loads[base + ':9'] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done || gen !== audioGen) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len, holdTo == null ? null : Math.max(0, holdTo - (performance.now() - t0) / 1000)); }; loads[base + ':9'].then(go); setTimeout(go, 1200); return; }
   const at = ctx.currentTime + (when || 0);
-  audioEnd = Math.max(audioEnd, at + Math.min(len || 0.7, 1.2));
-  const g = ctx.createGain(); g.gain.value = vol || 0.85; g.connect(outBus());
-  if (buf[base]) {
-    const s = ctx.createBufferSource(); s.buffer = buf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12);
-    s.connect(g); s.start(at); if (len) { g.gain.setTargetAtTime(0, at + len, len < 0.3 ? 0.04 : 0.15); s.stop(at + len + 1.2); } else g.gain.setTargetAtTime(0, at + 0.85, 0.2);
+  const end = holdTo != null ? ctx.currentTime + holdTo : at + (len || 1.25);
+  audioEnd = Math.max(audioEnd, Math.min(end, at + 1.4));
+  const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * v0) * LAYER_GAIN[layer] * 0.8; g.connect(outBus());
+  if (buf[key]) {
+    const s2 = ctx.createBufferSource(); s2.buffer = buf[key]; s2.playbackRate.value = Math.pow(2, (midi - base) / 12);
+    s2.connect(g); g.connect(roomIn());
+    s2.start(at); g.gain.setTargetAtTime(0, end, len && len < 0.3 && holdTo == null ? 0.06 : 0.2); s2.stop(end + 1.6);
   } else {
     const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
     o.connect(g); g.gain.setValueAtTime(0.3, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.8); o.start(at); o.stop(at + 0.85);
@@ -1354,7 +1374,7 @@ function makePiece(o) {
 }
 // seconds from the start for a time t (in beats), with a slow-down or speed-up in the second half
 function pieceClock(p) {
-  const B = { slow: 0.78, mid: 0.58, fast: 0.4 }[p.tempo], T = p.T;
+  const B = p.B || { slow: 0.78, mid: 0.58, fast: 0.4 }[p.tempo], T = p.T;
   const f = t => p.tch === 'slower' ? (t < T * 0.45 ? 1 : 1 + 0.85 * (t - T * 0.45) / (T * 0.55)) : p.tch === 'faster' ? (t < T * 0.3 ? 1 : 1 - 0.42 * (t - T * 0.3) / (T * 0.7)) : 1;
   const cum = [0]; for (let i = 0; i < T * 4 + 8; i++) cum.push(cum[i] + B * f(i / 4 + 0.125) / 4);
   return t => { const i = Math.min(cum.length - 2, Math.floor(t * 4)); return cum[i] + (cum[i + 1] - cum[i]) * (t * 4 - i); };
@@ -1364,14 +1384,20 @@ function dynAt(p, t) {
   switch (p.dyn) { case 'p': return 0.3; case 'f': return 0.95; case 'cresc': return 0.18 + 0.85 * x; case 'dim': return 1.0 - 0.82 * x; case 'fp': return x < 0.5 ? 0.95 : 0.24; case 'pf': return x < 0.5 ? 0.24 : 0.95; default: return 0.6; }
 }
 function playPiece(p, start) {
-  const clk = pieceClock(p), s0 = start || 0.1; let end = 0;
+  // expressive playback: dynamics pick the sample layer, a gentle phrase arch, beat-one accents, the pedal for legato, tiny human timing
+  const clk = pieceClock(p), s0 = start || 0.12; let end = 0;
+  const pedal = p.art !== 'staccato';
   p.ev.forEach(e => {
-    const at = s0 + clk(e.t), dur = clk(e.t + e.d) - clk(e.t);
-    const len = p.art === 'staccato' ? Math.min(0.13, dur * 0.4) : dur + (e.mel ? 0.06 : 0.25);
-    play(e.m, at, Math.min(1, dynAt(p, e.t) * (e.mel ? 1 : 0.55)), false, len);
+    const at = s0 + clk(e.t) + (Math.random() - 0.5) * 0.01, dur = clk(e.t + e.d) - clk(e.t);
+    const arch = 1 + 0.08 * Math.sin(Math.PI * e.t / p.T), acc = Math.abs(e.t % p.k) < 0.01 ? 1.07 : 1;
+    const vel = Math.min(1, dynAt(p, e.t) * arch * acc * (e.mel ? 1 : 0.62) * (e.v || 1) * (1 + (Math.random() - 0.5) * 0.08));
+    if (p.real) { const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * acc * (e.mel ? 1 : 0.8); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
+    if (!pedal) play(e.m, at, vel, false, Math.min(0.16, dur * 0.45));
+    else if (e.mel || p.lh === 'held') play(e.m, at, vel, false, dur + 0.05);
+    else { const barEnd = s0 + clk((Math.floor(e.t / p.k + 0.001) + 1) * p.k); play(e.m, at, vel, false, dur, Math.max(at + dur, barEnd + 0.03)); } // left hand held by the pedal to the end of the bar
     end = Math.max(end, at + dur);
   });
-  return (end + 0.6) * 1000;
+  return (end + 0.8) * 1000;
 }
 // characters: the piece settings that make each one, and the features that explain it
 const CHARS = {
@@ -1381,9 +1407,10 @@ const CHARS = {
   march: { o: () => ({ minor: false, tempo: 'mid', art: 'staccato', dyn: 'f', k: pick([2, 4]), lh: 'oompah' }), why: ['loud', 'steady', 'detached'], icon: '♩' },
   mysterious: { o: () => ({ minor: true, tempo: 'mid', art: 'staccato', dyn: 'p', k: pick([2, 4]), lh: 'oompah' }), why: ['minor', 'quiet', 'detached'], icon: '☁' },
   stormy: { o: () => ({ minor: true, tempo: 'fast', tch: pick(['steady', 'faster']), art: 'legato', dyn: pick(['f', 'cresc']), k: 4, lh: 'broken' }), why: ['minor', 'fast', 'loud'], icon: '⚡' },
-  dance: { o: () => ({ minor: false, tempo: 'mid', art: 'legato', dyn: 'mf', k: 3, lh: 'oompah' }), why: ['lilt', 'smooth', 'major'], icon: '∿' }
+  dance: { o: () => ({ minor: false, tempo: 'mid', art: 'legato', dyn: 'mf', k: 3, lh: 'oompah' }), why: ['lilt', 'smooth', 'major'], icon: '∿' },
+  energetic: { why: ['fast', 'minor', 'detached'], icon: '✦' }, flowing: { why: ['fast', 'smooth', 'quiet'], icon: '≈' }, bold: { why: ['fast', 'loud', 'major'], icon: '➶' }, solemn: { why: ['slow', 'smooth', 'major'], icon: '⛪' }, wild: { why: ['fast', 'minor', 'loud'], icon: '⚡' }
 };
-const CHAR_CLASH = { cheerful: ['march'], march: ['cheerful'], dance: ['calm'], calm: ['dance'] }; // too close to tell apart from a 4-bar piece
+const CHAR_CLASH = { cheerful: ['march', 'bold'], march: ['cheerful', 'bold'], bold: ['cheerful', 'march', 'wild', 'energetic'], dance: ['calm', 'flowing'], calm: ['dance', 'solemn', 'flowing'], solemn: ['calm'], flowing: ['calm', 'dance'], wild: ['energetic', 'bold', 'stormy'], energetic: ['wild', 'bold', 'stormy'], stormy: ['wild', 'energetic'], sad: [] }; // too close to tell apart from a 4-bar piece
 const WHY_FLIP = { fast: 'slow', slow: 'fast', major: 'minor', minor: 'major', detached: 'smooth', smooth: 'detached', quiet: 'loud', loud: 'quiet', steady: 'speeding', lilt: 'march2' };
 // Test A with rhythm. level 5 (builder): 2 bars, keys up to one sharp or flat · level 6 (exam): 3–4 bars, up to three sharps or flats
 const KEYS_A = {
@@ -1434,12 +1461,16 @@ function featFrom(pc) {
 }
 // C(ii): the first two bars of the piece's tune, played twice, then: 2, 3 or 4 time?
 function rhythmFrom(pc) {
-  const mel = pc.ev.filter(e => e.mel && e.t < 2 * pc.k), parts = [], notes = [];
-  mel.forEach((e, i) => { if (i && Math.floor(e.t / pc.k) !== Math.floor(mel[i - 1].t / pc.k)) parts.push('|'); parts.push(String(e.d)); notes.push(e.m); });
+  const top = {}; pc.ev.filter(e => e.mel && e.t < 2 * pc.k - 1e-6).forEach(e => { if (!top[e.t] || e.m > top[e.t].m) top[e.t] = e; });
+  const mel = Object.values(top).sort((a, b) => a.t - b.t), parts = [], notes = [];
+  mel.forEach((e, i) => { if (i && Math.floor(e.t / pc.k + 1e-6) !== Math.floor(mel[i - 1].t / pc.k + 1e-6)) parts.push('|'); const nx = mel[i + 1]; parts.push(String(+((nx ? nx.t : Math.max(e.t + e.d, 2 * pc.k)) - e.t).toFixed(3))); notes.push(e.m); });
   return { type: 'taprhythm', k: pc.k, pattern: parts.join(','), notes, level: 1, taps: [], twice: true, piece: pc };
 }
 function meterFrom(pc) { return { type: 'meter', k: pc.k, bars: 4, ev: [], piece: pc, level: 2, accent: 1 }; }
 function playPieceCount(pc) { const d = playPiece(pc), clk = pieceClock(pc); for (let b = 0; b < pc.T; b++) tick(0.1 + clk(b), b % pc.k === 0); return d; }
+// ---------- real repertoire (pieces.js) ----------
+function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii }; }
+function pieceLine(q) { const pc = q.piece; return pc && pc.real ? `<div class="small muted" style="margin-top:6px">♪ ${t().pieceWas(pc.composer, pc.title)}</div>` : ''; }
 function makeQ(type, level, force) {
   if (type === 'sight') return makeSight(level);
   if (type === 'singmatch') return { type, target: pick([60, 62, 64, 65, 67, 69, 71]), missed: false, level: 0 };
@@ -1453,8 +1484,16 @@ function makeQ(type, level, force) {
     else { opts = ['major', 'minor']; ans = pick(opts); base.minor = ans === 'minor'; }
     return { type, aspect: a, opts, ans, piece: makePiece(base), level };
   }
+  if (type === 'char' && window.PIECES && PIECES.length) {
+    const pool = force === 'cii' ? PIECES.filter(x => x.cii) : PIECES, pc = pick(pool), c = pc.char;
+    const others = PIECES.filter(x => x.char !== c && !(CHAR_CLASH[c] || []).includes(x.char));
+    const o2 = pick(others), options = [{ id: c, c, why: pc.why }, { id: o2.char, c: o2.char, why: o2.why }];
+    if (level >= 1) { const why = pc.why.slice(), keep = rnd(3); for (let i = 0; i < 3; i++) if (i !== keep) why[i] = WHY_FLIP[why[i]] || why[i]; options.push({ id: c + '-x', c, why }); }
+    for (let i = options.length - 1; i > 0; i--) { const j = rnd(i + 1); [options[i], options[j]] = [options[j], options[i]]; }
+    return { type, c, why: pc.why, options, piece: realPiece(pc), level };
+  }
   if (type === 'char') {
-    const keys = Object.keys(CHARS), c = pick(keys);
+    const keys = Object.keys(CHARS).filter(k => CHARS[k].o), c = pick(keys);
     const others = keys.filter(x => x !== c && !(CHAR_CLASH[c] || []).includes(x));
     const options = [{ id: c, c, why: CHARS[c].why }];
     const o2 = pick(others); options.push({ id: o2, c: o2, why: CHARS[o2].why });
@@ -1681,8 +1720,8 @@ function nextSeg() {
   if (g.type === 'quiz') { let lastPiece = null; L.quizQs = []; L.review = []; L.reviewShown = false;
     g.items.forEach(k => {
       if (typeof k === 'string') { L.quizQs.push(makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0)); return; }
-      if (k.t === 'cpair') { const c = makeQ('char', 1), f = featFrom(c.piece); f.sec = c.sec = 'Ci'; L.quizQs.push(f, c); lastPiece = c.piece; return; }
-      if (k.t === 'cii') { const pc = lastPiece || makePiece({ k: pick([2, 3, 4]) }), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
+      if (k.t === 'cpair') { const c = makeQ('char', 1, 'cii'); if (c.piece.real) { const r0 = Math.random(); if (r0 < 0.3) c.piece.dyn = pick(['cresc', 'dim']); else if (r0 < 0.5) c.piece.tch = 'slower'; } const f = featFrom(c.piece); f.sec = c.sec = 'Ci'; L.quizQs.push(f, c); lastPiece = c.piece; return; }
+      if (k.t === 'cii') { const pc = (lastPiece && (!lastPiece.real || lastPiece.cii)) ? lastPiece : (window.PIECES ? realPiece(pick(PIECES.filter(x => x.cii))) : makePiece({ k: pick([2, 3, 4]) })), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
       const q2 = makeQ(k.t, k.lv, k.a); if (k.sec) q2.sec = k.sec; if (q2.piece) lastPiece = q2.piece; L.quizQs.push(q2);
     }); }
   if (g.type === 'intro') return showIntro();
@@ -1989,7 +2028,7 @@ function judge(ok, info) {
   if (L.answered) return; L.answered = true;
   if (L.practice) { // a fresh try from the review or after a mistake: feedback only, not counted
     const q = L.q, T_ = t(); if (L.lastPick) markAns(L.lastPick, ok); L.lastPick = null; L.lastJudge = { ok, info: info || {} };
-    if (ok) { chime(false); say('party', T_.practiceOk, true, 'cheer', true); feedback(true, T_.practiceOk, q.type === 'char' ? `<div class="say-it">${T_.sayIt(q.c)}</div>` : ''); }
+    if (ok) { chime(false); say('party', T_.practiceOk, true, 'cheer', true); feedback(true, T_.practiceOk, q.type === 'char' ? `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>` : ''); }
     else { say('think', pick(T_.oops), true, 'think', true); explain(q, info || {}); }
     $('btn-next').textContent = L.reviewing ? T_.revBack : T_.next; $('next-row').hidden = false;
     return;
@@ -2043,7 +2082,7 @@ function judge(ok, info) {
       chime(false); say('wave', pick(T_.cheer), false, pick(['happy', 'cheer']), true); blinkFace(); setTimeout(blinkFace, 240);
       if (src && src.classList && src.classList.contains('ans')) { src.classList.remove('pop'); void src.offsetWidth; src.classList.add('pop'); }
     }
-    if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
     setTimeout(() => { if (L && L.q === q) ask(); }, q.type === 'echo' || q.type === 'find' ? 1100 : 750);
@@ -2071,11 +2110,12 @@ function explain(q, info) {
   else if (q.type === 'feat') {
     const over = {}; over[{ dyn: 'dyn', art: 'art', tempo: 'tch', ton: 'minor' }[q.aspect]] = q.aspect === 'ton' ? info.chose === 'minor' : info.chose;
     const mine = Object.assign({}, q.piece, over);
-    feedback(false, T_.wrongFeat(q.aspect, q.ans, info.chose), '', () => { const d = playPiece(mine); playPiece(q.piece, d / 1000 + 0.5); }, false, T_.hearChoseThen);
+    const noSwap = q.piece.real && q.aspect === 'ton'; // a real piece can't be moved to the other mode: just hear it again
+    feedback(false, T_.wrongFeat(q.aspect, q.ans, info.chose) + pieceLine(q), '', noSwap ? () => playPiece(q.piece) : () => { const d = playPiece(mine); playPiece(q.piece, d / 1000 + 0.5); }, false, noSwap ? T_.hearAgain : T_.hearChoseThen);
   }
   else if (q.type === 'char') {
     const o = q.options.find(x => x.id === info.chose);
-    feedback(false, T_.wrongChar(T_.charName[q.c], o && o.c === q.c), `<div class="say-it">${T_.sayIt(q.c)}</div>`, () => playPiece(q.piece), false, T_.hearAgain);
+    feedback(false, T_.wrongChar(T_.charName[q.c], o && o.c === q.c), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`, () => playPiece(q.piece), false, T_.hearAgain);
   }
   else if (q.type === 'mode') {
     const other = q.minor ? [60, 64, 67] : [57, 60, 64];
@@ -2309,7 +2349,7 @@ function rerender() {
   const j = L.lastJudge || {}, q = L.q, T_ = t(), nr = !$('next-row').hidden;
   renderQ(); $('singbar').hidden = true;
   if (j.pick != null) markAns(String(j.pick), j.ok);
-  if (!j.ok) { explain(q, j.info || {}); if (!L.reviewing) offerSimilar(q); } else if (q.type === 'char') feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c)}</div>`);
+  if (!j.ok) { explain(q, j.info || {}); if (!L.reviewing) offerSimilar(q); } else if (q.type === 'char') feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`);
   if (nr) { $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; }
 }
 $('lang-en').onclick = () => { S.lang = 'en'; saveShared(); rerender(); };
