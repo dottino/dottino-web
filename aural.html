@@ -376,8 +376,8 @@ const T = {
     pTapRh: 'Tap the rhythm back', sTapRh: 'Listen, then tap the same rhythm on the big button: one tap for every note. Press ▶ Play again to start over.',
     wrongTapRh: 'Close. Here is what your taps looked like, and the rhythm you heard. Look for the beat that is different.', wrongTapCount: (g, w) => 'You tapped ' + g + ' time' + (g === 1 ? '' : 's') + '; the rhythm had ' + w + ' notes. Count the quick ones too.', rhYourTaps: 'Your taps',
     w5: {
-      eyebrow: 'Exam-style practice · Week 5 · Grade 4 aural, Test D (ABRSM format)', h1: 'Clap the beat. Clap the rhythm.',
-      intro: 'In Test D the examiner plays a piece; you clap the beat and say whether it is in 2, 3 or 4 time, then clap back the rhythm of a short phrase. This week you tap instead of clapping, on a big button. Only the spacing of your taps is judged, so headphone delay won’t count against you.',
+      eyebrow: 'Exam-style practice · Week 5 · Grade 4 aural, Test C(ii) (ABRSM format)', h1: 'Clap the beat. Clap the rhythm.',
+      intro: 'In Test C(ii) the examiner plays a short phrase from the same piece; you clap its rhythm back, then say whether the music is in 2, 3 or 4 time. This week builds up to that: first tapping a steady beat to feel the time, then tapping rhythms back. You tap a big button instead of clapping. Only the spacing of your taps is judged, so headphone delay won’t count against you.',
       lessons: 'Four stops, about 10 minutes each',
       L: [
         { t: 'Tap the beat', d: 'Tap along steadily while the tune plays, then say 2, 3 or 4 time.' },
@@ -392,11 +392,11 @@ const T = {
       stickers: [['⏱️', 'Steady Beat', 'Taps a steady beat'], ['👏', 'Rhythm Echo', 'Taps a rhythm back'], ['🎵', 'Dotted Pro', 'Handles dotted rhythms'], ['⭐', 'Week 5 Star', 'Finished week 5']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 5 listening card', skills: { tapbeat: 'Tapping the beat + 2/3/4 time', taprhythm: 'Tapping a rhythm back', rhythm: 'Reading a rhythm by ear' },
-      card: (rows, date) => 'Dottino · Grade 4 aural · Week 5 (Test D)\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=5'
+      card: (rows, date) => 'Dottino · Grade 4 aural · Week 5 (Test C(ii))\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=5'
     },
     w6: {
-      eyebrow: 'Exam-style practice · Week 6 · Grade 4 aural, Test C (ABRSM format)', h1: 'Listen closely. Say what you hear.',
-      intro: 'In Test C the examiner plays a short piece, then asks two questions: one about a feature (dynamics, articulation, tempo, or major and minor) and one about its character, meaning what gives the music its mood. This week your child hears short pieces and learns the words and reasons examiners listen for. Four stops, about 10 minutes each.',
+      eyebrow: 'Exam-style practice · Week 6 · Grade 4 aural, Test C(i) (ABRSM format)', h1: 'Listen closely. Say what you hear.',
+      intro: 'In Test C(i) the examiner plays a short piece, then asks two questions: one about a feature (dynamics, articulation, tempo, or major and minor) and one about its character, meaning what gives the music its mood. This week your child hears short pieces and learns the words and reasons examiners listen for. Four stops, about 10 minutes each.',
       lessons: 'Four stops, about 10 minutes each',
       L: [
         { t: 'Loud, quiet, smooth, detached', d: 'Dynamics and articulation: getting louder or quieter, legato or staccato.' },
@@ -411,7 +411,7 @@ const T = {
       stickers: [['🔊', 'Dynamics Ear', 'Hears louder and quieter'], ['⏩', 'Tempo Ear', 'Hears the speed change'], ['🎭', 'Character Critic', 'Explains a piece’s mood'], ['⭐', 'Week 6 Star', 'Finished week 6']],
       cLine: g => 'Your three notes became a growth star. Growth stars this week: ' + g + ' / 12.',
       wcEyebrow: 'Week 6 listening card', skills: { feat: 'Dynamics, articulation, tempo, key', char: 'Describing character, with reasons' },
-      card: (rows, date) => 'Dottino · Grade 4 aural · Week 6 (Test C)\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=6',
+      card: (rows, date) => 'Dottino · Grade 4 aural · Week 6 (Test C(i))\n' + rows.join('\n') + '\nCompleted ' + date + ' · dottino.app/aural?w=6',
       pFeat: { dyn: 'This question is about dynamics. How did the loudness change?', art: 'This question is about articulation. Were the notes smooth or detached?', tempo: 'This question is about tempo. Did the speed change?', ton: 'This question is about tonality. Major or minor key?' },
       sFeat: { dyn: 'Listen to the whole piece. Is the end louder or quieter than the start? Little by little, or all of a sudden?', art: 'Follow the tune: do the notes join up, or are there tiny gaps between them?', tempo: 'Tap the beat on your knee. Does it stay the same, get slower, or get faster near the end?', ton: 'Bright and open, or darker? Listen to the last chord most of all.' },
       featName: { cresc: 'Gets louder', dim: 'Gets quieter', fp: 'Loud, then suddenly quiet', pf: 'Quiet, then suddenly loud', legato: 'Smooth (legato)', staccato: 'Detached (staccato)', steady: 'Stays the same', slower: 'Slows down', faster: 'Speeds up', major: 'Major', minor: 'Minor' },
@@ -576,8 +576,8 @@ const T = {
     pTapRh: '把节奏拍回来', sTapRh: '先听，再在大按钮上拍出一样的节奏：每个音拍一下。按 ▶ 再听一次可以重新开始。',
     wrongTapRh: '很接近了。上面是你拍出来的样子，下面是你听到的节奏，找找哪一拍不一样。', wrongTapCount: (g, w) => '你拍了 ' + g + ' 下，这段节奏有 ' + w + ' 个音。快的音也要一个一个拍。', rhYourTaps: '你拍的',
     w5: {
-      eyebrow: '考试题型练习 · 第 5 周 · 四级听力 D 题（ABRSM 题型）', h1: '拍出拍子，拍出节奏。',
-      intro: 'D 题里，考官弹一段音乐，你要拍出拍子、说出是 2、3 还是 4 拍，再把一小句的节奏拍出来。这一周用屏幕上的大按钮代替拍手。只看你每两下之间的间隔，所以耳机延迟不会算你错。',
+      eyebrow: '考试题型练习 · 第 5 周 · 四级听力 C(ii) 题（ABRSM 题型）', h1: '拍出拍子，拍出节奏。',
+      intro: 'C(ii) 题里，考官从同一首曲子里弹一小句，你要把它的节奏拍回来，再说出音乐是 2、3 还是 4 拍。这一周一步步练到这里：先跟着稳定的拍子拍，感受几拍子，再把节奏拍回来。用屏幕上的大按钮代替拍手。只看你每两下之间的间隔，所以耳机延迟不会算你错。',
       lessons: '四站，每站约 10 分钟',
       L: [
         { t: '跟着拍子拍', d: '音乐响起时稳稳地拍，然后说出 2、3 还是 4 拍。' },
@@ -592,11 +592,11 @@ const T = {
       stickers: [['⏱️', '稳定节拍器', '拍得出稳定的拍子'], ['👏', '节奏回声', '能把节奏拍回来'], ['🎵', '附点高手', '能拍附点节奏'], ['⭐', '第 5 周之星', '完成了第 5 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 5 周听力卡', skills: { tapbeat: '跟拍 + 判断几拍子', taprhythm: '拍回节奏', rhythm: '听出节奏' },
-      card: (rows, date) => 'Dottino · 四级听力 · 第 5 周（D 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=5'
+      card: (rows, date) => 'Dottino · 四级听力 · 第 5 周（C(ii) 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=5'
     },
     w6: {
-      eyebrow: '考试题型练习 · 第 6 周 · 四级听力 C 题（ABRSM 题型）', h1: '仔细听，说出你听到的。',
-      intro: 'C 题里，考官弹一段短曲，然后问两个问题：一个关于音乐特点（力度、奏法、速度变化，或大调小调），一个关于性格：是什么让这段音乐有这种情绪。这一周孩子会听很多短曲，学会考官想听到的说法和理由。四站，每站约 10 分钟。',
+      eyebrow: '考试题型练习 · 第 6 周 · 四级听力 C(i) 题（ABRSM 题型）', h1: '仔细听，说出你听到的。',
+      intro: 'C(i) 题里，考官弹一段短曲，然后问两个问题：一个关于音乐特点（力度、奏法、速度变化，或大调小调），一个关于性格：是什么让这段音乐有这种情绪。这一周孩子会听很多短曲，学会考官想听到的说法和理由。四站，每站约 10 分钟。',
       lessons: '四站，每站约 10 分钟',
       L: [
         { t: '强弱和连断', d: '力度和奏法：渐强还是渐弱，连奏还是断奏。' },
@@ -611,7 +611,7 @@ const T = {
       stickers: [['🔊', '力度耳朵', '听得出渐强渐弱'], ['⏩', '速度耳朵', '听得出速度变化'], ['🎭', '性格评论家', '能说出音乐的情绪'], ['⭐', '第 6 周之星', '完成了第 6 周']],
       cLine: g => '三个小音符变成了一颗成长星星。本周成长星星：' + g + ' / 12。',
       wcEyebrow: '第 6 周听力卡', skills: { feat: '力度、奏法、速度、调性', char: '描述音乐性格（带理由）' },
-      card: (rows, date) => 'Dottino · 四级听力 · 第 6 周（C 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=6',
+      card: (rows, date) => 'Dottino · 四级听力 · 第 6 周（C(i) 题）\n' + rows.join('\n') + '\n完成于 ' + date + ' · dottino.app/aural?w=6',
       pFeat: { dyn: '这题问力度：音量是怎么变化的？', art: '这题问奏法：音是连着的，还是断开的？', tempo: '这题问速度：速度有没有变？', ton: '这题问调性：大调还是小调？' },
       sFeat: { dyn: '听完整段。结尾比开头更响还是更轻？是慢慢变，还是突然变？', art: '跟着旋律听：音和音是连起来的，还是中间有小空隙？', tempo: '在腿上轻拍拍子。快结束时，速度是不变、变慢，还是变快？', ton: '明亮开阔，还是暗一些？最后一个和弦最关键。' },
       featName: { cresc: '越来越响', dim: '越来越轻', fp: '先响，突然变轻', pf: '先轻，突然变响', legato: '连奏（legato）', staccato: '断奏（staccato）', steady: '速度不变', slower: '变慢了', faster: '变快了', major: '大调', minor: '小调' },
@@ -869,7 +869,7 @@ const LESSONS_W5 = [
     { type: 'taprhythm', level: 1, fixed: true, count: 5 } ],
   [ { type: 'quiz', items: [{ t: 'tapbeat', lv: 1 }, { t: 'tapbeat', lv: 1 }, { t: 'taprhythm', lv: 1 }, { t: 'taprhythm', lv: 1 }, { t: 'rhythm', lv: 2 }, { t: 'meter', lv: 2 }, { t: 'echo', lv: 3 }, { t: 'mode', lv: 1 }] } ]
 ];
-// week 6 (Test C): hear a short piece, then answer about one feature, then about its character
+// week 6 (Test C(i)): hear a short piece, then answer about one feature, then about its character
 const LESSONS_W6 = [
   [ { type: 'feat', aspect: 'dyn', level: 0, fixed: true, count: 4 },
     { type: 'feat', aspect: 'art', level: 0, fixed: true, count: 4 },
@@ -939,7 +939,7 @@ function playExam(q, slow) {
   const t2 = t1 + q.notes.length * gap + 1.2; q.notes.forEach((m, i) => play(m, t2 + i * gap));
   return (t2 + q.notes.length * gap) * 1000;
 }
-// ---------- tapping (Test D) ----------
+// ---------- tapping (Test C(ii)) ----------
 // timing is judged only from the gaps between taps, so Bluetooth / headphone delay does not count against the child
 function onsetsOf(pattern) { const out = []; let t = 0; pattern.split(',').forEach(x => { if (x === '|') return; out.push(t); t += +x; }); return out; }
 function tapPad(onTap) {
@@ -1159,7 +1159,7 @@ function makeQ(type, level, force) {
     while (opts.length < 3 && tries < 40) { const v = variant(); if (opts.indexOf(v) < 0) opts.push(v); tries++; }
     return { type, k, pattern: right, options: opts.sort(() => Math.random() - 0.5), level, cells };
   }
-  if (type === 'tapbeat') { // tap along with the beat while the tune plays, then say 2, 3 or 4 time (Test D)
+  if (type === 'tapbeat') { // tap along with the beat while the tune plays, then say 2, 3 or 4 time (foundation for Test C(ii))
     const m = makeQ('meter', level >= 1 ? 1 : 0);
     return Object.assign(m, { type, beatSec: 0.6, bars: m.k === 4 ? 4 : m.k === 3 ? 5 : 6, stage: 'tap' });
   }
