@@ -1,0 +1,1394 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive ear-training app for children, built around the ABRSM aural test format (Grades 3–5), that teaches children what to listen for. Week 1 is free. Plus a free daily sight-reading game. By Tim, pianist and music education researcher.">
+<title>Dottino · Hear what you play</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column like a practice notebook; the staff is the hero, everything else steps back. */
+:root {
+  --paper: #F4EFE6; --card: #FFFDF9; --ink: #1E1B2E; --muted: #6A6475; --line: #E2DACD;
+  --coral: #E9553A; --coral-soft: rgba(233, 85, 58, .12); --good: #1B7A45; --bad: #C0392B; --disc: #F4EFE6;
+  --key: #FFFDF9; --key-ink: #1E1B2E; --key-sub: #7A7484; --keyb: #1E1B2E;
+  --f-display: "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #14121C; --card: #1E1B29; --ink: #EEE9F5; --muted: #A39DAF; --line: #34304A;
+  --coral: #FF7A5C; --coral-soft: rgba(255, 122, 92, .16); --good: #4CC38A; --bad: #FF6B5E; --disc: #F4EFE6; --key: #EFE9DF; --keyb: #0B0A10; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #14121C; --card: #1E1B29; --ink: #EEE9F5; --muted: #A39DAF; --line: #34304A;
+  --coral: #FF7A5C; --coral-soft: rgba(255, 122, 92, .16); --good: #4CC38A; --bad: #FF6B5E; --disc: #F4EFE6; --key: #EFE9DF; --keyb: #0B0A10; color-scheme: dark }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.wrap .wrap { width: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: -.5px; }
+.brand b i { font-style: normal; color: var(--coral); }
+.brand span { font-size: 13px; color: var(--muted); }
+.toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1.5px solid var(--ink); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 5px 12px; font-size: 13px; font-weight: 700; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* home */
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; }
+.hero h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1.05; font-weight: 800; letter-spacing: -1px; }
+.hero p { color: var(--muted); margin-top: 10px; max-width: 46ch; }
+.disc { width: 132px; height: 132px; border-radius: 50%; background: var(--disc); display: grid; place-items: center; flex: none; }
+.disc img { width: 104px; height: 104px; }
+@media (max-width: 520px) { .hero { grid-template-columns: 1fr; } .disc { width: 96px; height: 96px; order: -1; } .disc img { width: 76px; height: 76px; } }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--coral); }
+.card h2 { font-size: 24px; font-weight: 800; }
+.today-best { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tempo { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.tempo li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.tempo li:last-child { border-bottom: 0; }
+.tempo .n { font-family: var(--f-display); font-weight: 800; color: var(--muted); }
+.tempo .r b { font-family: var(--f-display); font-weight: 600; font-size: 16px; }
+.tempo .r em { font-style: normal; color: var(--muted); margin-left: 6px; }
+.tempo .s { font-variant-numeric: tabular-nums; color: var(--muted); }
+
+.label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.inputs button { border: 1.5px solid var(--line); background: transparent; border-radius: 14px; padding: 10px 8px; text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.inputs button b { font-size: 15px; }
+.inputs button span { font-size: 12px; color: var(--muted); line-height: 1.35; }
+.inputs button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+@media (max-width: 460px) { .inputs { grid-template-columns: 1fr; } }
+.midi-note { font-size: 13px; color: var(--muted); min-height: 1em; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn { border: 0; border-radius: 999px; padding: 13px 26px; font-weight: 700; font-size: 16px; background: var(--ink); color: var(--paper); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+.btn.coral { background: var(--coral); color: #fff; }
+.btn:hover { filter: brightness(1.08); }
+
+.about { display: grid; gap: 12px; }
+.about h3 { font-size: 20px; }
+.about .bio { font-size: 15px; max-width: 62ch; }
+.creds { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.creds li { font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; color: var(--muted); }
+.beliefs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.beliefs div { border-top: 2px solid var(--ink); padding-top: 10px; }
+.beliefs b { display: block; font-family: var(--f-display); font-size: 16px; margin-bottom: 4px; }
+.beliefs p { font-size: 14px; color: var(--muted); }
+@media (max-width: 560px) { .beliefs { grid-template-columns: 1fr; } }
+.course { border: 1.5px solid var(--ink); }
+.course ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+.course ol span { color: var(--muted); }
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tier { border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.tier.main { border: 1.5px solid var(--ink); }
+.tier b { font-family: var(--f-display); font-size: 16px; }
+.tier .p { font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.tier .p s { font-size: 14px; color: var(--muted); font-weight: 600; margin-left: 4px; }
+.tier p { font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .tiers { grid-template-columns: 1fr; } }
+.wrap.wide { max-width: 1180px; }
+.nav { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.nav a.l { font-weight: 700; font-size: 15px; color: var(--ink); text-decoration: none; }
+.nav a.l:hover { color: var(--coral); }
+.btn-a { display: inline-block; text-decoration: none; border-radius: 999px; font-weight: 700; padding: 12px 24px; }
+.btn-a.coral { background: var(--coral); color: #fff; } .btn-a.ink { background: var(--ink); color: var(--paper); } .btn-a.line { border: 1.5px solid var(--ink); color: var(--ink); }
+.btn-a.big { padding: 16px 30px; font-size: 18px; }
+.h-eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--coral); }
+.h2 { font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 4.6vw, 44px); line-height: 1.05; letter-spacing: -1px; margin: 0; }
+.lead { color: var(--muted); font-size: 17px; max-width: 42ch; }
+.hx { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 32px 0 56px; }
+.hx-text { flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.hx-text h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(48px, 9vw, 80px); line-height: .98; letter-spacing: -2px; margin: 0; }
+.hx-text p { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 34ch; }
+.hx-cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.hx-cta span { font-size: 14px; color: var(--muted); }
+.hx-art { flex: 1 1 300px; position: relative; display: flex; justify-content: center; min-height: 330px; }
+.hx-disc { width: min(320px, 78vw); aspect-ratio: 1; border-radius: 50%; background: #EEE8DE; border: 1.5px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+.peekw { width: 72%; }
+.basso { position: relative; width: 100%; aspect-ratio: 1; }
+.basso img { width: 100%; height: 100%; display: block; }
+.basso .idlev { position: absolute; left: -12%; top: -9%; width: 124%; height: 124%; object-fit: cover; -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 70%); mask-image: radial-gradient(circle, #000 52%, transparent 70%); pointer-events: none; }
+.basso.vid img, .basso.vid .eyes { visibility: hidden; }
+.basso:not(.vid) .idlev { display: none; }
+.basso .eyes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.eyeg { transition: transform .25s ease-out; }
+.blink { transform-origin: 182px 238px; transform-box: view-box; }
+.blink.shut { animation: blink .18s ease-in-out; }
+@keyframes blink { 50% { transform: scaleY(.1); } }
+.hx-disc > img { width: 72%; height: auto; }
+.hx-disc .bv { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; -webkit-mask-image: radial-gradient(circle, #000 56%, transparent 71%); mask-image: radial-gradient(circle, #000 56%, transparent 71%); }
+.hx-bubble { position: absolute; top: 6px; left: 0; background: var(--card); border: 1.5px solid var(--ink); border-radius: 18px 18px 18px 4px; padding: 9px 15px; font-weight: 700; }
+.hx-dots { position: absolute; bottom: 16px; right: 0; display: flex; gap: 6px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; }
+.hx-dots i { width: 14px; height: 14px; border-radius: 50%; background: transparent; border: 2px solid var(--line); box-sizing: border-box; display: block; } .hx-dots i.on { background: var(--good); border-color: var(--good); } .hx-dots i.on.g { background: #E8B931; border-color: #E8B931; }
+.hx-dots b { font-family: var(--f-display); }
+.sec { display: flex; flex-direction: column; gap: 24px; padding: 24px 0 64px; }
+.sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.sec-head > div { display: flex; flex-direction: column; gap: 8px; }
+.map { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 32px 28px; }
+.map svg.trail { position: absolute; left: 28px; top: 64px; width: calc(100% - 56px); height: 180px; }
+.stops { position: relative; display: flex; flex-wrap: wrap; gap: 20px; }
+.stop { flex: 1 1 210px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.stop:nth-child(2) { padding-top: 80px; } .stop:nth-child(3) { padding-top: 10px; } .stop:nth-child(4) { padding-top: 60px; }
+@media (max-width: 900px) { .stop:nth-child(n) { padding-top: 0; } .map svg.trail { display: none; } }
+.pin { width: 48px; height: 48px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; }
+.pin img { width: 38px; height: 38px; }
+.pin.start { border-color: var(--coral); width: 56px; height: 56px; } .pin.end { background: #FBE9C8; border-color: #E8B931; width: 56px; height: 56px; }
+.tag-free { background: var(--good); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.stop .wk-l { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.stop h3 { font-family: var(--f-display); font-weight: 800; font-size: 21px; line-height: 1.15; margin: 0; }
+.stop p { font-size: 14px; color: var(--muted); }
+.stop .chip { border: 1.5px solid var(--ink); border-radius: 12px; padding: 6px 10px; font-size: 14px; background: var(--card); }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pills span { background: var(--paper); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 700; }
+.rep { display: flex; flex-wrap: wrap; gap: 36px; align-items: center; }
+.rep > div { flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.why { display: flex; gap: 12px; align-items: flex-start; } .why .n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+.sample { overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 22px; }
+.sample .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sample .box { background: var(--paper); border-radius: 16px; padding: 14px; } .sample .box b { display: block; font-family: var(--f-display); font-size: 30px; font-weight: 800; }
+.sample .box span { font-size: 14px; color: var(--muted); }
+.sample .star { display: flex; align-items: center; gap: 12px; background: var(--coral-soft); border-radius: 16px; padding: 10px 14px; font-weight: 700; } .sample .star img { width: 40px; height: 40px; }
+.sample-tag { font-size: 12px; color: var(--muted); }
+.tracks { display: flex; flex-wrap: wrap; gap: 20px; }
+.track { flex: 1 1 380px; min-width: 0; border-radius: 28px; padding: 30px; display: flex; flex-direction: column; gap: 14px; }
+.track.free { background: var(--card); border: 1px solid var(--line); }
+.track.paid { background: #1E1B2E; color: #F4EFE6; }
+.track .k { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+.track.free .k > span:first-child { color: var(--good); } .track.paid .k > span:first-child { color: #FF9A80; }
+.track .badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; letter-spacing: 0; }
+.track.free .badge { background: var(--good); color: #fff; } .track.paid .badge { background: #F4EFE6; color: #1E1B2E; }
+.track h3 { font-family: var(--f-display); font-weight: 800; font-size: 32px; line-height: 1.05; margin: 0; }
+.track.free p { color: var(--muted); } .track.paid p { color: #CFC9D8; }
+.track .chips { display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; font-weight: 700; } .track .chips span { border: 1.5px solid var(--ink); border-radius: 999px; padding: 5px 12px; }
+.track .tests { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 14px; } .track .tests span { background: #2C2840; border-radius: 12px; padding: 8px 12px; }
+.track .price { font-family: var(--f-display); font-weight: 800; font-size: 22px; } .track .price s, .track .price em { font-size: 15px; color: #CFC9D8; font-weight: 600; font-style: normal; }
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 16px; }
+.steps li { flex: 1 1 220px; min-width: 0; border-top: 3px solid var(--ink); padding-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.steps li:last-child { border-top-color: var(--coral); }
+.steps b { font-family: var(--f-display); font-size: 19px; } .steps span { color: var(--muted); }
+.daily-link { align-self: flex-start; background: none; border: 0; padding: 0; font-weight: 700; font-size: 15px; text-decoration: underline; text-underline-offset: 3px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; align-items: center; border-top: 1px solid var(--line); padding: 28px 0 40px; font-size: 14px; color: var(--muted); }
+.foot .me { display: flex; gap: 14px; align-items: center; max-width: 70ch; } .foot img { width: 52px; height: 52px; flex: none; }
+.foot a { color: inherit; }
+@media (max-width: 640px) { .nav a.l { display: none !important; } }
+.hx-side { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.hx-side .hx-art { width: 100%; }
+.mini { display: flex; position: relative; width: min(340px, 100%); height: 96px; user-select: none; -webkit-user-select: none; }
+.mini button { flex: 1; border: 1.5px solid var(--ink); border-left-width: 0; background: var(--card); border-radius: 0 0 10px 10px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-family: var(--f-display); font-weight: 800; font-size: 15px; touch-action: manipulation; transition: background .15s, transform .1s; }
+.mini button:first-child { border-left-width: 1.5px; }
+.mini button.on { background: var(--coral); color: #fff; transform: translateY(2px); }
+.mini i { position: absolute; top: 0; height: 56%; background: var(--ink); border-radius: 0 0 6px 6px; transform: translateX(-50%); pointer-events: none; }
+.mini-cap { font-size: 13px; color: var(--muted); }
+.game { width: min(360px, 100%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.g-state { width: 100%; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.g-hint { font-size: 13px; color: var(--muted); text-align: center; max-width: 30ch; }
+.g-cue { font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.g-beats { display: flex; gap: 28px; font-size: 40px; color: var(--muted); }
+.g-beats span { display: inline-block; transition: transform .15s, color .15s; }
+.g-beats span.on { color: var(--coral); transform: scale(1.35); }
+.g-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.g-traj { width: 100%; max-width: 320px; height: auto; }
+.g-traj text { font-family: var(--f-body); }
+.g-grow { font-size: 13px; color: var(--muted); text-align: center; min-height: 1.2em; }
+.st-ico { font-size: 16px; } #hx-stars { font-family: var(--f-display); font-size: 18px; color: var(--ink); margin: 0 2px 0 4px; }
+#hx-starlbl { font-size: 13px; color: var(--muted); } .streak { margin-left: 8px; font-size: 13px; font-weight: 700; color: var(--coral); }
+.g-star svg { width: 96px; height: 96px; display: block; }
+.g-star.waiting { visibility: hidden; }
+.g-star-tag { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9A7414; }
+.g-parent b { font-family: var(--f-body); font-size: inherit; color: var(--ink); }
+.g-parent { font-size: 13px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 2px; }
+.flystar { position: fixed; z-index: 36; width: 96px; height: 96px; pointer-events: none; }
+.flystar svg { width: 100%; height: 100%; }
+.g-ans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.g-btn { border: 2px solid var(--ink); background: var(--card); border-radius: 20px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 26px; touch-action: manipulation; transition: transform .1s; }
+.g-btn b { font-family: var(--f-display); font-size: 19px; }
+.g-btn:active { transform: scale(.97); }
+.g-btn.right { background: rgba(27, 122, 69, .12); border-color: var(--good); } .g-btn.wrong { background: var(--coral-soft); border-color: var(--bad); }
+.g-link { background: none; border: 0; padding: 4px; font-weight: 700; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.g-card { width: 100%; background: var(--card); border: 2px solid #E8B931; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.g-star { font-size: 40px; line-height: 1; }
+.g-card b { font-family: var(--f-display); font-size: 20px; }
+.g-card p { color: var(--muted); font-size: 15px; }
+.g-card-act { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.notefx { position: fixed; z-index: 35; width: 22px; height: 22px; pointer-events: none; animation: noteUp .9s ease-out forwards; }
+.notefx svg { width: 100%; height: 100%; }
+@keyframes noteUp { 0% { opacity: 0; transform: translate(0, 0) scale(.5) rotate(-15deg); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -80px) scale(1.1) rotate(15deg); } }
+@media (prefers-reduced-motion: reduce) { .notefx { display: none; } }
+/* motion: only on the homepage, and only for people who haven't asked for less */
+@media (prefers-reduced-motion: no-preference) {
+  .hx-text h1 .w { display: inline-block; opacity: 0; transform: translateY(.35em); animation: wIn .55s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--d) * 90ms + 100ms); }
+  .hx-text h1 .np { display: inline-block; width: .5em; height: .5em; vertical-align: baseline; position: relative; top: -.3em; margin-left: .08em; color: var(--coral); opacity: 0; transform: scale(0) rotate(-30deg); animation: npIn .5s cubic-bezier(.3,1.6,.5,1) forwards; animation-delay: var(--nd); }
+  .hx-text > p, .hx-cta { opacity: 0; animation: fadeUp .6s ease-out forwards; animation-delay: .75s; }
+  .hx-cta { animation-delay: .9s; }
+  .hx-disc { animation: popDisc .6s cubic-bezier(.3,1.5,.5,1) both .1s; }
+  .peekw { animation: peek .9s cubic-bezier(.3,1.35,.5,1) both .45s; }
+  .basso { animation: bob 3.2s ease-in-out infinite 1.6s; transform-origin: 50% 90%; }
+  .basso.wave { animation: waveHi .9s ease-in-out; }
+  .basso.hop { animation: hop .55s cubic-bezier(.3,1.6,.5,1); }
+  .basso.spin { animation: spinHop .9s cubic-bezier(.3,1.3,.5,1); }
+  .basso.listen { animation: listen 1.1s ease-in-out; }
+  .g-play { animation: pulse 1.6s ease-in-out infinite; }
+  .hx-bubble { animation: fadeUp .5s ease-out both 1.1s; }
+  .hx-dots i.on { animation: dotIn .4s cubic-bezier(.3,1.6,.5,1); }
+  .g-card { animation: fadeUp .45s ease-out; }
+  .g-star { animation: starPop .7s cubic-bezier(.3,1.6,.5,1); }
+  .trail-clip { clip-path: inset(0 100% 0 0); transition: clip-path 1.6s cubic-bezier(.4,0,.2,1); }
+  .map.seen .trail-clip { clip-path: inset(0 0 0 0); }
+  .map .stop { opacity: 0; transform: translateY(18px) scale(.97); transition: opacity .5s, transform .6s cubic-bezier(.3,1.4,.5,1); }
+  .map.seen .stop { opacity: 1; transform: none; }
+  .map.seen .stop:nth-child(2) { transition-delay: .35s; } .map.seen .stop:nth-child(3) { transition-delay: .7s; } .map.seen .stop:nth-child(4) { transition-delay: 1.05s; }
+  .sample .slap { opacity: 0; transform: scale(1.6) rotate(-8deg); }
+  .sample.seen .slap { animation: slap .45s cubic-bezier(.3,1.5,.5,1) forwards 1.1s; }
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .reveal.seen { opacity: 1; transform: none; }
+}
+/* "reduce motion" is on (common on Windows laptops): no movement, but keep gentle fades so the page still feels alive */
+@media (prefers-reduced-motion: reduce) {
+  .hx-text h1, .hx-text > p, .hx-cta, .hx-disc, .hx-bubble, .hx-dots { opacity: 0; animation: fadeOnly .6s ease-out forwards !important; transition: none !important; }
+  .hx-text > p { animation-delay: .3s !important; } .hx-cta { animation-delay: .45s !important; } .hx-disc { animation-delay: .15s !important; } .hx-bubble { animation-delay: .5s !important; } .hx-dots { animation-delay: .65s !important; }
+  .map .stop, .reveal, .sample .slap { opacity: 0; transition: opacity .7s ease-out !important; }
+  .map.seen .stop, .reveal.seen, .sample.seen .slap { opacity: 1; }
+  .map.seen .stop:nth-child(2) { transition-delay: .25s !important; } .map.seen .stop:nth-child(3) { transition-delay: .5s !important; } .map.seen .stop:nth-child(4) { transition-delay: .75s !important; }
+  .sample.seen .slap { transition-delay: .6s !important; }
+}
+@keyframes fadeOnly { to { opacity: 1; } }
+@keyframes wIn { to { opacity: 1; transform: none; } }
+@keyframes npIn { to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes popDisc { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(-3deg); } }
+@keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px) rotate(-6deg); } 100% { transform: translateY(0); } }
+@keyframes dotIn { 0% { transform: scale(.3); } 100% { transform: scale(1); } }
+@keyframes peek { 0% { transform: translateY(75%); } 100% { transform: none; } }
+@keyframes waveHi { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 50% { transform: rotate(5deg); } 75% { transform: rotate(-4deg); } }
+@keyframes spinHop { 0% { transform: none; } 45% { transform: translateY(-30px) rotate(-180deg); } 90% { transform: translateY(0) rotate(-360deg); } 100% { transform: rotate(-360deg); } }
+@keyframes listen { 0%, 100% { transform: rotate(0); } 30%, 70% { transform: rotate(10deg) translateX(4px); } }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(233, 85, 58, .45); } 60% { box-shadow: 0 0 0 14px rgba(233, 85, 58, 0); } }
+@keyframes starPop { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.3) rotate(8deg); } 100% { transform: scale(1); } }
+@keyframes slap { 0% { opacity: 0; transform: scale(1.6) rotate(-8deg); } 70% { opacity: 1; transform: scale(.96) rotate(1deg); } 100% { opacity: 1; transform: none; } }
+.back { align-self: flex-start; background: none; border: 0; padding: 0; font-weight: 700; color: var(--muted); }
+.preview-note { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+
+/* play */
+.status { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rank { font-family: var(--f-display); font-weight: 800; font-size: 20px; }
+.rank small { font-family: var(--f-body); font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 6px; }
+.count { font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.count small { font-family: var(--f-body); font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+.staff-box { background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; position: relative; }
+.staff-box svg { display: block; width: 100%; height: auto; }
+.timer { height: 6px; background: var(--line); }
+.timer i { display: block; height: 100%; width: 100%; background: var(--ink); transform-origin: left; }
+.timer i.low { background: var(--coral); }
+.banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); background: var(--coral); color: #fff; font-weight: 700; font-size: 13px; padding: 5px 14px; border-radius: 999px; white-space: nowrap; transition: opacity .3s; }
+.feedback { min-height: 26px; text-align: center; font-weight: 700; }
+.feedback.good { color: var(--good); } .feedback.bad { color: var(--bad); }
+.piano { position: relative; display: flex; height: clamp(150px, 34vw, 190px); user-select: none; -webkit-user-select: none; }
+.wk { flex: 1; min-width: 0; border: 1.5px solid var(--keyb); border-left-width: 0; background: var(--key); color: var(--key-ink); border-radius: 0 0 12px 12px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 1px; padding: 0 0 10px; touch-action: manipulation; }
+.wk:first-child { border-left-width: 1.5px; }
+.wk b { font-family: var(--f-display); font-size: 20px; font-weight: 800; line-height: 1; }
+.wk span { font-size: 11px; color: var(--key-sub); }
+.wk kbd { font: 700 11px/1 ui-monospace, Menlo, monospace; border: 1px solid var(--key-sub); color: var(--key-sub); border-radius: 4px; padding: 2px 5px; margin-top: 4px; }
+.wk.ok { background: var(--good); color: #fff; } .wk.no { background: var(--bad); color: #fff; }
+.wk.ok span, .wk.no span, .wk.ok kbd, .wk.no kbd { color: #fff; border-color: #fff; }
+.wk:active { filter: brightness(.95); }
+.bk { position: absolute; top: 0; width: 8.6%; height: 56%; background: var(--keyb); border-radius: 0 0 7px 7px; transform: translateX(-50%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; pointer-events: none; }
+.bk kbd { font: 700 10px/1 ui-monospace, Menlo, monospace; color: #9C96A8; }
+.piano-note { text-align: center; font-size: 12px; color: var(--muted); }
+.piano.many .wk b { font-size: 14px; }
+.piano.many .wk span { display: none; }
+.piano.many .wk kbd { font-size: 10px; padding: 2px 3px; }
+.wk.mid::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--coral); margin-bottom: auto; margin-top: 62%; }
+.piano-cap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 12px; color: var(--muted); }
+.hint { text-align: center; font-size: 13px; color: var(--muted); }
+.count-over { position: fixed; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--paper) 82%, transparent); z-index: 20; font-family: var(--f-display); font-weight: 800; font-size: 96px; }
+
+/* result */
+.result { text-align: left; }
+.big { font-family: var(--f-display); font-weight: 800; font-size: clamp(48px, 12vw, 72px); line-height: 1; font-variant-numeric: tabular-nums; }
+.grid-share { font-size: 28px; letter-spacing: 4px; }
+.share-text { width: 100%; min-height: 104px; resize: none; border: 1px dashed var(--line); background: var(--paper); color: var(--ink); border-radius: 12px; padding: 10px 12px; font: 14px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
+.obs { border-left: 3px solid var(--coral); padding-left: 12px; font-size: 15px; }
+.copied { font-size: 13px; color: var(--good); min-height: 1em; }
+.pack { border: 1.5px solid var(--ink); border-radius: 18px; padding: 16px; display: grid; gap: 10px; }
+.pack h3 { font-size: 18px; }
+.pack p { font-size: 14px; color: var(--muted); }
+.pack .price { font-family: var(--f-display); font-weight: 800; color: var(--ink); }
+.pack .price s { color: var(--muted); font-weight: 600; margin-left: 6px; }
+.who { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 0; }
+.who legend { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; padding: 0; }
+.who label { border: 1.5px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; }
+.who input { position: absolute; opacity: 0; pointer-events: none; }
+.who label:has(input:checked) { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.who label:has(input:focus-visible) { outline: 3px solid var(--coral); outline-offset: 2px; }
+.wl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.wl-row input[type=email] { flex: 1 1 200px; min-width: 0; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 11px 16px; font: inherit; }
+.wl-status { font-size: 13px; min-height: 1em; }
+@media (prefers-reduced-motion: reduce) { #v-play *, #v-result *, #v-daily * { transition: none !important; animation: none !important; } }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+.flash { animation: pop .35s ease-out; }
+
+/* founding members */
+.founding { border: 2px solid var(--ink); border-radius: 22px; padding: 22px; display: grid; gap: 12px; background: var(--card); max-width: 680px; }
+.fd-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink); font-size: 15px; }
+.fd-grade { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fd-grade legend { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.fd-grade label { display: inline-flex; gap: 6px; align-items: center; border: 1.5px solid var(--line, #ddd); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 600; }
+.fd-grade label:has(input:checked) { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.fd-grade input { accent-color: var(--coral); }
+.fd-terms { font-size: 13px; color: var(--muted); }
+.disc-note { font-size: 12px; color: var(--muted); margin-top: 6px; flex-basis: 100%; }
+</style>
+
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0}</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><b>Dott<i>i</i>no</b><span id="t-with">with Basso</span></div>
+    <div class="toggles nav">
+      <a class="l home-only" href="#path" data-t="navPath">The path</a>
+      <a class="l home-only" href="#report" data-t="navParents">For parents</a>
+      <a class="l home-only" href="#pricing" data-t="navPricing">Pricing</a>
+      <div class="seg" role="group" aria-label="Language">
+        <button id="lang-en" aria-pressed="true">EN</button><button id="lang-zh" aria-pressed="false">中文</button>
+      </div>
+      <div class="seg" role="group" aria-label="Note names">
+        <button id="nm-letter" aria-pressed="true">C D E</button><button id="nm-solfege" aria-pressed="false">do re mi</button>
+      </div>
+      <a class="btn-a ink home-only" href="aural.html" data-t="startFree" style="padding:9px 18px">Start free</a>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main id="v-home" class="wrap" style="padding:0;gap:0">
+    <section class="hx" id="start">
+      <div class="hx-text">
+        <div class="h-eyebrow" data-t="hEyebrow">Ear-training app · Grades 3–5 aural</div>
+        <h1 data-t="hTitle">Hear what<br>you play.</h1>
+        <p data-t="hSub"></p>
+        <div class="hx-cta"><a class="btn-a coral big" href="aural.html" data-t="hCta">Start Foundations free</a><span data-t="hNote"></span></div>
+      </div>
+      <div class="hx-side">
+        <div class="hx-art">
+          <div class="hx-disc" aria-hidden="true"><div class="peekw"><div class="basso" id="hx-basso"><video class="idlev" id="hx-idle" muted loop playsinline autoplay preload="auto" poster="video/basso-idle.jpg" aria-hidden="true"><source src="video/basso-idle.webm" type="video/webm"><source src="video/basso-idle.mp4" type="video/mp4"></video><img id="hx-img" src="img/wave-noeyes.png" alt=""><svg class="eyes" viewBox="0 0 360 360" aria-hidden="true"><g class="eyeg"><g class="blink" fill="none" stroke="#F2EDE4" stroke-width="11" stroke-linecap="round"><path d="M128.5 233 A16.5 16.5 0 1 1 161.5 233"/><path d="M203 247 A16.5 16.5 0 1 1 236 247"/></g></g></svg></div></div></div>
+          <div class="hx-bubble" id="hx-bubble" aria-live="polite"></div>
+          <div class="hx-dots" id="hx-dots"><span class="st-ico" aria-hidden="true">⭐</span><b id="hx-stars">0</b><span id="hx-starlbl">listening stars</span><span class="streak" id="hx-streak" hidden></span></div>
+        </div>
+        <div class="game" id="game">
+          <div class="g-state" id="gs-intro">
+            <button class="btn-a coral big g-play" id="g-play">▶ Play</button>
+            <p class="g-hint" id="g-soundhint"></p>
+          </div>
+          <div class="g-state" id="gs-listen" hidden>
+            <p class="g-cue" id="g-cue"></p>
+            <div class="g-beats" aria-hidden="true"><span id="beat1">♪</span><span id="beat2">♪</span></div>
+          </div>
+          <div class="g-state" id="gs-answer" hidden>
+            <div class="g-ans" role="group" id="g-ans"><button id="g-up" class="g-btn"><span aria-hidden="true">⬆</span><b data-t="gHigher">Higher</b></button><button id="g-down" class="g-btn"><span aria-hidden="true">⬇</span><b data-t="gLower">Lower</b></button></div>
+            <div class="g-row"><button class="g-link" id="g-again" data-t="gReplay">▶ Listen again</button><button class="g-link" id="g-see" data-t="gSee">Can’t hear it? See the notes</button></div>
+          </div>
+          <div class="g-state" id="gs-explain" hidden>
+            <svg class="g-traj" id="g-traj" viewBox="0 0 320 130" role="img" aria-label="">
+              <path id="tj-line" d="" fill="none" stroke="var(--coral)" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 9"/>
+              <circle id="tj-a" r="13" fill="var(--ink)"/><circle id="tj-b" r="15" fill="var(--coral)"/>
+              <text id="tj-ta" font-size="14" text-anchor="middle" fill="var(--muted)"></text><text id="tj-tb" font-size="14" text-anchor="middle" fill="var(--muted)"></text>
+            </svg>
+            <button class="btn-a ink" id="g-try" data-t="gTry">Try again</button>
+          </div>
+          <div class="g-state" id="gs-card" hidden>
+            <div class="g-card" id="g-card" tabindex="-1">
+              <div class="g-star" id="g-star"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 30 C 64 30 66 34 70 44 L 74 54 L 92 55 C 102 56 104 60 97 67 L 83 79 L 88 97 C 90 106 86 109 78 103 L 60 92 L 42 103 C 34 109 30 106 32 97 L 37 79 L 23 67 C 16 60 18 56 28 55 L 46 54 L 50 44 C 54 34 56 30 60 30 Z" fill="#F2C744" stroke="#1E1B2E" stroke-width="4" stroke-linejoin="round"/><path d="M60 30 C 58 18 64 9 73 10 C 82 11 84 21 77 25 C 73 27 69 25 70 21" fill="none" stroke="#1E1B2E" stroke-width="5" stroke-linecap="round"/><circle cx="88" cy="14" r="5" fill="#E9553A"/><circle cx="94" cy="26" r="4" fill="#E9553A"/><path d="M48 70 a6 6 0 0 1 12 0 M64 70 a6 6 0 0 1 12 0" fill="none" stroke="#1E1B2E" stroke-width="4" stroke-linecap="round"/></svg></div>
+              <div class="g-star-tag" id="g-star-tag"></div>
+              <b id="g-card-title"></b>
+              <p id="g-card-text"></p>
+              <div class="g-card-act"><a class="btn-a ink" href="aural.html" id="g-go" data-t="gGo">Let’s go →</a><button class="g-link" id="g-more" data-t="gMore">One more round</button></div>
+              <p class="g-parent" id="g-parent"></p>
+            </div>
+          </div>
+          <p class="g-grow" id="g-grow"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="path">
+      <div class="sec-head">
+        <div><div class="h-eyebrow" data-t="pEyebrow">Grade 4 · the 8-week path</div><h2 class="h2" data-t="pTitle"></h2></div>
+        <p class="lead" data-t="pLead"></p>
+      </div>
+      <div class="map">
+        <div class="trail-clip"><svg class="trail" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 C 120 20, 220 20, 330 110 S 560 200, 670 100 S 880 10, 1000 90" fill="none" stroke="var(--line)" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/></svg></div>
+        <div class="stops">
+          <div class="stop">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="pin start"><img src="img/wave.png" alt=""></span><span class="tag-free" data-t="s1Tag">FREE · START HERE</span></div>
+            <div class="wk-l" data-t="s1Week">Week 1 · Foundations</div>
+            <h3 data-t="s1Title">Hear which way the notes go</h3>
+            <span class="chip" data-t="s1a">Stop 1 · Higher or lower</span><span class="chip" data-t="s1b">Stop 2 · Which way the tune goes</span><span class="chip" data-t="s1c">Stop 3 · Same or different</span>
+          </div>
+          <div class="stop">
+            <span class="pin">2–3</span>
+            <div class="wk-l" data-t="s2Week">Weeks 2–3 · Foundations</div>
+            <h3 data-t="s2Title">Pulse and short tunes in your head</h3>
+            <p data-t="s2p"></p>
+          </div>
+          <div class="stop">
+            <span class="pin">4–6</span>
+            <div class="wk-l" data-t="s3Week">Weeks 4–6 · Exam Skills</div>
+            <h3 data-t="s3Title">The four Grade 4 tests, one by one</h3>
+            <div class="pills"><span data-t="tA">A · play back</span><span data-t="tB">B · sing 5 notes</span><span data-t="tC">C · describe</span><span data-t="tD">D · clap + time</span></div>
+          </div>
+          <div class="stop">
+            <span class="pin end"><img src="img/party.png" alt=""></span>
+            <div class="wk-l" data-t="s4Week">Weeks 7–8 · Exam Skills</div>
+            <h3 data-t="s4Title">Mock tests, then exam day</h3>
+            <p data-t="s4p"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="report">
+      <div class="rep reveal">
+        <div>
+          <div class="h-eyebrow" data-t="rEyebrow">After every stop</div>
+          <h2 class="h2" data-t="rTitle"></h2>
+          <div class="why"><span class="n">1</span><p data-t="r1"></p></div>
+          <div class="why"><span class="n">2</span><p data-t="r2"></p></div>
+          <div class="why"><span class="n">3</span><p data-t="r3"></p></div>
+        </div>
+        <div class="sample">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b style="font-family:var(--f-display);font-size:18px" data-t="cTitle">Stop 1 · Higher or lower</b><span class="sample-tag" data-t="cTag">Example card</span></div>
+            <div class="row2"><div class="box"><b style="color:var(--good)" data-count="9" data-of="10">9/10</b><span data-t="cBig">Big jumps</span></div><div class="box"><b data-count="4" data-of="6">4/6</b><span data-t="cSmall">Next-door notes</span></div></div>
+            <div><b data-t="cNext">Next step</b><p style="color:var(--muted);margin-top:4px" data-t="cNextP"></p></div>
+            <div class="star slap"><img src="img/party.png" alt=""><span data-t="cStar">Basso earned the Direction Detective sticker!</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="pricing">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:62ch"><div class="h-eyebrow" data-t="kEyebrow">Two tracks</div><h2 class="h2" data-t="kTitle"></h2></div>
+      <div class="tracks reveal">
+        <div class="track free">
+          <div class="k"><span data-t="k1Label">Track 1 · Foundations</span><span class="badge" data-t="k1Badge">Week 1 free</span></div>
+          <h3 data-t="k1Title">Build the ear</h3>
+          <p data-t="k1p"></p>
+          <div class="chips"><span data-t="k1a">Higher or lower</span><span data-t="k1b">Which way it goes</span><span data-t="k1c">Same or different</span><span data-t="k1d" style="border-style:dashed;border-color:var(--muted);color:var(--muted)">Pulse · Memory</span></div>
+          <a class="btn-a coral" href="aural.html" style="align-self:flex-start" data-t="k1Btn">Start week 1 free</a>
+        </div>
+        <div class="track paid">
+          <div class="k"><span data-t="k2Label">Track 2 · Exam Skills</span><span class="badge" data-t="k2Badge">In the 8-week plan</span></div>
+          <h3 data-t="k2Title">Use it in the exam</h3>
+          <p data-t="k2p"></p>
+          <div class="tests"><span data-t="k2a"></span><span data-t="k2b"></span><span data-t="k2c"></span><span data-t="k2d"></span></div>
+          <div class="price" data-t="k2Price"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="founding">
+      <form class="founding reveal" id="fd-form" novalidate>
+        <div class="h-eyebrow" data-t="fEyebrow">Founding members</div>
+        <h2 class="h2" data-t="fTitle">Aural Pack · £15 per grade</h2>
+        <p data-t="fP"></p>
+        <ul class="fd-list"><li data-t="fL1"></li><li data-t="fL2"></li><li data-t="fL3"></li></ul>
+        <fieldset class="fd-grade"><legend data-t="fGrade">Which grade?</legend>
+          <label><input type="radio" name="fdgrade" value="3"><span>Grade 3</span></label>
+          <label><input type="radio" name="fdgrade" value="4" checked><span>Grade 4</span></label>
+          <label><input type="radio" name="fdgrade" value="5"><span>Grade 5</span></label>
+        </fieldset>
+        <div class="wl-row"><input type="email" id="fd-email" placeholder="you@example.com" aria-label="Email" autocomplete="email"><button class="btn-a coral" id="fd-btn" type="submit" data-t="fBtn">Lock the founding price</button></div>
+        <div class="wl-status" id="fd-status" aria-live="polite"></div>
+        <a class="fd-terms" href="terms.html" data-t="fTerms">Terms and refunds</a>
+      </form>
+    </section>
+
+    <section class="sec">
+      <h2 class="h2" data-t="jTitle">Start free. Progress at your pace.</h2>
+      <ol class="steps reveal">
+        <li><b data-t="j1">1 · Try week 1</b><span data-t="j1s"></span></li>
+        <li><b data-t="j2">2 · Get the card</b><span data-t="j2s"></span></li>
+        <li><b data-t="j3">3 · See the next 7 weeks</b><span data-t="j3s"></span></li>
+        <li><b data-t="j4">4 · Continue if it helps</b><span data-t="j4s"></span></li>
+      </ol>
+      <button class="daily-link" id="btn-daily" data-t="dailyLink">Also free: the daily sight-reading game, 60 seconds a day →</button>
+    </section>
+
+    <footer class="foot">
+      <div class="me"><img src="img/wave.png" alt=""><span data-t="fMe"></span></div>
+      <div><a href="privacy.html" data-t="fPrivacy">Privacy</a> · <a href="terms.html" data-t="fTerms">Terms</a> · dottino.app</div>
+      <div class="disc-note" data-t="fDisc">Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.</div>
+    </footer>
+    <p class="preview-note" style="border:0;padding:0 0 24px" id="t-preview">Your results stay in this browser only. Nothing is uploaded.</p>
+  </main>
+
+  <!-- DAILY GAME (rules + start) -->
+  <main id="v-daily" class="wrap" style="padding:0" hidden>
+    <button class="back" id="btn-back-daily" data-t="backHome">← Dottino home</button>
+    <section class="card" aria-labelledby="t-daily">
+      <div class="card-head">
+        <div><div class="eyebrow" id="daily-eyebrow">Daily #1</div><h2 id="t-daily">Today's sight-reading challenge</h2></div>
+        <div class="today-best" id="today-best"></div>
+      </div>
+      <p id="t-rules" style="color:var(--muted);font-size:15px">Everyone gets the same notes today. Treble and bass clef keep switching, and each level gives you less time per note. One wrong note ends the run.</p>
+      <ol class="tempo" id="tempo"></ol>
+      <div style="display:grid;gap:8px">
+        <div class="label" id="t-howanswer">How you answer</div>
+        <div class="inputs">
+          <button id="in-buttons" aria-pressed="true"><b id="t-in1">Screen piano</b><span id="t-in1s">Tap the real key on a screen piano, octave included. Best on iPad or a phone turned sideways.</span></button>
+          <button id="in-keys" aria-pressed="false"><b id="t-in2">Computer keys</b><span id="t-in2s">Three rows of your keyboard become three octaves of white keys, low to high: Z, A and Q rows.</span></button>
+          <button id="in-midi" aria-pressed="false"><b id="t-in3">Digital piano</b><span id="t-in3s">Play the real key on a MIDI piano. Octave counts.</span></button>
+        </div>
+        <div class="midi-note" id="midi-note" aria-live="polite"></div>
+      </div>
+      <div class="actions">
+        <button class="btn coral" id="btn-start">Start</button>
+        <button class="btn ghost" id="btn-warm">Warm up · 3 notes</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- PLAY -->
+  <main id="v-play" class="wrap" style="padding:0" hidden>
+    <div class="status">
+      <div class="rank" id="rank">Andante<small id="rank-sub">treble clef</small></div>
+      <div class="count" id="count">0<small id="t-notes">notes</small></div>
+    </div>
+    <div class="staff-box">
+      <div class="banner" id="banner" style="opacity:0"></div>
+      <svg id="staff" viewBox="40 8 640 232" role="img" aria-label="A note on the staff"></svg>
+      <div class="timer"><i id="timer"></i></div>
+    </div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="piano-cap" id="piano-cap"></div>
+    <div class="piano" id="keys" role="group" aria-label="Piano keys"></div>
+    <p class="hint" id="hint"></p>
+  </main>
+
+  <!-- RESULT -->
+  <main id="v-result" class="wrap result" style="padding:0" hidden>
+    <section class="card">
+      <div class="card-head">
+        <div class="eyebrow" id="res-eyebrow">Daily #1</div>
+        <div class="disc" style="width:84px;height:84px"><img id="res-img" src="img/party.png" alt="" style="width:66px;height:66px"></div>
+      </div>
+      <div><div class="big" id="res-count">0</div><div id="res-line" style="color:var(--muted)"></div></div>
+      <div class="grid-share" id="res-grid" aria-label="Levels reached"></div>
+      <p class="obs" id="res-obs"></p>
+      <div style="display:grid;gap:8px">
+        <div class="label" id="t-share">Share your result</div>
+        <textarea class="share-text" id="share-text" readonly aria-label="Share text"></textarea>
+        <div class="actions">
+          <button class="btn coral" id="btn-copy">Copy result</button>
+          <button class="btn ghost" id="btn-again">Play again</button>
+          <button class="btn ghost" id="btn-home">Home</button>
+        </div>
+        <div class="copied" id="copied" aria-live="polite"></div>
+      </div>
+      <form class="pack" id="wl-form" novalidate>
+        <h3 id="t-pack">Ear training for graded exams · coming soon</h3>
+        <p id="t-packs">Intervals, rhythm echoes and cadences, practised the way graded aural tests ask for them. Designed by Tim, built on the same idea: train the skill, not the song.</p>
+        <div class="price"><span id="t-founding">Founding members: £5 once</span><s id="t-later">later £8</s></div>
+        <fieldset class="who">
+          <legend id="t-who">Who would use it?</legend>
+          <label><input type="radio" name="who" value="child" id="who-child"><span id="t-who1">My child</span></label>
+          <label><input type="radio" name="who" value="self" id="who-self"><span id="t-who2">Myself</span></label>
+          <label><input type="radio" name="who" value="students" id="who-students"><span id="t-who3">My students</span></label>
+        </fieldset>
+        <div class="wl-row">
+          <input type="email" id="wl-email" placeholder="you@example.com" aria-label="Email" autocomplete="email">
+          <button class="btn" id="wl-btn" type="submit">Join the waitlist</button>
+        </div>
+        <div class="wl-status" id="wl-status" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<form name="founding" data-netlify="true" netlify-honeypot="bot-field" hidden><input name="email"><input name="grade"><input name="ref"><input name="lang"><input name="src"><input name="bot-field"></form>
+<form name="waitlist" data-netlify="true" netlify-honeypot="bot-field" hidden><input name="email"><input name="who"><input name="ref"><input name="lang"><input name="best"><input name="src"><input name="bot-field"></form>
+<script>
+(() => {
+// ---------- music model (ported from the 谱兽 mini program) ----------
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
+const NATURAL = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const BOTTOM = { treble: { l: 'E', o: 4 }, bass: { l: 'G', o: 2 } };
+const idx = n => n.o * 7 + LETTERS.indexOf(n.l);
+const fromIdx = i => ({ l: LETTERS[((i % 7) + 7) % 7], o: Math.floor(i / 7) });
+const noteAt = (clef, step) => fromIdx(idx(BOTTOM[clef]) + step);
+const midiOf = n => 12 * (n.o + 1) + NATURAL[n.l];
+const q = (clef, step) => ({ clef, step, note: noteAt(clef, step) });
+
+const STAGES = [
+  { from: 0, rank: 'Andante', zh: '行板', per: 2.0, en: 'treble clef', zhd: '高音谱号', parts: [['treble', 0, 8]] },
+  { from: 10, rank: 'Moderato', zh: '中板', per: 2.0, en: 'bass clef joins', zhd: '加入低音谱号', parts: [['treble', 0, 8], ['bass', 0, 8]] },
+  { from: 25, rank: 'Allegretto', zh: '小快板', per: 1.8, en: 'ledger lines near middle C', zhd: '中央 C 附近的加线', parts: [['treble', -2, 8], ['bass', 0, 10]] },
+  { from: 45, rank: 'Allegro', zh: '快板', per: 1.6, en: 'clef switch every note', zhd: '每个音都换谱号', parts: [['treble', -2, 8], ['bass', 0, 10]], alternate: true },
+  { from: 70, rank: 'Presto', zh: '急板', per: 1.4, en: 'two ledger lines', zhd: '两根加线', parts: [['treble', -4, 8], ['bass', 0, 12]] },
+  { from: 100, rank: 'Prestissimo', zh: '最急板', per: 1.2, en: 'the limit', zhd: '极限', parts: [['treble', -4, 8], ['bass', 0, 12]], alternate: true }
+];
+const stageAt = i => { let s = 0; STAGES.forEach((x, k) => { if (i >= x.from) s = k; }); return s; };
+function seeded(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function daily(dateKey, n) {
+  const r = seeded('dottino-daily-' + dateKey);
+  const out = []; let prev = null;
+  for (let i = 0; i < n; i++) {
+    const si = stageAt(i), stg = STAGES[si];
+    let pool = [];
+    stg.parts.forEach(([c, lo, hi]) => { for (let s = lo; s <= hi; s++) pool.push([c, s]); });
+    if (stg.alternate && prev) pool = pool.filter(x => x[0] !== prev[0]);
+    if (i - stg.from < 3 && si > 0) {
+      const had = {};
+      STAGES[si - 1].parts.forEach(([c, lo, hi]) => { for (let s = lo; s <= hi; s++) had[c + s] = 1; });
+      const fresh = pool.filter(x => !had[x[0] + x[1]]);
+      if (fresh.length) pool = fresh;
+    }
+    let x;
+    for (let t = 0; t < 10; t++) { x = pool[Math.floor(r() * pool.length)]; if (!prev || x[0] !== prev[0] || x[1] !== prev[1]) break; }
+    out.push(q(x[0], x[1])); prev = x;
+  }
+  return out;
+}
+const pad = n => String(n).padStart(2, '0');
+const now = new Date();
+const TODAY = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+const LAUNCH = Date.UTC(2026, 9, 24);
+const DAY_NO = Math.max(1, Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - LAUNCH) / 864e5) + 1);
+
+// ---------- text ----------
+const T = {
+  en: {
+    navPath: 'The path', navParents: 'For parents', navPricing: 'Pricing', startFree: 'Start free', backHome: '← Dottino home',
+    hEyebrow: 'Ear-training app · Grades 3–5 aural', hTitle: 'Hear what<br>you play.', hSub: 'Most children who guess in aural tests were never shown what to listen for. Basso shows them, one small step at a time.',
+    hCta: 'Start Foundations free', hNote: 'No sign-up · 10 minutes · any phone or tablet', hBubble: '', gHi: 'Hi! I’m Basso. Ready, little listener?', gAsk: 'I’ll play two notes. Can you hear which way they go?', gPlay: '▶ Play', gSound: '🔊 Sound on? On iPhone, check the silent switch too.',
+    gCue: 'Listen carefully…', gWhich: 'Which way did my notes go?', gHigher: 'Higher', gLower: 'Lower', gReplay: '▶ Listen again', gSee: 'Can’t hear it? See the notes',
+    gSeeOn: 'Here’s how the notes move. The second dot shows where the second note goes.',
+    gRight: up => 'You heard it! My notes went ' + (up ? 'up!' : 'down!'), gStreak3: n => 'You heard it! ' + n + ' in a row!', gStreak5: 'Five in a row! Look how far you’ve come!',
+    gWrongSay: 'Let’s listen together.', gExplain: up => 'Watch the second note: it goes ' + (up ? 'up' : 'down') + '.', gTry: 'Try again', gRetry: 'Your turn. Listen, then choose.',
+    tjA: 'First note', tjB: 'Second note', tjLabel: up => 'The second note is ' + (up ? 'higher' : 'lower') + ' than the first.',
+    gNextRound: '▶ Next tune', stars: n => n === 1 ? 'listening star' : 'listening stars', streak: n => '🔥 streak ' + n, gGrow: 'Every correct answer helps Basso grow!',
+    starTag: n => 'Listening star #' + String(n).padStart(3, '0'),
+    card1T: 'Your first listening star!', card1P: 'Great start! Ready for your next listening adventure?', cardNT: n => n + ' listening stars!', cardNP: 'Look how far you’ve come! Week 1 has three more stops.',
+    gParent: 'For parents: this game practises <b>pitch direction</b>, hearing whether a tune goes up or down. It’s one of the building blocks of musical listening, and the first step towards ABRSM aural Test A.',
+    gGo: 'Let’s go →', gMore: 'One more round', hTry: 'Try it: tap two keys and listen.', kFirst: n => 'That’s ' + n + '. Now tap another key!', kUp: n => n + ': higher! Your ear heard it go up.', kDown: n => n + ': lower! That one went down.', kSame: n => 'Same note, ' + n + '. Exactly the same height.', kBig: ' A big jump!', hCombo: '5 in a row',
+    pEyebrow: 'Grade 4 · the 8-week path', pTitle: 'From “which note is higher?”<br>to exam day.', pLead: 'Foundations build the ear. Exam Skills put it to work on the real Grade 4 tests. Every stop says which test it prepares for.',
+    s1Tag: 'FREE · START HERE', s1Week: 'Week 1 · Foundations', s1Title: 'Hear which way the notes go', s1a: 'Stop 1 · Higher or lower', s1b: 'Stop 2 · Which way the tune goes', s1c: 'Stop 3 · Same or different',
+    s2Week: 'Weeks 2–3 · Foundations', s2Title: 'Pulse and short tunes in your head', s2p: 'Feel the strong beat, hold a four-note tune in memory, find a sung note on the keys.',
+    s3Week: 'Weeks 4–6 · Exam Skills', s3Title: 'The four Grade 4 tests, one by one', tA: 'A · play back', tB: 'B · sing 5 notes', tC: 'C · describe', tD: 'D · clap + time',
+    s4Week: 'Weeks 7–8 · Exam Skills', s4Title: 'Mock tests, then exam day', s4p: 'Full practice runs in exam order, with a card your teacher can read.',
+    rEyebrow: 'After every stop', rTitle: 'Not just right or wrong.<br>What to listen for next.',
+    r1: '<b>When it’s wrong, it says why.</b> “You heard the first note. This time, follow where the second one lands.”', r2: '<b>The next question fits the mistake.</b> Going down is harder? More downward pairs, side by side with upward ones.', r3: '<b>A short note for you and the teacher.</b> What your child can hear now, and what comes next.',
+    cTitle: 'Stop 1 · Higher or lower', cTag: 'Example card', cBig: 'Big jumps', cSmall: 'Next-door notes', cNext: 'Next step', cNextP: 'Big jumps are secure. Going down by a step is still tricky, so stop 2 mixes in more of those.', cStar: 'Basso earned the Direction Detective sticker!',
+    kEyebrow: 'Two tracks', kTitle: 'Build the ear first.<br>Then use it in the exam.',
+    k1Label: 'Track 1 · Foundations', k1Badge: 'Week 1 free', k1Title: 'Build the ear', k1p: 'Pitch direction, the shape of a tune, pulse and short musical memory. The skills under every aural test, trained in small steps with Basso.', k1a: 'Higher or lower', k1b: 'Which way it goes', k1c: 'Same or different', k1d: 'Pulse · Memory', k1Btn: 'Start week 1 free',
+    k2Label: 'Track 2 · Exam-style practice', k2Badge: 'In the 8-week plan', k2Title: 'Use it in the exam', k2p: 'Each Grade 4 test, practised the way the examiner gives it, then full mock runs. A weekly card shows the teacher where things stand.',
+    k2a: '<b>A</b> · Play or sing back', k2b: '<b>B</b> · Sight-sing 5 notes', k2c: '<b>C</b> · Describe a piece', k2d: '<b>D</b> · Clap + 2, 3 or 4 time', k2Price: '£15 per grade <em>· founding price · 6 months · no auto-renewal · opens December</em>',
+    jTitle: 'Start free. Progress at your pace.', j1: '1 · Try week 1', j1s: 'No sign-up, no payment screen. About 30 minutes over a few days.', j2: '2 · Get the card', j2s: 'What your child can hear now, and what still needs work.', j3: '3 · See the next 7 weeks', j3s: 'Exactly which stops come next and which test each one prepares.', j4: '4 · Continue if it helps', j4s: 'Aural Pack: £15 per grade founding price, 6 months, no auto-renewal. Opens in December.',
+    dailyLink: 'Also free: the daily sight-reading game, 60 seconds a day →',
+    fMe: 'Made by Tim: pianist, music education researcher, 15+ years teaching. Royal College of Music (MPerf) · Royal Holloway, University of London (PhD) · Xinghai Conservatory of Music (BA).', fPrivacy: 'Privacy',
+    with: 'with Basso', tag: 'Hear what you play.', sub: 'An interactive ear-training app that shows children what to listen for, built around the ABRSM aural test format (Grades 3–5). By an RCM-trained pianist and music education researcher. Plus a free daily sight-reading game.',
+    course_eyebrow: 'Grade 4 aural · Week 1 free', course: 'Start with what to listen for', course_p: 'Most children who “guess” in aural tests were never shown what to listen for. Week 1 builds it step by step, in the C D E names they already use.', c1: 'Higher or lower: from far apart to next-door notes', c2: 'Which way the tune goes, then play three notes back', c3: 'Same or different: spot the change', courseBtn: 'Try week 1 free',
+    pricing: 'What’s free, what isn’t', p1: 'Daily game', p1p: 'Free', p1s: 'Sight reading in both clefs. Free, always.', p2: 'Week 1 of each plan', p2p: 'Free', p2s: 'Four short lessons, about 10 minutes each. No sign-up.', p3: '8-week aural plan', p3p: '£15', p3l: '', p3s: 'Per grade, 6 months of access. Founding price. Opens in December.',
+
+    daily: "Today's sight-reading challenge", rules: 'Everyone gets the same notes today. Treble and bass clef keep switching, and each level gives you less time per note. One wrong note ends the run. Sound on: on iPhone, check the silent switch too.',
+    howanswer: 'How you answer', in1: 'Screen piano', in1s: 'Tap the real key on a screen piano, octave included. Best on iPad or a phone turned sideways.', in2: 'Computer keys', in2s: 'Three rows of your keyboard become three octaves of white keys, low to high: Z, A and Q rows.', in3: 'Digital piano', in3s: 'Play the real key on a MIDI piano. Octave counts.',
+    start: 'Start', warm: 'Warm up · 3 notes', warmDone: 'Warm-up done. Ready when you are.', about: 'Why Dottino',
+    b1: 'Pieces end. Skills stay.', b1s: 'Every piece your child learns is finished one day. The ear and the eye they built while learning it carry into the next one.', b2: 'Short and often', b2s: 'Ten minutes, a few times a week. Small steps they can feel, lesson by lesson.', b3: 'The names they know', b3s: 'Uses the C D E letters taught in UK lessons. do re mi is one tap away.',
+    bio: 'Made by Tim, a pianist and music education researcher with more than fifteen years of teaching. Tim studied piano at Xinghai Conservatory of Music, holds a Master of Performance from the Royal College of Music, and a PhD in music from Royal Holloway, University of London, where his research looked at how music is learned and how AI is changing music education.',
+    cred3: 'Xinghai Conservatory of Music · BA', cred4: '15+ years teaching',
+    preview: 'Your progress stays in this browser only. Nothing is uploaded, so it can’t be restored on another device or after clearing browser data.',
+    notes: 'notes', perNote: s => s.toFixed(1) + ' s / note', best: (n, d) => 'Today’s best ' + n + (d > 1 ? ' · ' + d + '-day streak' : ''),
+    hintKeys: 'Z row = low G to F, A row = the next G to F, Q row = the top G to F. The key labels show which is which.', hintBtn: 'Tap the key in the right octave. The orange dot is middle C.', hintMidi: 'Play the note on your piano. The octave has to match.', hintWarm: 'Warm-up: no timer, no score',
+    timeUp: 'Time’s up', itWas: n => 'It was ' + n, right: 'Right',
+    midiAsk: 'Connecting to your piano…', midiOk: n => 'Connected: ' + n, midiNone: 'No MIDI device found. Plug in your piano by USB or Bluetooth, then choose this again.',
+    midiBlocked: 'This preview window can’t reach MIDI devices. On the finished site, digital pianos work in Chrome and Edge. Switched to computer keys for now.',
+    resLine: (rank) => 'notes in a row · reached ' + rank, share: 'Share your result', copy: 'Copy result', copied: 'Copied. Paste it in any chat.', copyFail: 'Select the text above and copy it.',
+    again: 'Play again', home: 'Home', inputTag: { buttons: '🔘 buttons', keys: '⌨️ keyboard', midi: '🎹 piano' },
+    obsWrong: (clef, pos, said, was) => 'You read the ' + clef + ' note on ' + pos + ' as ' + said + '. It was ' + was + '. Notes like this are where reading slows down, which is exactly what this trains.',
+    obsTime: (clef, pos, was) => 'The ' + clef + ' note on ' + pos + ' (' + was + ') ran out of time. Speed comes from seeing the note’s place on the staff at a glance.',
+    obsPerfect: 'You cleared every level. Come back tomorrow for a new set.', clefName: { treble: 'treble clef', bass: 'bass clef' },
+    line: k => 'line ' + k, space: k => 'space ' + k, ledgerBelow: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' below', ledgerAbove: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' above',
+    spaceBelow: 'the space below the staff', spaceAbove: 'the space above the staff', tomorrow: 'New notes tomorrow.', lowZone: 'Low range · bass clef', highZone: 'High range · treble clef', fullZone: 'G2 – F5 · the orange dot is middle C', turn: 'Turn your phone sideways to see the whole keyboard',
+    pack: 'ABRSM aural plans, Grades 3–5 · opening December', packs: 'Week-by-week practice for playing and singing back, sight-singing, spotting changes and pulse. Designed by Tim. Pieces end, skills stay. Week 1 of Grade 4 is free now at dottino.app/aural.',
+    founding: '£15 per grade, founding price', later: '',
+    fDisc: 'Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.',
+    fEyebrow: 'Founding members', fTitle: 'Aural Pack · £15 per grade', fP: 'One grade’s full 8-week aural plan, with 6 months of access. One payment, no subscription, no auto-renewal. Opens in December.',
+    fL1: 'Founding price £15 per grade, kept for everyone who registers before launch', fL2: 'No payment now: we email you a payment link when the plan opens', fL3: 'Not for you after all? Full refund within 14 days',
+    fGrade: 'Which grade?', fBtn: 'Lock the founding price', fBad: 'Please enter a valid email address.', fOk: 'Done. Your founding price is saved. One email when the plan opens, nothing else.', fFail: 'Couldn’t save just now. Please try again in a moment.', fTerms: 'Terms and refunds',
+ who: 'Who would use it?', who1: 'My child', who2: 'Myself', who3: 'My students', join: 'Tell me when it opens',
+    wlBad: 'Please enter a valid email address.', wlOk: 'Thank you. One email when the plans open, nothing else.', wlPreview: 'This preview can\u2019t send emails. On dottino.app this will save your place.'
+  },
+  zh: {
+    navPath: '学习路线', navParents: '给家长', navPricing: '价格', startFree: '免费开始', backHome: '← 回到 Dottino 首页',
+    hEyebrow: '听力训练软件 · 3–5 级听力', hTitle: '听见你弹的<br>每个音。', hSub: '很多孩子听力考试靠猜，是因为从来没人告诉他们该听什么。Basso 带着孩子，一小步一小步学会听。',
+    hCta: '免费开始基础练习', hNote: '不用注册 · 10 分钟 · 手机平板都能用', hBubble: '', gHi: '你好！我是谱兽 Basso。准备好了吗，小小聆听者？', gAsk: '我来弹两个音，你能听出它们往哪里走吗？', gPlay: '▶ 播放', gSound: '🔊 打开声音了吗？iPhone 还要检查侧面的静音键。',
+    gCue: '仔细听……', gWhich: '我的音往哪里走了？', gHigher: '更高', gLower: '更低', gReplay: '▶ 再听一次', gSee: '听不清？看看音符',
+    gSeeOn: '这是两个音的走向，第二个点就是第二个音的位置。',
+    gRight: up => '你听出来了！我的音往' + (up ? '上' : '下') + '走了！', gStreak3: n => '你听出来了！连对 ' + n + ' 个！', gStreak5: '连对 5 个！看看你进步了多少！',
+    gWrongSay: '我们一起再听一遍。', gExplain: up => '注意第二个音：它往' + (up ? '上' : '下') + '走了。', gTry: '再试一次', gRetry: '轮到你了，听完再选。',
+    tjA: '第一个音', tjB: '第二个音', tjLabel: up => '第二个音比第一个音' + (up ? '高' : '低') + '。',
+    gNextRound: '▶ 下一段', stars: n => '颗听力星星', streak: n => '🔥 连对 ' + n, gGrow: '每答对一题，Basso 就长大一点！',
+    starTag: n => '听力星星 #' + String(n).padStart(3, '0'),
+    card1T: '你的第一颗听力星星！', card1P: '开了个好头！准备好开始下一段听力冒险了吗？', cardNT: n => n + ' 颗听力星星！', cardNP: '看看你进步了多少！第 1 周还有三站等着你。',
+    gParent: '给家长：这个小游戏练的是<b>音高方向</b>，也就是听出旋律往上还是往下走。这是音乐听力的基础能力之一，也是 ABRSM 听力 A 题的第一步。',
+    gGo: '出发 →', gMore: '再玩一轮', hTry: '试试看：按两个键，听一听。', kFirst: n => '这是 ' + n + '。再按另一个键！', kUp: n => n + '：更高了！你听出它往上走了。', kDown: n => n + '：更低了！这个往下走了。', kSame: n => '还是 ' + n + '，一模一样高。', kBig: '一个大跳！', hCombo: '连对 5 个',
+    pEyebrow: '四级 · 8 周学习路线', pTitle: '从「哪个音更高？」<br>到考试那天。', pLead: '基础练习（Foundations）先把耳朵练好，考试技能（Exam Skills）再用到四级真题上。每一站都写明它在为哪道题做准备。',
+    s1Tag: '免费 · 从这里开始', s1Week: '第 1 周 · 基础练习', s1Title: '听出音往哪里走', s1a: '第 1 站 · 高还是低', s1b: '第 2 站 · 旋律往哪走', s1c: '第 3 站 · 一样还是不一样',
+    s2Week: '第 2–3 周 · 基础练习', s2Title: '拍子感和脑中的短旋律', s2p: '感受强拍，记住四个音的旋律，在琴键上找到唱出的音。',
+    s3Week: '第 4–6 周 · 考试技能', s3Title: '四级的四道题，逐个击破', tA: 'A · 弹回旋律', tB: 'B · 视唱 5 个音', tC: 'C · 描述音乐', tD: 'D · 拍节奏 + 拍子',
+    s4Week: '第 7–8 周 · 考试技能', s4Title: '模拟考，然后上考场', s4p: '按考试顺序完整练习，还有一张老师看得懂的进度卡。',
+    rEyebrow: '每一站结束后', rTitle: '不只告诉你对或错，<br>还告诉你下次听什么。',
+    r1: '<b>答错时说明原因。</b>「第一个音你听对了，这次注意第二个音落在哪里。」', r2: '<b>下一题针对这次的错误。</b>往下走的容易错？就多练往下的，和往上的放在一起对比。', r3: '<b>给你和老师的一句话总结。</b>孩子现在听得出什么，接下来练什么。',
+    cTitle: '第 1 站 · 高还是低', cTag: '样例卡片', cBig: '大跳', cSmall: '相邻的音', cNext: '下一步', cNextP: '大跳已经很稳了。往下走一步的还容易混，所以第 2 站会多加一些。', cStar: 'Basso 获得了「方向小侦探」贴纸！',
+    kEyebrow: '两条路线', kTitle: '先把耳朵练好，<br>再用到考试上。',
+    k1Label: '路线 1 · 基础练习', k1Badge: '第 1 周免费', k1Title: '练好耳朵', k1p: '音高方向、旋律形状、拍子感、短时音乐记忆。每道听力题背后的能力，和 Basso 一起一小步一小步练。', k1a: '高还是低', k1b: '旋律往哪走', k1c: '一样还是不一样', k1d: '拍子 · 记忆', k1Btn: '免费开始第 1 周',
+    k2Label: '路线 2 · 考试题型练习', k2Badge: '包含在 8 周计划中', k2Title: '用到考试上', k2p: '四级的每道题都按考官出题的方式练，再完整模拟。每周一张进度卡，老师一看就知道练到哪了。',
+    k2a: '<b>A</b> · 唱回或弹回旋律', k2b: '<b>B</b> · 视唱 5 个音', k2c: '<b>C</b> · 描述一段音乐', k2d: '<b>D</b> · 拍节奏 + 2/3/4 拍', k2Price: '每个级别 £15 <em>· 创始价 · 可用 6 个月 · 不自动续费 · 12 月上线</em>',
+    jTitle: '免费开始，按自己的节奏进步。', j1: '1 · 试第 1 周', j1s: '不用注册，不弹付费窗口。分几天做完，大约 30 分钟。', j2: '2 · 拿到听力卡', j2s: '孩子现在听得出什么，还有哪里要练。', j3: '3 · 看看后面 7 周', j3s: '清楚列出接下来每一站，以及各自对应哪道考题。', j4: '4 · 觉得有用再继续', j4s: '听力训练包：每个级别创始价 £15，可用 6 个月，不自动续费。12 月上线。',
+    dailyLink: '另外免费：每日识谱小游戏，每天 60 秒 →',
+    fMe: '由 Tim 设计：钢琴家、音乐教育研究者，十五年以上教学经验。英国皇家音乐学院演奏硕士 · 伦敦大学皇家霍洛威学院音乐博士 · 星海音乐学院学士。', fPrivacy: '隐私',
+    with: '和谱兽 Basso 一起', tag: '听见你弹的每个音。', sub: '互动听力训练软件，教孩子知道该听什么，按 ABRSM 3–5 级听力题型设计。由皇家音乐学院出身的钢琴家、音乐教育研究者设计。另有免费的每日识谱挑战。',
+    course_eyebrow: '四级听力 · 第 1 周免费', course: '先学会听什么', course_p: '很多孩子听力考试「靠猜」，是因为从来没人告诉他们该听什么。第 1 周一步一步练，用孩子已经会的 C D E。', c1: '高还是低：从相隔很远，到相邻的两个音', c2: '旋律往哪走，再把三个音弹回来', c3: '一样还是不一样：找出变化', courseBtn: '免费试第 1 周',
+    pricing: '哪些免费，哪些收费', p1: '每日识谱挑战', p1p: '免费', p1s: '高低音谱号读谱，一直免费。', p2: '每个计划的第 1 周', p2p: '免费', p2s: '四节短课，每节约 10 分钟，不用注册。', p3: '8 周听力计划', p3p: '£15', p3l: '', p3s: '每个级别一份，可用 6 个月。创始价。12 月上线。',
+
+    daily: '今天的识谱挑战', rules: '今天所有人做同一套题。高音和低音谱号来回切换，级别越高，每个音的时间越短。错一个就结束。记得打开声音，iPhone 还要检查侧面的静音键。',
+    howanswer: '作答方式', in1: '屏幕琴键', in1s: '在屏幕钢琴上按对那个键，八度也要对。适合 iPad 或横过来的手机。', in2: '电脑键盘', in2s: '键盘上三排字母变成三个八度的白键，从低到高：Z 排、A 排、Q 排。', in3: '电钢琴', in3s: '在 MIDI 电钢琴上弹出这个键，八度也要对。',
+    start: '开始', warm: '先热身 3 个音', warmDone: '热身完成，准备好就开始。', about: '为什么做这个',
+    b1: '曲子会弹完，能力会留下', b1s: '每一首曲子总有弹完的一天，但学它时练出的耳朵和眼睛，会带到下一首。', b2: '短而经常', b2s: '每次十分钟，一周几次。一节一节，看得见的小进步。', b3: '用熟悉的名字', b3s: '用英国琴课里教的 C D E，一键也能换成 do re mi。',
+    bio: '由 Tim 设计。他是钢琴家和音乐教育研究者，有十五年以上的教学经验。本科毕业于星海音乐学院钢琴系，在英国皇家音乐学院获得演奏硕士，在伦敦大学皇家霍洛威学院获得音乐博士，研究音乐如何被学习，以及 AI 如何改变音乐教育。',
+    cred3: '星海音乐学院 · 学士', cred4: '十五年以上教学',
+    preview: '进度只保存在这个浏览器里，不会上传。换设备或清除浏览器数据后无法恢复。',
+    notes: '个音', perNote: s => '每个音 ' + s.toFixed(1) + ' 秒', best: (n, d) => '今天最多 ' + n + ' 个' + (d > 1 ? ' · 连续 ' + d + ' 天' : ''),
+    hintKeys: 'Z 排是最低的 G 到 F，A 排是中间的 G 到 F，Q 排是最高的 G 到 F。琴键上标着对应的按键。', hintBtn: '按对那个键，八度也要对。橙色小点是中央 C。', hintMidi: '在电钢琴上弹出这个音，八度也要对', hintWarm: '热身：不计时、不计分',
+    timeUp: '时间到', itWas: n => '这个音是 ' + n, right: '对',
+    midiAsk: '正在连接电钢琴……', midiOk: n => '已连接：' + n, midiNone: '没有找到 MIDI 设备。用 USB 或蓝牙连好电钢琴，再选一次。',
+    midiBlocked: '这个预览窗口连不上 MIDI 设备。正式网站上，Chrome 和 Edge 浏览器可以连接电钢琴。现在先换成电脑键盘。',
+    resLine: (rank) => '个音连续读对 · 到达「' + rank + '」', share: '分享成绩', copy: '复制成绩', copied: '已复制，可以粘贴到任何聊天里。', copyFail: '请选中上面的文字复制。',
+    again: '再来一次', home: '回首页', inputTag: { buttons: '🔘 按钮', keys: '⌨️ 键盘', midi: '🎹 电钢琴' },
+    obsWrong: (clef, pos, said, was) => clef + '「' + pos + '」上的音，你读成了 ' + said + '，其实是 ' + was + '。读谱最容易慢下来的就是这种音，这正是每日挑战在练的。',
+    obsTime: (clef, pos, was) => clef + '「' + pos + '」上的音（' + was + '）超时了。读得快，靠的是一眼看出音在谱上的位置。',
+    obsPerfect: '六个级别全部通过。明天会有新的一套题。', clefName: { treble: '高音谱号', bass: '低音谱号' },
+    line: k => '第' + k + '线', space: k => '第' + k + '间', ledgerBelow: n => '下加' + n + '线', ledgerAbove: n => '上加' + n + '线',
+    spaceBelow: '下加一间', spaceAbove: '上加一间', tomorrow: '明天有新的一套题。', lowZone: '低音区 · 低音谱号', highZone: '高音区 · 高音谱号', fullZone: 'G2 – F5 · 橙色小点是中央 C', turn: '把手机横过来，可以看到完整的键盘',
+    pack: 'ABRSM 考级听力计划 3–5 级 · 12 月上线', packs: '按周练习：唱回或弹回旋律、视唱、找出变化、拍子。由 Tim 设计。曲子会弹完，能力会留下。四级第 1 周现在就能免费试：dottino.app/aural。',
+    founding: '每个级别创始价 £15', later: '',
+    fDisc: 'Dottino 是独立开发的听力训练软件，与 ABRSM 没有隶属关系，也未获得其认可。',
+    fEyebrow: '创始会员', fTitle: '听力训练包 · 每个级别 £15', fP: '一个级别完整的 8 周听力计划，可以使用 6 个月。一次付清，不是订阅，到期不自动续费。12 月上线。',
+    fL1: '上线前登记的人，都按创始价 £15 / 级别', fL2: '现在不用付钱：计划上线时，我们发一封带付款链接的邮件', fL3: '用了觉得不合适，14 天内全额退款',
+    fGrade: '哪个级别？', fBtn: '锁定创始价', fBad: '请输入正确的邮箱地址。', fOk: '已登记，你的创始价已经保留。计划上线时只发一封邮件。', fFail: '暂时没保存成功，请稍后再试。', fTerms: '条款与退款',
+ who: '给谁用？', who1: '我的孩子', who2: '我自己', who3: '我的学生', join: '上线时通知我',
+    wlBad: '请输入正确的邮箱地址。', wlOk: '预约成功。上线时只会发一封邮件通知你。', wlPreview: '预览版不能发送邮件。在 dottino.app 上这里会帮你保留名额。'
+  }
+};
+
+// ---------- storage (a convenience; the page works without it) ----------
+const KEY = 'dottino:v1';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* private window */ } };
+saved.days = saved.days || {};
+
+const S = {
+  lang: saved.lang || ((navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en'),
+  naming: saved.naming || 'letter',
+  input: saved.input === 'midi' ? 'keys' : (saved.input || (matchMedia('(pointer: coarse)').matches ? 'buttons' : 'keys')),
+  view: 'home', mode: null, qs: [], i: 0, count: 0, prevClef: null, locked: false, warmDone: false
+};
+const $ = id => document.getElementById(id);
+const t = () => T[S.lang];
+const nameOf = l => S.naming === 'solfege' ? SOLF[l] : l;
+const fullName = n => (S.naming === 'solfege' ? SOLF[n.l] + ' (' + n.l + n.o + ')' : n.l + n.o);
+
+// ---------- audio: piano samples every 3 semitones, pitch-shifted to the nearest note ----------
+let ctx = null; const buf = {}; let unlocked = false;
+// samples start loading as soon as the page opens, so the very first note is already the piano
+const loads = {};
+function ensureCtx() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } return ctx; }
+function loadSamples() {
+  if (!ensureCtx()) return;
+  for (let m = 36; m <= 84; m += 3) if (!loads[m]) loads[m] = fetch('audio/p' + m + '.mp3').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buf[m] = b; return b; }).catch(() => null);
+}
+loadSamples();
+function audioInit() {
+  loadSamples();
+  if (unlocked) { if (ctx && ctx.state === 'suspended') ctx.resume(); return; }
+  unlocked = true;
+  // iPhone: the side switch silences Web Audio unless an <audio> element plays first (media category); newer iOS also takes navigator.audioSession
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* older browsers */ }
+  try { const a = new Audio('audio/silent.mp3'); a.setAttribute('playsinline', ''); a.volume = 0.01; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ }
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+}
+function play(midi, vol, waited) {
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3));
+  // sample still decoding: wait for it rather than falling back to a synth beep
+  if (!buf[base] && loads[base] && !waited) { let done = false; loads[base].then(() => { if (!done) { done = true; play(midi, vol, true); } }); setTimeout(() => { if (!done) { done = true; play(midi, vol, true); } }, 900); return; }
+  const g = ctx.createGain(); g.gain.value = vol || 0.8; g.connect(ctx.destination);
+  if (buf[base]) {
+    const s = ctx.createBufferSource(); s.buffer = buf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12);
+    s.connect(g); s.start();
+    g.gain.setTargetAtTime(0, ctx.currentTime + 0.9, 0.25);
+  } else {
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+    o.connect(g); g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    o.start(); o.stop(ctx.currentTime + 0.85);
+  }
+}
+function buzz() {
+  if (!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'square'; o.frequency.value = 110;
+  g.gain.setValueAtTime(0.06, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+  o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.3);
+}
+
+// ---------- staff drawing (same geometry as the mini program: 700 × 250, step 0 = bottom line) ----------
+const TREBLE = 'M314 801Q300 854 291.0 906.0Q282 958 282 1012Q282 1059 288.5 1100.5Q295 1142 307 1177Q320 1217 341.0 1252.5Q362 1288 385.5 1311.0Q409 1334 427 1334Q451 1334 493 1249Q514 1206 524.0 1156.0Q534 1106 534 1049Q534 978 515.0 907.5Q496 837 459.5 775.0Q423 713 372 666L407 498Q422 500 432.0 501.0Q442 502 447 502Q508 502 556.0 467.5Q604 433 632.5 377.0Q661 321 661 254Q661 177 621.5 115.5Q582 54 503 25Q508 8 532 -117Q538 -147 541.0 -164.5Q544 -182 545.0 -195.0Q546 -208 546 -225Q546 -275 521.5 -314.5Q497 -354 455.5 -376.0Q414 -398 363 -398Q311 -398 271.0 -378.5Q231 -359 208.0 -324.5Q185 -290 185 -245Q185 -197 211.5 -165.0Q238 -133 287 -133Q329 -133 355.5 -163.5Q382 -194 382 -236Q382 -272 357.0 -299.0Q332 -326 292 -326H282Q308 -365 364 -365Q433 -365 472.0 -320.0Q511 -275 511 -205Q511 -188 507.0 -159.5Q503 -131 493 -91Q483 -51 477.5 -25.0Q472 1 470 12Q436 2 390 2Q304 2 222 52Q142 102 96.0 184.0Q50 266 50 361Q50 451 91 530Q132 609 192.5 675.0Q253 741 314 801ZM341 826Q364 838 390.0 870.5Q416 903 440.0 945.0Q464 987 479.0 1029.5Q494 1072 494 1106Q494 1142 483.0 1163.0Q472 1184 445 1184Q421 1184 398.5 1162.0Q376 1140 358.5 1103.5Q341 1067 331.0 1022.0Q321 977 321 930Q321 898 327.5 872.0Q334 846 341 826ZM398 379Q371 373 347.0 353.5Q323 334 308.5 306.5Q294 279 294 248Q294 223 307.0 196.5Q320 170 339 154Q352 142 365 136Q380 129 380 123Q380 120 370 117Q332 126 301.5 151.0Q271 176 253.5 211.5Q236 247 236 287Q236 330 253.5 370.0Q271 410 302.5 442.0Q334 474 374 490L345 641Q229 547 174.5 456.5Q120 366 120 277Q120 212 154.0 156.0Q188 100 247.0 65.5Q306 31 380 31Q400 31 420.5 35.0Q441 39 464 45ZM495 55Q593 97 593 227Q593 270 571.0 305.5Q549 341 512.0 362.0Q475 383 429 383Z';
+const BASS = 'M50 123Q216 231 288 301Q336 348 373.0 408.5Q410 469 431.5 536.0Q453 603 453 669Q453 728 435.0 773.5Q417 819 383.0 845.0Q349 871 302 871Q284 871 264.5 867.0Q245 863 224 855Q181 839 158.0 813.5Q135 788 135 765Q135 756 143.0 752.0Q151 748 158 748Q168 748 183 752Q190 754 196.5 755.0Q203 756 210 756Q248 756 272.0 733.5Q296 711 296 674Q296 638 266.0 612.0Q236 586 195 586Q146 586 111.0 617.0Q76 648 76 697Q76 756 109.0 802.0Q142 848 198.5 874.0Q255 900 324 900Q400 900 460.0 867.0Q520 834 555.5 776.5Q591 719 591 646Q591 551 538 464Q511 419 476.5 379.0Q442 339 389.0 297.5Q336 256 256.0 208.0Q176 160 57 101ZM687 809Q710 809 726.0 793.0Q742 777 742 754Q742 731 726.0 715.5Q710 700 687 700Q664 700 648.0 715.5Q632 731 632 754Q632 777 648.0 793.0Q664 809 687 809ZM687 589Q710 589 726.0 573.0Q742 557 742 534Q742 511 726.0 495.5Q710 480 687 480Q664 480 648.0 495.5Q632 511 632 534Q632 557 648.0 573.0Q664 589 687 589Z';
+const yOf = s => 170 - 12 * s;
+function noteSvg(step, x, color) {
+  let s = '';
+  for (let k = -2; k >= step; k -= 2) s += `<line x1="${x - 24}" x2="${x + 24}" y1="${yOf(k)}" y2="${yOf(k)}" stroke="var(--ink)" stroke-width="1.8"/>`;
+  for (let k = 10; k <= step; k += 2) s += `<line x1="${x - 24}" x2="${x + 24}" y1="${yOf(k)}" y2="${yOf(k)}" stroke="var(--ink)" stroke-width="1.8"/>`;
+  const y = yOf(step), up = step < 4;
+  s += `<ellipse cx="${x}" cy="${y}" rx="14" ry="9.5" transform="rotate(-14 ${x} ${y})" fill="${color}"/>`;
+  s += up ? `<line x1="${x + 12.5}" x2="${x + 12.5}" y1="${y - 2}" y2="${y - 54}" stroke="${color}" stroke-width="2.4"/>`
+          : `<line x1="${x - 12.5}" x2="${x - 12.5}" y1="${y + 2}" y2="${y + 54}" stroke="${color}" stroke-width="2.4"/>`;
+  return s;
+}
+function draw(qq, opts) {
+  const o = opts || {};
+  let s = '';
+  for (let i = 0; i < 5; i++) s += `<line x1="70" x2="655" y1="${74 + 24 * i}" y2="${74 + 24 * i}" stroke="var(--ink)" stroke-width="1.6"/>`;
+  const clefColor = o.flashClef ? 'var(--coral)' : 'var(--ink)';
+  s += qq.clef === 'treble'
+    ? `<path d="${TREBLE}" transform="translate(78 172) scale(0.11 -0.11)" fill="${clefColor}"/>`
+    : `<path d="${BASS}" transform="translate(76 170) scale(0.115 -0.115)" fill="${clefColor}"/>`;
+  if (o.wrongStep != null) s += noteSvg(o.wrongStep, 360, 'var(--bad)');
+  s += noteSvg(qq.step, o.wrongStep != null ? 470 : 430, o.color || 'var(--ink)');
+  $('staff').innerHTML = s;
+  $('staff').setAttribute('aria-label', t().clefName[qq.clef]);
+}
+function posLabel(step) {
+  const L = t();
+  if (step >= 0 && step <= 8) return step % 2 === 0 ? L.line(step / 2 + 1) : L.space((step + 1) / 2);
+  if (step === -1) return L.spaceBelow; if (step === 9) return L.spaceAbove;
+  if (step < 0) return L.ledgerBelow(Math.ceil(-step / 2));
+  return L.ledgerAbove(Math.ceil((step - 8) / 2));
+}
+
+// ---------- views ----------
+function show(v) {
+  S.view = v;
+  ['home', 'daily', 'play', 'result'].forEach(k => { $('v-' + k).hidden = k !== v; });
+  document.querySelectorAll('.wrap').forEach(w => w.classList.toggle('wide', v === 'home'));
+  document.querySelectorAll('.home-only').forEach(x => { x.hidden = v !== 'home'; });
+  window.scrollTo(0, 0);
+}
+function setText() {
+  const L = t();
+  document.documentElement.lang = S.lang === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-t]').forEach(el => { const v = L[el.dataset.t]; if (v != null) el.innerHTML = v; });
+  const map = { 't-with': L.with, 't-daily': L.daily, 't-rules': L.rules, 't-howanswer': L.howanswer,
+    't-in1': L.in1, 't-in1s': L.in1s, 't-in2': L.in2, 't-in2s': L.in2s, 't-in3': L.in3, 't-in3s': L.in3s, 'btn-start': L.start,
+    't-preview': L.preview, 't-notes': L.notes, 't-share': L.share, 'btn-copy': L.copy, 't-pack': L.pack, 't-packs': L.packs, 't-founding': L.founding, 't-later': L.later, 't-who': L.who, 't-who1': L.who1, 't-who2': L.who2, 't-who3': L.who3, 'wl-btn': L.join, 'btn-again': L.again, 'btn-home': L.home };
+  Object.keys(map).forEach(id => { $(id).textContent = map[id]; });
+  $('btn-warm').textContent = S.warmDone ? L.warmDone : L.warm;
+  $('daily-eyebrow').textContent = (S.lang === 'zh' ? '免费 · 每日 #' : 'Free · Daily #') + DAY_NO + ' · ' + TODAY;
+  $('tempo').innerHTML = STAGES.map((g, k) => `<li><span class="n">${k + 1}</span><span class="r"><b>${S.lang === 'zh' ? g.zh + ' ' + g.rank : g.rank}</b><em>${S.lang === 'zh' ? g.zhd : g.en}</em></span><span class="s">${L.perNote(g.per)}</span></li>`).join('');
+  const d = saved.days[TODAY];
+  $('today-best').textContent = d ? L.best(d.best, saved.streak || 1) : '';
+  ['en', 'zh'].forEach(k => $('lang-' + k).setAttribute('aria-pressed', S.lang === k));
+  ['letter', 'solfege'].forEach(k => $('nm-' + k).setAttribute('aria-pressed', S.naming === k));
+  ['buttons', 'keys', 'midi'].forEach(k => $('in-' + k).setAttribute('aria-pressed', S.input === k));
+  buildKeys();
+}
+// computer keys: three rows = three G-to-F blocks of white keys, low to high (Z row G2–F3, A row G3–F4, Q row G4–F5)
+const ROWS = ['zxcvbnm', 'asdfghj', 'qwertyu'];
+const WHITE = []; for (let m = 43; m <= 77; m++) if ([0, 2, 4, 5, 7, 9, 11].includes(m % 12)) WHITE.push(m);
+const KEY2MIDI = {}, MIDI2KEY = {};
+WHITE.forEach((m, i) => { const k = ROWS[Math.floor(i / 7)][i % 7]; KEY2MIDI[k] = m; MIDI2KEY[m] = k.toUpperCase(); });
+const LET_OF = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
+const noteOfMidi = m => ({ l: LET_OF[m % 12], o: Math.floor(m / 12) - 1 });
+let keyRange = null;
+function rangeFor(clef) {
+  if (innerWidth >= 600) return { lo: 43, hi: 77, zone: 'fullZone' };
+  return clef === 'bass' ? { lo: 43, hi: 64, zone: 'lowZone' } : { lo: 57, hi: 77, zone: 'highZone' };
+}
+function buildKeys(clef) {
+  const r = rangeFor(clef || S.prevClef || 'treble');
+  keyRange = r;
+  const showKbd = S.input === 'keys';
+  const whites = WHITE.filter(m => m >= r.lo && m <= r.hi);
+  const W = whites.length;
+  let html = whites.map(m => { const n = noteOfMidi(m); const sub = S.naming === 'solfege' ? n.l : SOLF[n.l];
+    return `<button class="wk${m === 60 ? ' mid' : ''}" data-m="${m}" aria-label="${n.l}${n.o}"><b>${nameOf(n.l)}${n.l === 'C' ? '<small style="font-size:.6em">' + n.o + '</small>' : ''}</b><span>${sub}</span>${showKbd && MIDI2KEY[m] ? '<kbd>' + MIDI2KEY[m] + '</kbd>' : ''}</button>`; }).join('');
+  whites.forEach((m, i) => { if (i < W - 1 && whites[i + 1] - m === 2) html += `<i class="bk" style="left:${((i + 1) / W * 100).toFixed(3)}%;width:${(60 / W).toFixed(2)}%" aria-hidden="true"></i>`; });
+  $('keys').innerHTML = html;
+  $('keys').classList.toggle('many', W > 10);
+  $('keys').hidden = S.input === 'midi';
+  $('piano-cap').hidden = S.input === 'midi';
+  const L = t();
+  $('piano-cap').innerHTML = '<span>' + L[r.zone] + '</span>' + (r.zone !== 'fullZone' ? '<span>' + L.turn + '</span>' : '');
+}
+addEventListener('resize', () => { if (S.view === 'play') buildKeys(); });
+
+// ---------- MIDI ----------
+let midiAccess = null;
+function setInput(k) {
+  S.input = k; saved.input = k; persist(); $('midi-note').textContent = '';
+  if (k === 'midi') connectMidi();
+  setText();
+}
+function connectMidi() {
+  const L = t();
+  if (!navigator.requestMIDIAccess) { $('midi-note').textContent = L.midiBlocked; S.input = 'keys'; setText(); return; }
+  $('midi-note').textContent = L.midiAsk;
+  navigator.requestMIDIAccess().then(acc => {
+    midiAccess = acc;
+    const ins = Array.from(acc.inputs.values());
+    if (!ins.length) { $('midi-note').textContent = L.midiNone; return; }
+    ins.forEach(inp => { inp.onmidimessage = onMidi; });
+    $('midi-note').textContent = L.midiOk(ins.map(x => x.name).join(', '));
+  }).catch(() => { $('midi-note').textContent = L.midiBlocked; S.input = 'keys'; setText(); });
+}
+function onMidi(e) {
+  const [st, num, vel] = e.data;
+  if ((st & 0xf0) === 0x90 && vel > 0) answer({ midi: num });
+}
+
+// ---------- game ----------
+let timerRaf = null, deadline = 0, perMs = 0;
+function start(mode) {
+  audioInit();
+  S.mode = mode; S.i = 0; S.count = 0; S.prevClef = null; S.locked = true;
+  S.qs = mode === 'warm' ? [q('treble', -2), q('bass', 6), q('treble', 7)] : daily(TODAY, 400);
+  show('play');
+  $('feedback').textContent = ''; $('feedback').className = 'feedback';
+  $('hint').textContent = mode === 'warm' ? t().hintWarm : S.input === 'midi' ? t().hintMidi : S.input === 'keys' ? t().hintKeys : t().hintBtn;
+  updateStatus();
+  draw(S.qs[0], { color: 'transparent' });
+  stopTimer(); $('timer').style.transform = 'scaleX(1)';
+  if (mode === 'warm') { S.locked = false; draw(S.qs[0]); return; }
+  const over = document.createElement('div'); over.className = 'count-over'; document.body.appendChild(over);
+  let n = 3;
+  const tick = () => {
+    if (n > 0) { over.textContent = n; play(72, 0.25); n--; setTimeout(tick, 650); }
+    else { over.remove(); S.locked = false; nextQ(true); }
+  };
+  tick();
+}
+function updateStatus() {
+  const L = t();
+  if (S.mode === 'warm') { $('rank').innerHTML = (S.lang === 'zh' ? '热身' : 'Warm-up') + '<small>' + (S.i + 1) + ' / 3</small>'; }
+  else {
+    const g = STAGES[stageAt(S.count)];
+    $('rank').innerHTML = (S.lang === 'zh' ? g.zh + ' ' : '') + g.rank + '<small>' + (S.lang === 'zh' ? g.zhd : g.en) + '</small>';
+  }
+  $('count').firstChild.nodeValue = S.mode === 'warm' ? '–' : String(S.count);
+}
+function nextQ(first) {
+  const qq = S.qs[S.i];
+  const flash = S.prevClef && S.prevClef !== qq.clef;
+  draw(qq, { flashClef: flash });
+  if (flash) setTimeout(() => { if (S.qs[S.i] === qq && !S.locked) draw(qq); }, 280);
+  if (innerWidth < 600 && (!keyRange || S.prevClef !== qq.clef)) buildKeys(qq.clef);
+  S.prevClef = qq.clef;
+  if (S.mode === 'warm') return;
+  const g = STAGES[stageAt(S.count)];
+  if (!first && S.count === g.from && S.count > 0) showBanner((S.lang === 'zh' ? g.zh + ' · ' + g.zhd : g.rank + ' · ' + g.en));
+  perMs = (S.count < 3 ? g.per * 2 : g.per) * 1000; deadline = performance.now() + perMs; // first notes: time to find the keys
+  runTimer();
+}
+function showBanner(text) {
+  const b = $('banner'); b.textContent = text; b.style.opacity = 1;
+  setTimeout(() => { b.style.opacity = 0; }, 1400);
+}
+function runTimer() {
+  stopTimer();
+  const el = $('timer');
+  const step = () => {
+    const left = Math.max(0, deadline - performance.now());
+    el.style.transform = 'scaleX(' + (left / perMs) + ')';
+    el.classList.toggle('low', left < perMs * 0.3);
+    if (left <= 0) { fail(null); return; }
+    timerRaf = requestAnimationFrame(step);
+  };
+  timerRaf = requestAnimationFrame(step);
+}
+function stopTimer() { if (timerRaf) cancelAnimationFrame(timerRaf); timerRaf = null; }
+
+function answer(a) {
+  if (S.view !== 'play' || S.locked) return;
+  const qq = S.qs[S.i];
+  const target = midiOf(qq.note);
+  const ok = a.midi === target;
+  markKey(a.midi, ok);
+  if (ok) {
+    play(target);
+    if (S.mode === 'warm') {
+      S.i++;
+      if (S.i >= S.qs.length) { S.warmDone = true; setText(); show('daily'); return; }
+      updateStatus(); nextQ(); return;
+    }
+    S.count++; S.i++;
+    $('count').classList.remove('flash'); void $('count').offsetWidth; $('count').classList.add('flash');
+    updateStatus(); nextQ();
+  } else {
+    if (S.mode === 'warm') { buzz(); $('feedback').className = 'feedback bad'; $('feedback').textContent = t().itWas(fullName(qq.note)); return; }
+    fail(a);
+  }
+}
+function markKey(m, ok) {
+  if (m == null) return;
+  const b = $('keys').querySelector('[data-m="' + m + '"]');
+  if (!b) return;
+  b.classList.add(ok ? 'ok' : 'no');
+  setTimeout(() => b.classList.remove('ok', 'no'), 220);
+}
+function fail(a) {
+  S.locked = true; stopTimer(); buzz();
+  const qq = S.qs[S.i];
+  let wrongStep = null, said = null;
+  if (a && a.midi != null) {
+    said = a.midi;
+    const n = LET_OF[a.midi % 12] ? noteOfMidi(a.midi) : noteOfMidi(a.midi - 1); // a black key is drawn at the white key below it
+    wrongStep = Math.max(-6, Math.min(14, idx(n) - idx(BOTTOM[qq.clef])));
+  } else if (a && a.letter) {
+    said = a.letter;
+    const d = (LETTERS.indexOf(a.letter) - LETTERS.indexOf(qq.note.l) + 7) % 7;
+    wrongStep = qq.step + (d > 3 ? d - 7 : d);
+  }
+  draw(qq, { color: 'var(--good)', wrongStep });
+  $('feedback').className = 'feedback bad';
+  $('feedback').textContent = (a ? '' : t().timeUp + ' · ') + t().itWas(fullName(qq.note));
+  play(midiOf(qq.note), 0.6);
+  S.lastFail = { qq, said, time: !a };
+  setTimeout(finish, 1500);
+}
+function finish() {
+  const L = t();
+  const si = stageAt(S.count), g = STAGES[si];
+  const d = saved.days[TODAY] || { best: 0 };
+  if (S.count > d.best) { d.best = S.count; d.input = S.input; }
+  if (!saved.days[TODAY]) {
+    const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const yk = y.getFullYear() + '-' + pad(y.getMonth() + 1) + '-' + pad(y.getDate());
+    saved.streak = saved.days[yk] ? (saved.streak || 1) + 1 : 1;
+  }
+  saved.days[TODAY] = d; persist();
+  const rank = S.lang === 'zh' ? g.zh + ' ' + g.rank : g.rank;
+  $('res-eyebrow').textContent = 'Daily #' + DAY_NO + ' · ' + TODAY;
+  $('res-count').textContent = S.count;
+  $('res-line').textContent = L.resLine(rank);
+  const cleared = S.count >= 400;
+  const grid = STAGES.map((x, k) => k < si ? '🟩' : k === si ? (cleared ? '🟩' : '🟥') : '⬜').join('');
+  $('res-grid').textContent = grid;
+  $('res-img').src = si >= 2 ? 'img/party.png' : 'img/think.png';
+  const f = S.lastFail;
+  if (f) {
+    const clef = L.clefName[f.qq.clef], pos = posLabel(f.qq.step), was = fullName(f.qq.note);
+    let saidName = '';
+    if (f.said != null) saidName = typeof f.said === 'number' ? (LET_OF[f.said % 12] ? fullName(noteOfMidi(f.said)) : '?') : nameOf(f.said);
+    $('res-obs').textContent = f.time ? L.obsTime(clef, pos, was) : L.obsWrong(clef, pos, saidName || '?', was);
+  } else $('res-obs').textContent = L.obsPerfect;
+  const share = 'Dottino Daily #' + DAY_NO + ' · ' + L.inputTag[S.input] + '\n' + grid + ' ' + g.rank + '\n' + S.count + (S.lang === 'zh' ? ' 个音连续读对' : ' notes in a row') + '\n' + L.tomorrow;
+  $('share-text').value = share;
+  $('copied').textContent = '';
+  show('result');
+}
+
+// ---------- wiring ----------
+$('lang-en').onclick = () => { S.lang = 'en'; saved.lang = 'en'; persist(); setText(); splitHero(); gameText(); };
+$('lang-zh').onclick = () => { S.lang = 'zh'; saved.lang = 'zh'; persist(); setText(); splitHero(); gameText(); };
+$('nm-letter').onclick = () => { S.naming = 'letter'; saved.naming = 'letter'; persist(); setText(); splitHero(); gameText(); };
+$('nm-solfege').onclick = () => { S.naming = 'solfege'; saved.naming = 'solfege'; persist(); setText(); splitHero(); gameText(); };
+$('in-buttons').onclick = () => setInput('buttons');
+$('in-keys').onclick = () => setInput('keys');
+$('in-midi').onclick = () => setInput('midi');
+$('btn-start').onclick = () => start('daily');
+$('btn-daily').onclick = () => { setText(); show('daily'); };
+$('btn-back-daily').onclick = () => { setText(); show('home'); };
+$('btn-warm').onclick = () => start('warm');
+$('btn-again').onclick = () => start('daily');
+$('btn-home').onclick = () => { setText(); show('home'); };
+$('keys').addEventListener('pointerdown', e => { const b = e.target.closest('button'); if (b) { e.preventDefault(); answer({ midi: +b.dataset.m }); } });
+$('keys').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const b = e.target.closest('button'); if (b) { e.preventDefault(); answer({ midi: +b.dataset.m }); } } });
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const m = KEY2MIDI[e.key.toLowerCase()];
+  if (S.view === 'play' && m && !e.repeat) { e.preventDefault(); answer({ midi: m }); }
+});
+$('btn-copy').onclick = () => {
+  const txt = $('share-text').value;
+  const done = () => { $('copied').textContent = t().copied; };
+  const fallback = () => { $('share-text').select(); $('copied').textContent = t().copyFail; };
+  try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (e) { fallback(); }
+};
+document.addEventListener('visibilitychange', () => {
+  // leaving mid-run ends it, so a hidden tab can't keep the timer
+  if (document.hidden && S.view === 'play' && S.mode === 'daily' && !S.locked) fail(null);
+});
+
+// referral code from a teacher's link (dottino.app/?ref=lily): remembered so a later signup or purchase can credit the teacher
+try { const r = new URLSearchParams(location.search).get('ref'); if (r) { saved.ref = r.slice(0, 40); persist(); } } catch (e) { /* no query string in some viewers */ }
+$('wl-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const L = t(), email = $('wl-email').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $('wl-status').style.color = 'var(--bad)'; $('wl-status').textContent = L.wlBad; return; }
+  const who = (document.querySelector('input[name=who]:checked') || {}).value || '';
+  const body = new URLSearchParams({ 'form-name': 'waitlist', email, who, ref: saved.ref || '', lang: S.lang, best: String((saved.days[TODAY] || {}).best || 0), src: 'home-result' });
+  fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
+    .then(r => { if (!r.ok) throw new Error(r.status); $('wl-status').style.color = 'var(--good)'; $('wl-status').textContent = L.wlOk; saved.waitlisted = true; persist(); })
+    .catch(() => { $('wl-status').style.color = 'var(--muted)'; $('wl-status').textContent = L.wlPreview; });
+});
+
+// founding members: register interest (no payment yet); the founding price is kept for everyone who registers before launch
+$('fd-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const L = t(), email = $('fd-email').value.trim(), st = $('fd-status');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.style.color = 'var(--bad)'; st.textContent = L.fBad; return; }
+  const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
+  const body = new URLSearchParams({ 'form-name': 'founding', email, grade, ref: saved.ref || '', lang: S.lang, src: 'home-founding' });
+  fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
+    .then(r => { if (!r.ok) throw new Error(r.status); try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/founding-g' + grade, title: 'founding', event: true }); } catch (x) { /* ignore */ } st.style.color = 'var(--good)'; st.textContent = L.fOk; })
+    .catch(() => { st.style.color = 'var(--muted)'; st.textContent = L.fFail; });
+});
+
+setText();
+draw(q('bass', 4));
+show('home');
+
+// ---------- homepage motion + the tap-to-hear piano ----------
+const NOTE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5a3 3 0 1 1-2-2.83V4l12-2v12.5a3 3 0 1 1-2-2.83V6.2L9 7.6v10.9z" fill="currentColor"/></svg>';
+function splitHero() {
+  const h = document.querySelector('.hx-text h1'); if (!h) return;
+  let i = 0; const out = [];
+  h.innerHTML.split(/<br\s*\/?>/i).forEach((line, li) => {
+    const parts = S.lang === 'zh' ? [...line] : line.split(/(\s+)/);
+    out.push(parts.map(w => /^\s+$/.test(w) || !w ? w : '<span class="w" style="--d:' + (i++) + '">' + w + '</span>').join(''));
+  });
+  h.innerHTML = out.join('<br>') + '<span class="np" style="--nd:' + (i * 90 + 300) + 'ms">' + NOTE_SVG + '</span>';
+}
+function countUp(el) {
+  const to = +el.dataset.count, of = el.dataset.of, t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / 900); el.textContent = Math.round(to * k) + '/' + of; if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('seen'); io.unobserve(e.target);
+    if (e.target.classList.contains('sample') && !reduce) e.target.querySelectorAll('[data-count]').forEach(countUp);
+  }), { threshold: 0.25 });
+  document.querySelectorAll('.map, .sample, .reveal').forEach(x => io.observe(x));
+} else document.querySelectorAll('.map, .sample, .reveal').forEach(x => x.classList.add('seen'));
+splitHero();
+
+// ---------- the first 20 seconds: Basso peeks out, says hi, and gives a tiny challenge you can win ----------
+// anonymous, cookie-free counting of a few steps (GoatCounter); does nothing until its script has loaded
+function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/' + name, title: name, event: true }); } catch (e) { /* ignore */ } }
+const HK = 'dottino:home';
+let home = {}; try { home = JSON.parse(localStorage.getItem(HK) || '{}') || {}; } catch (e) { home = {}; }
+const saveHome = () => { try { localStorage.setItem(HK, JSON.stringify(home)); } catch (e) { /* private window */ } };
+home.stars = home.stars || 0; home.rounds = home.rounds || 0;
+// the first three tunes are fixed and teach the rule: clearly up, clearly down, then a smaller step
+const FIRST = [{ a: 60, b: 72 }, { a: 69, b: 57 }, { a: 62, b: 66 }];
+const G = { streak: 0, pair: null, busy: false, see: false, cardShown: false };
+const gb = $('hx-basso'), gi = $('hx-img'), eyesG = gb.querySelector('.eyeg'), lids = gb.querySelector('.blink');
+const idle = $('hx-idle'); let idleOK = !reduce;
+if (reduce) { try { idle.removeAttribute('autoplay'); idle.pause(); } catch (e) { /* ignore */ } }
+idle.addEventListener('error', () => { idleOK = false; gb.classList.remove('vid'); }, true);
+function face(kind) {
+  const drawn = kind === 'wave';
+  gi.src = drawn ? 'img/wave-noeyes.png' : 'img/' + kind + '.png'; gb.querySelector('.eyes').style.display = drawn ? '' : 'none';
+  // idle moments use Basso's animated clip; reactions switch to the matching picture
+  const useVid = drawn && idleOK;
+  gb.classList.toggle('vid', useVid);
+  if (useVid) { try { const p = idle.play(); if (p && p.catch) p.catch(() => { idleOK = false; gb.classList.remove('vid'); }); } catch (e) { /* ignore */ } }
+}
+function act(cls) { if (reduce) return; gb.classList.remove('wave', 'hop', 'spin', 'listen'); void gb.offsetWidth; gb.classList.add(cls); setTimeout(() => gb.classList.remove(cls), 1000); }
+function blink() { if (reduce) return; lids.classList.remove('shut'); void lids.getBoundingClientRect(); lids.classList.add('shut'); }
+function look(x, y) { eyesG.style.transform = 'translate(' + (x * 6).toFixed(1) + 'px,' + (y * 4).toFixed(1) + 'px)'; }
+function lookAt(el) { const a = gb.getBoundingClientRect(), b = el.getBoundingClientRect(); look(Math.max(-1, Math.min(1, (b.left + b.width / 2 - a.left - a.width / 2) / a.width)), Math.max(-1, Math.min(1, (b.top + b.height / 2 - a.top - a.height / 2) / a.height))); setTimeout(() => look(0, 0), 1200); }
+function bubble(text) { $('hx-bubble').textContent = text; }
+function state(name, focusEl) {
+  ['intro', 'listen', 'answer', 'explain', 'card'].forEach(k => { $('gs-' + k).hidden = k !== name; });
+  if (focusEl && G.keyboard) { try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); } }
+}
+function counter() {
+  const L = t();
+  $('hx-stars').textContent = home.stars; $('hx-starlbl').textContent = L.stars(home.stars);
+  $('hx-streak').hidden = G.streak < 2; $('hx-streak').textContent = L.streak(G.streak);
+  $('g-grow').textContent = home.stars ? L.gGrow : '';
+}
+function notesFrom(el) {
+  if (reduce) return;
+  const r = el.getBoundingClientRect(), colors = ['var(--coral)', 'var(--good)', '#7B5CD6', '#E8B931'];
+  for (let k = 0; k < 4; k++) {
+    const n = document.createElement('span'); n.className = 'notefx'; n.innerHTML = NOTE_SVG; n.style.color = colors[k];
+    n.style.left = (r.left + r.width * (0.2 + k * 0.2)) + 'px'; n.style.top = (r.top + r.height * 0.3) + 'px';
+    n.style.setProperty('--dx', ((k - 1.5) * 20) + 'px'); n.style.animationDelay = (k * 60) + 'ms';
+    document.body.appendChild(n); setTimeout(() => n.remove(), 1100);
+  }
+}
+function newPair() {
+  if (home.rounds < FIRST.length) { const f = FIRST[home.rounds]; G.pair = { a: f.a, b: f.b, up: f.b > f.a }; return; }
+  const iv = [7, 5, 4, 3, 2][Math.min(4, home.rounds - FIRST.length)], up = Math.random() < 0.5, a = 55 + Math.floor(Math.random() * 10);
+  G.pair = { a, b: up ? a + iv : a - iv, up };
+}
+const GAP = 0.8;
+function playPair(onDone) { // two notes with a neutral beat cue: the cue shows rhythm, never direction
+  const p = G.pair; G.busy = true;
+  play(p.a, 0.85); $('beat1').classList.add('on'); setTimeout(() => $('beat1').classList.remove('on'), 380);
+  setTimeout(() => { play(p.b, 0.85); $('beat2').classList.add('on'); setTimeout(() => $('beat2').classList.remove('on'), 380); }, GAP * 1000);
+  act('listen');
+  setTimeout(() => { G.busy = false; if (onDone) onDone(); }, GAP * 1000 + 650);
+}
+// the pitch path: drawn only when explaining an answer, or when "See the notes" is on
+function drawTraj(animate) {
+  const p = G.pair, lo = Math.min(p.a, p.b) - 2, hi = Math.max(p.a, p.b) + 2, y = m => 110 - (m - lo) / (hi - lo) * 90;
+  const ax = 50, bx = 270, ay = y(p.a), by = y(p.b), L = t();
+  $('tj-a').setAttribute('cx', ax); $('tj-a').setAttribute('cy', ay); $('tj-b').setAttribute('cx', bx); $('tj-b').setAttribute('cy', by);
+  $('tj-line').setAttribute('d', 'M' + ax + ' ' + ay + ' L' + bx + ' ' + by);
+  $('tj-ta').setAttribute('x', ax); $('tj-ta').setAttribute('y', Math.min(126, ay + 30)); $('tj-ta').textContent = L.tjA;
+  $('tj-tb').setAttribute('x', bx); $('tj-tb').setAttribute('y', by > 60 ? by - 22 : by + 32); $('tj-tb').textContent = L.tjB;
+  $('g-traj').setAttribute('aria-label', L.tjLabel(p.up));
+  const line = $('tj-line'), b = $('tj-b');
+  if (!animate || reduce) { b.style.opacity = 1; return; }
+  // the dashed path grows from the first note to the second, in time with the second note
+  b.style.opacity = 0; line.setAttribute('d', 'M' + ax + ' ' + ay + ' L' + ax + ' ' + ay);
+  const t0 = performance.now() + 80, dur = GAP * 1000;
+  const step = now => { const k = Math.max(0, Math.min(1, (now - t0) / dur)), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    line.setAttribute('d', 'M' + ax + ' ' + ay + ' L' + (ax + (bx - ax) * e).toFixed(1) + ' ' + (ay + (by - ay) * e).toFixed(1));
+    if (k < 1) requestAnimationFrame(step); else { b.style.transition = 'opacity .2s'; b.style.opacity = 1; } };
+  requestAnimationFrame(step);
+}
+function askRound(fresh) {
+  const L = t();
+  if (fresh) newPair();
+  face('wave'); bubble(L.gCue); $('g-cue').textContent = L.gCue;
+  state('listen');
+  setTimeout(() => playPair(() => {
+    bubble(fresh ? L.gWhich : L.gRetry);
+    $('g-ans').querySelectorAll('.g-btn').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); });
+    state('answer', $('g-up'));
+  }), 450);
+}
+function answerRound(up, btn) {
+  if (G.busy || !G.pair) return;
+  const L = t(), ok = up === G.pair.up;
+  lookAt(btn);
+  $('g-ans').querySelectorAll('.g-btn').forEach(b => { b.disabled = true; });
+  btn.classList.add(ok ? 'right' : 'wrong');
+  track(ok ? 'answer-right' : 'answer-wrong');
+  if (ok) {
+    G.streak++; home.stars++; home.rounds++; saveHome(); counter(); notesFrom(btn);
+    play(79, 0.35); setTimeout(() => play(84, 0.35), 110); if (G.streak >= 3) setTimeout(() => play(88, 0.3), 220);
+    if (G.streak >= 5) { face('party'); act('spin'); bubble(L.gStreak5); }
+    else if (G.streak >= 3) { face('party'); act('hop'); bubble(L.gStreak3(G.streak)); }
+    else { face('wave'); blink(); setTimeout(blink, 260); bubble(L.gRight(G.pair.up)); }
+    setTimeout(showCard, 900);
+  } else {
+    // a miss never takes stars away; only the streak restarts
+    G.streak = 0; counter(); face('think'); bubble(L.gWrongSay);
+    setTimeout(() => {
+      face('wave'); bubble(L.gExplain(G.pair.up)); state('explain');
+      drawTraj(true); playPair(null);
+      // Basso moves with the notes during the explanation
+      if (!reduce) { gb.style.translate = '0 ' + (G.pair.a > G.pair.b ? '-12px' : '12px'); setTimeout(() => { gb.style.translate = '0 ' + (G.pair.up ? '-16px' : '16px'); }, GAP * 1000); setTimeout(() => { gb.style.translate = ''; }, GAP * 1000 + 800); }
+      setTimeout(() => { if (G.keyboard) $('g-try').focus({ preventScroll: true }); }, GAP * 1000 + 700);
+    }, 900);
+  }
+}
+function showCard() {
+  const L = t(), first = !G.cardShown, big = home.stars % 5 === 0;
+  if (!first && !big) { bubble(bubbleNext()); $('g-play').textContent = L.gNextRound; $('g-soundhint').textContent = ''; state('intro', $('g-play')); return; }
+  G.cardShown = true;
+  $('g-star-tag').textContent = L.starTag(home.stars);
+  $('g-card-title').textContent = home.stars === 1 ? L.card1T : L.cardNT(home.stars);
+  $('g-card-text').textContent = home.stars === 1 ? L.card1P : L.cardNP;
+  $('g-parent').innerHTML = L.gParent;
+  const card = $('g-card'), star = $('g-star');
+  ['g-card-title', 'g-card-text', 'g-star-tag'].forEach(id => { $(id).style.opacity = reduce ? 1 : 0; });
+  star.classList.add('waiting');
+  state('card');
+  const reveal = () => { star.classList.remove('waiting'); ['g-card-title', 'g-card-text', 'g-star-tag'].forEach(id => { $(id).style.transition = 'opacity .35s'; $(id).style.opacity = 1; }); if (G.keyboard) card.focus({ preventScroll: true }); };
+  if (reduce || !star.animate) { reveal(); return; }
+  // ~1 s: the star appears beside Basso, floats down into the card, then the title arrives. A tap skips it.
+  const from = gb.getBoundingClientRect(), to = star.getBoundingClientRect();
+  const fly = document.createElement('div'); fly.className = 'flystar'; fly.innerHTML = star.innerHTML; document.body.appendChild(fly);
+  const x0 = from.left + from.width * 0.75 - 48, y0 = from.top + from.height * 0.1 - 48, x1 = to.left, y1 = to.top;
+  const anim = fly.animate([
+    { transform: `translate(${x0}px, ${y0}px) scale(.3) rotate(-30deg)`, opacity: 0 },
+    { transform: `translate(${x0}px, ${y0 - 20}px) scale(.9) rotate(0deg)`, opacity: 1, offset: .3 },
+    { transform: `translate(${x1}px, ${y1}px) scale(1) rotate(10deg)`, opacity: 1 }
+  ], { duration: 1000, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
+  fly.style.left = '0'; fly.style.top = '0';
+  let done = false;
+  const finish = () => { if (done) return; done = true; anim.cancel(); fly.remove(); reveal(); play(84, 0.3); setTimeout(() => play(91, 0.25), 90); act('hop'); card.removeEventListener('pointerdown', finish); };
+  anim.onfinish = finish; card.addEventListener('pointerdown', finish);
+}
+function bubbleNext() { return t().gAsk; }
+$('g-play').onclick = () => { audioInit(); track(home.rounds ? 'play-next' : 'play-first'); askRound(true); };
+$('g-again').onclick = () => { if (!G.busy) { track('listen-again'); state('listen'); playPair(() => state('answer', $('g-up'))); } };
+$('g-see').onclick = () => { // for children who can't hear it: show the path of the notes before answering
+  track('see-notes'); G.see = true; const L = t(); bubble(L.gSeeOn); state('explain'); drawTraj(false); $('g-try').textContent = L.gWhich;
+  $('g-try').onclick = () => { $('g-try').onclick = tryAgain; $('g-try').textContent = t().gTry; state('answer', $('g-up')); bubble(t().gWhich); };
+};
+function tryAgain() { track('try-again'); askRound(false); }
+$('g-try').onclick = tryAgain;
+$('g-up').onclick = e => answerRound(true, e.currentTarget);
+$('g-down').onclick = e => answerRound(false, e.currentTarget);
+$('g-more').onclick = () => { audioInit(); track('one-more'); askRound(true); };
+$('g-go').addEventListener('click', () => track('go-week1'));
+addEventListener('keydown', e => { if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') G.keyboard = true; });
+addEventListener('pointerdown', () => { G.keyboard = false; });
+function gameText() { const L = t(); counter(); if (!G.pair) { bubble(L.gAsk); $('g-play').textContent = L.gPlay; $('g-soundhint').textContent = L.gSound; } }
+// opening: peek, wave, say hi, then offer the Play button
+face('wave'); counter();
+$('g-play').textContent = t().gPlay; $('g-soundhint').textContent = t().gSound;
+setTimeout(() => { act('wave'); bubble(t().gHi); blink(); }, reduce ? 0 : 1300);
+setTimeout(() => { if (!G.pair) bubble(t().gAsk); }, reduce ? 0 : 3300);
+setInterval(() => { if (!document.hidden && Math.random() < 0.6) blink(); }, 3800);
+if (!reduce && matchMedia('(pointer: fine)').matches) {
+  let raf = 0, tx = 0, ty = 0;
+  addEventListener('pointermove', e => {
+    const r = gb.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    tx = Math.max(-1, Math.min(1, (e.clientX - cx) / (innerWidth / 2))); ty = Math.max(-1, Math.min(1, (e.clientY - cy) / (innerHeight / 2)));
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; look(tx, ty); });
+  }, { passive: true });
+}
+})();
+</script>
+
+<!-- Cloudflare Web Analytics: paste the snippet from your Cloudflare dashboard here -->
+<script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
