@@ -42,7 +42,7 @@ const GC = `<script data-goatcounter="https://dottino.goatcounter.com/count" asy
 
 function challengePage(c) {
   const title = `Basso Challenge #${c.n}: ${c.q}`, desc = `${c.teaser} A 30-second listening game from Dottino.`;
-  return `${head({ title, desc, url: `${SITE}/c/${c.n}`, img: `${SITE}/img/og/c${c.n}.png` })}
+  return `${head({ title, desc, url: `${SITE}/c/${c.n}/`, img: `${SITE}/img/og/c${c.n}.png` })}
 <body>
 <div class="wrap">
   <header class="top"><a class="badge" href="/play">Basso Challenge <em>#${c.n}</em></a><a class="brand" href="/">dottino<i>.</i></a></header>
@@ -65,7 +65,7 @@ ${GC}
 function playPage() {
   const title = 'Basso Challenges · Dottino', desc = 'Short listening games with Basso. Can you hear it before he does? A new challenge every week.';
   const items = LIST.slice().reverse();
-  return `${head({ title, desc, url: `${SITE}/play`, img: `${SITE}/img/og/play.png` })}
+  return `${head({ title, desc, url: `${SITE}/play/`, img: `${SITE}/img/og/play.png` })}
 <body>
 <div class="wrap">
   <header class="top"><span class="badge">Basso Challenges</span><a class="brand" href="/" data-ref>dottino<i>.</i></a></header>
