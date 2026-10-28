@@ -103,6 +103,7 @@
         ${S.answered
           ? `<h1 class="q ans"><span class="mark ${right ? 'ok' : 'no'}" aria-hidden="true">${right ? '✓' : '•'}</span>${it.ans} beats in a bar</h1>
              <p class="count">${it.ans === '3' ? 'Strong, light, light: <b>ONE</b> two three.' : 'Strong, light: <b>ONE</b> two.'}</p>
+             ${it.piece ? `<p class="piece">♪ That was <b>${it.piece.p.composer}</b> · ${it.piece.p.title}${it.piece.p.work ? ` <span>(${it.piece.p.work})</span>` : ''}</p>` : ''}
              <div class="beats" id="beats" aria-hidden="true">${Array.from({ length: +it.ans }, (x, i) => `<i>${i + 1}</i>`).join('')}</div>`
           : `<h1 class="q">${C.q}</h1><div class="bar"><i id="prog"></i></div>`}
       </section>
@@ -125,7 +126,7 @@
       pose('idle');
     } else {
       cap.textContent = right && !bassoRight ? 'You beat Basso!' : right ? 'You both got it.' : bassoRight ? 'Basso got this one.' : 'Tricky one. Listen for the strong beat.';
-      act.innerHTML = `<button class="btn ghost" id="count">♪ Hear it with the count</button><button class="btn primary" id="next">${S.round === 0 ? 'Rematch Basso →' : last ? 'See the final score →' : 'Next round →'}</button>`;
+      act.innerHTML = `<button class="btn ghost" id="count">♪ Hear it with the count</button><button class="btn primary" id="next">${S.round === 0 ? 'Rematch Basso →' : last ? 'See the final score →' : 'Next round →'}</button>` + (S.round === 0 ? '<p class="teasenext">3 more rounds with real music by Burgmüller, Schumann and Tchaikovsky.</p>' : '');
       $('count').onclick = () => { track('count'); playItem(it, true); };
       $('next').onclick = next;
       const b = $('bubble'); b.hidden = false;

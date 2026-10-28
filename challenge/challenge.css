@@ -28,6 +28,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .mark.ok { background: var(--coral); } .mark.no { background: var(--muted); }
 .count { margin: 8px 0 0; color: var(--muted); }
 .count b { color: var(--ink); }
+.piece { margin: 8px 0 0; font-size: 15px; } .piece b { font-family: var(--f-display); } .piece span { color: var(--muted); }
+.teasenext { margin: 0; flex-basis: 100%; font-size: 14px; color: var(--muted); text-align: center; }
 .bar { margin-top: 14px; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; background: var(--ink); border-radius: 3px; }
 .beats { display: flex; gap: 8px; margin-top: 10px; }
