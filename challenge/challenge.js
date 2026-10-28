@@ -221,7 +221,7 @@
       <circle cx="231" cy="139" r="24" class="ink"/>
       <circle cx="360" cy="104" r="13" class="dot"/><circle cx="366" cy="149" r="13" class="dot"/>
       <g class="e-idle"><rect x="209" y="261" width="22" height="46" rx="11" class="eye"/><rect x="281" y="261" width="22" height="46" rx="11" class="eye"/></g>
-      <g class="e-happy" fill="none" stroke-width="10" stroke-linecap="round"><path d="M204 292 Q220 266 236 292" class="eyel"/><path d="M276 292 Q292 266 308 292" class="eyel"/></g>
+      <g class="e-happy" fill="none" stroke-width="14" stroke-linecap="round"><path d="M200 298 A20 20 0 0 1 240 298" class="eyel"/><path d="M272 298 A20 20 0 0 1 312 298" class="eyel"/></g>
       <g class="e-sure" fill="none" stroke-width="10" stroke-linecap="round"><path d="M204 282 Q220 296 236 282" class="eyel"/><path d="M276 282 Q292 296 308 282" class="eyel"/></g>
       <g class="e-wow"><ellipse cx="220" cy="282" rx="15" ry="27" class="eye"/><ellipse cx="292" cy="282" rx="15" ry="27" class="eye"/></g>
     </svg>`;
