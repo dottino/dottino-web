@@ -148,3 +148,19 @@
 - 矢量 Basso：情绪颜色由代码平滑渐变（不再突然跳回橙色），身后有同色光晕，答对/答错/找到线索时光会"洒"到题目卡片边缘；播放音乐时两个点随音乐音量跳动发光（力度、速度、奏法、节奏、拍子类题目不跟随，避免泄露答案），唱歌时跟随孩子的声音；答对眯眼笑。
 - 性格题的理由改成带图标的标签（🐢 慢、🔉 轻、⁀ 连贯、☁ 小调…），字更大。
 - 答对音效改成清亮的钟琴三音。
+
+## 26. Basso 挑战页（社交视频落地页，2026-10-28）
+- **主页简介固定放** `dottino.app/play?ref=tiktok`（Instagram 用 `?ref=instagram`，YouTube 用 `?ref=youtube`）。这个链接永远不用改，最新一期自动排在最上面。
+- **每期直达链接** `dottino.app/c/1`、`/c/2`……用于 Instagram 快拍链接贴纸、回复评论、私信、WhatsApp。
+- 挑战页流程：视频里那道题（直接用视频里的音乐）→ 比分 You · Basso → 3 轮 Rematch（真实曲目，2 拍或 3 拍）→ 总比分 → 分享给朋友 / 免费第 1 周 / 给家长老师的介绍 / 大人留邮箱。
+- **加一期新挑战**：
+  1. 把视频里的音乐片段放进 `audio/challenge/c02.mp3`；
+  2. 在 `challenge/challenges.js` 里加一条（题目、答案、Basso 抢答什么、节拍位置）；
+  3. 运行 `node tools/make_challenges.js --images`（生成 `c/2/` 页面、更新 `/play`、生成分享预览图）；
+  4. 推送到 GitHub，Netlify 自动上线。
+- **分享预览图**：`img/og/c1.png`、`play.png`、`home.png`（首页和 aural 页也加上了）。
+- **统计（GoatCounter）**：
+  - 来源：`event/c1/from/tiktok`、`event/play/from/instagram`（GoatCounter 本身也会把 `?ref=` 记成来源）；
+  - 漏斗：`c1/start` → `c1/right|wrong` → `c1/rematch` → `c1/finish` → `c1/share`、`c1/go/week1`、`c1/go/about`、`c1/email`；
+  - 邮箱进 Netlify Forms 的 `waitlist`，`who=challenge`，`src=challenge-1`，`best` 是比分，`ref` 是来源。
+- 挑战页不用麦克风（App 内置浏览器经常拦麦克风）；在 Instagram / TikTok 里打开时，结尾会提示用 Safari 或 Chrome 打开完整课程。
