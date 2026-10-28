@@ -1,16 +1,12 @@
-/* Basso Challenge: same look as the videos — cream paper, a white question card, Basso in the middle, a warm band below */
+/* Basso Challenge: always the light look of the videos (also in dark mode), so the page matches the clip people just watched.
+   Same look as the videos — cream paper, a white question card, Basso in the middle, a warm band below */
 :root {
   --paper: #F2EEE6; --band: #E7DFD2; --card: #FFFDF9; --ink: #1E1B2E; --muted: #6A6475; --line: #E2DACD;
   --coral: #E9553A; --coral-soft: rgba(233, 85, 58, .12); --good: #1B7A45; --dot: #F36C51; --basso: #1E1B2E; --eye: #F5F1E8;
+  color-scheme: light;
   --f-display: "Bricolage Grotesque", system-ui, sans-serif;
   --f-body: "Atkinson Hyperlegible", system-ui, sans-serif;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #14121C; --band: #1B1825; --card: #1E1B29; --ink: #EEE9F5; --muted: #A39DAF; --line: #34304A;
-  --coral: #FF7A5C; --coral-soft: rgba(255, 122, 92, .16); --good: #4CC38A; --basso: #2E2843; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --paper: #14121C; --band: #1B1825; --card: #1E1B29; --ink: #EEE9F5; --muted: #A39DAF; --line: #34304A;
-  --coral: #FF7A5C; --coral-soft: rgba(255, 122, 92, .16); --good: #4CC38A; --basso: #2E2843; color-scheme: dark }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--paper); color: var(--ink); font: 17px/1.5 var(--f-body); min-height: 100vh; min-height: 100dvh; }
