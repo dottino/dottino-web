@@ -210,6 +210,9 @@ p { margin: 0; }
 .mini-cap { font-size: 13px; color: var(--muted); }
 .game { width: min(360px, 100%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .g-state { width: 100%; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+#gs-intro { min-height: 0; padding-top: 4px; } /* the first screen is just the Play button: no tall empty box under Basso */
+.hx-side .hx-art { min-height: 0; }
+@media (min-width: 900px) { .wrap .hx { align-items: start; padding-top: 40px; } .hx-text { padding-top: 56px; } }
 .g-hint { font-size: 13px; color: var(--muted); text-align: center; max-width: 30ch; }
 .g-cue { font-family: var(--f-display); font-weight: 800; font-size: 22px; }
 .g-beats { display: flex; gap: 28px; font-size: 40px; color: var(--muted); }
