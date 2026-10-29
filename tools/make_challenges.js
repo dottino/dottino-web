@@ -5,7 +5,15 @@
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), SITE = 'https://dottino.app';
 global.window = {}; require(path.join(ROOT, 'challenge/challenges.js'));
-const LIST = window.CHALLENGES.slice().sort((a, b) => a.n - b.n), LATEST = LIST[LIST.length - 1];
+const LIST = window.CHALLENGES.slice().sort((a, b) => a.n - b.n);
+// each challenge goes live on its date at 19:00 UK time (when the video is scheduled), so pages can be deployed ahead of the videos
+function releaseAt(d) {
+  const guess = Date.parse(d + 'T19:00:00Z');
+  const london = new Date(guess).toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false });
+  return guess - (parseInt(london, 10) - 19) * 3600e3; // shift by the BST offset in summer
+}
+LIST.forEach(c => { c.rel = releaseAt(c.date); });
+const BUILT = Date.now(), LIVE = LIST.filter(c => c.rel <= BUILT), LATEST = (LIVE.length ? LIVE : LIST)[(LIVE.length ? LIVE : LIST).length - 1];
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
@@ -63,21 +71,21 @@ ${GC}
 }
 
 function playPage() {
-  const title = 'Basso Challenges · Dottino', desc = 'Short listening games with Basso. Can you hear it before he does? A new challenge every week.';
+  const title = 'Basso Challenges · Dottino', desc = 'Short listening games with Basso. Can you hear it before he does? New challenges every week.';
   const items = LIST.slice().reverse();
   return `${head({ title, desc, url: `${SITE}/play/`, img: `${SITE}/img/og/play.png` })}
 <body>
 <div class="wrap">
   <header class="top"><span class="badge">Basso Challenges</span><a class="brand" href="/" data-ref>dottino<i>.</i></a></header>
-  <section class="hero"><h1>Can you hear it before Basso does?</h1><p>Short listening games from the videos. A new one every week.</p></section>
-  <h2 class="sec">This week</h2>
-  <a class="card latest" href="/c/${LATEST.n}" data-ref>
-    <p class="eyebrow">Basso Challenge #${LATEST.n}</p>
-    <h1 class="q">${esc(LATEST.q)}</h1>
+  <section class="hero"><h1>Can you hear it before Basso does?</h1><p>Short listening games from the videos. New challenges every week.</p></section>
+  <h2 class="sec">Latest</h2>
+  ${items.map(c => `<a class="card latest" href="/c/${c.n}" data-ref data-rel="${c.rel}"${c === LATEST ? '' : ' hidden'}>
+    <p class="eyebrow">Basso Challenge #${c.n}</p>
+    <h1 class="q">${esc(c.q)}</h1>
     <span class="play">▶ Play</span>
-  </a>
-  ${items.length > 1 ? `<h2 class="sec">All challenges</h2>
-  <ul class="list">${items.map(c => `<li><a href="/c/${c.n}" data-ref><span class="n">#${c.n}</span><span class="t">${esc(c.q)}</span><span class="d">${fmt(c.date)}</span></a></li>`).join('')}</ul>` : ''}
+  </a>`).join('\n  ')}
+  <h2 class="sec" id="allh"${LIVE.length > 1 ? '' : ' hidden'}>All challenges</h2>
+  <ul class="list">${items.map(c => `<li data-rel="${c.rel}"${c.rel <= BUILT ? '' : ' hidden'}><a href="/c/${c.n}" data-ref><span class="n">#${c.n}</span><span class="t">${esc(c.q)}</span><span class="d">${fmt(c.date)}</span></a></li>`).join('')}</ul>
   <h2 class="sec">More from Dottino</h2>
   <div class="next">
     <a class="go" href="/aural.html?w=1" data-ref><b>Play Week 1 free</b><span>Three 10-minute listening lessons with Basso, built around the ABRSM aural tests.</span></a>
@@ -86,6 +94,12 @@ function playPage() {
   ${FOOT}
 </div>
 <script>
+// show only challenges whose video is already out (19:00 UK on their date); the newest of those is the big card
+(function () { const now = Date.now(), live = [...document.querySelectorAll('.list li')].filter(li => +li.dataset.rel <= now);
+  document.querySelectorAll('.list li').forEach(li => { li.hidden = +li.dataset.rel > now; });
+  const cards = [...document.querySelectorAll('a.latest')].filter(a => +a.dataset.rel <= now);
+  if (cards.length) document.querySelectorAll('a.latest').forEach(a => { a.hidden = a !== cards[0]; });
+  const h = document.getElementById('allh'); if (h) h.hidden = live.length < 2; })();
 // keep the source (?ref=tiktok, ?ref=instagram) on every link, so we can see which bio link brought people in
 (function () { try { const r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\\w-]/g, '').slice(0, 30); if (!r) return;
   document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('ref', r); a.setAttribute('href', u.pathname + u.search); });
@@ -120,7 +134,7 @@ if (process.argv.includes('--images')) (async () => {
   const out = path.join(ROOT, 'img/og'); fs.mkdirSync(out, { recursive: true });
   const shot = async (html, name) => { await p.setContent(html, { waitUntil: 'load' }); await p.evaluate(() => document.fonts.ready); await p.screenshot({ path: path.join(out, name), type: 'png' }); };
   for (const c of LIST) await shot(card({ badge: `Basso Challenge <em>#${c.n}</em>`, big: esc(c.q), small: esc(c.teaser), eyes: 'idle' }), `c${c.n}.png`);
-  await shot(card({ badge: 'Basso Challenges', big: 'Can you hear it before Basso does?', small: 'A new listening game every week', eyes: 'happy' }), 'play.png');
+  await shot(card({ badge: 'Basso Challenges', big: 'Can you hear it before Basso does?', small: 'New listening games every week', eyes: 'happy' }), 'play.png');
   await shot(card({ badge: 'Dottino', big: 'Hear what you play', small: 'Ear-training games for young pianists', eyes: 'happy' }), 'home.png');
   await b.close(); console.log('images: img/og/');
 })();

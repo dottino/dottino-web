@@ -192,7 +192,7 @@
       <section class="card final">
         <p class="eyebrow">Final score</p>
         <h1 class="big"><span>You ${S.you}</span><em>·</em><span>Basso ${S.basso}</span></h1>
-        <p class="count">${won ? 'You out-listened Basso. He wants a rematch next week.' : tie ? 'A draw! Basso says you’re a tough opponent.' : 'Basso wins this time. Try again and ' + K.hint + '.'}</p>
+        <p class="count">${won ? 'You out-listened Basso. He wants a rematch.' : tie ? 'A draw! Basso says you’re a tough opponent.' : 'Basso wins this time. Try again and ' + K.hint + '.'}</p>
       </section>
       <section class="stage small">${bassoSvg()}</section>
       <section class="below">
@@ -201,7 +201,7 @@
         <div class="next">
           <a class="go" id="goWeek" href="${link('/aural.html?w=1')}"><b>Play Week 1 free</b><span>Three 10-minute listening lessons with Basso, built around the ABRSM aural tests.</span></a>
           <a class="go" id="goAbout" href="${link('/')}"><b>What is Dottino?</b><span>For parents and teachers.</span></a>
-          <a class="go" href="/play?ref=${encodeURIComponent(REF)}"><b>More Basso Challenges</b><span>A new one every week.</span></a>
+          <a class="go" href="/play?ref=${encodeURIComponent(REF)}"><b>More Basso Challenges</b><span>New ones every week.</span></a>
         </div>
         ${INAPP ? '<p class="tip">Tip: the full lessons work best in Safari or Chrome. Tap ••• and choose “Open in browser”.</p>' : ''}
         <form class="mail" id="mail" novalidate>

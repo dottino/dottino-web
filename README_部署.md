@@ -167,3 +167,5 @@
 - 2026-10-29：第 2 期 `/c/2`「Major or minor?」（kind: mode）。挑战引擎支持两种题型：meter23（2 拍还是 3 拍，带数拍）和 mode（大调还是小调，Rematch 用 pieces.js 里标了大小调的曲子）。新题型在 challenge.js 的 KINDS 里加一项即可。
 - Netlify 已升级 Personal（每月 1000 额度，每次正式部署 15 额度）。改动尽量攒在一起再推送。
 - 首页顶部有挑战入口横幅（#chal-bar），点击记为 event/home-challenge-bar。
+- 挑战按"上线时间"显示：challenges.js 里的 date 就是视频发布日，当天英国时间 19:00 起才出现在 /play 合集页（/c/N 直达页提前就能打开，方便预览）。所以可以把几期一起提前部署。
+- 部署节奏：改动先推到 `next` 分支保存（不触发 Netlify 正式部署），凑齐一批再合并到 main 一次部署。
