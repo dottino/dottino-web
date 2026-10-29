@@ -164,3 +164,6 @@
   - 漏斗：`c1/start` → `c1/right|wrong` → `c1/rematch` → `c1/finish` → `c1/share`、`c1/go/week1`、`c1/go/about`、`c1/email`；
   - 邮箱进 Netlify Forms 的 `waitlist`，`who=challenge`，`src=challenge-1`，`best` 是比分，`ref` 是来源。
 - 挑战页不用麦克风（App 内置浏览器经常拦麦克风）；在 Instagram / TikTok 里打开时，结尾会提示用 Safari 或 Chrome 打开完整课程。
+- 2026-10-29：第 2 期 `/c/2`「Major or minor?」（kind: mode）。挑战引擎支持两种题型：meter23（2 拍还是 3 拍，带数拍）和 mode（大调还是小调，Rematch 用 pieces.js 里标了大小调的曲子）。新题型在 challenge.js 的 KINDS 里加一项即可。
+- Netlify 已升级 Personal（每月 1000 额度，每次正式部署 15 额度）。改动尽量攒在一起再推送。
+- 首页顶部有挑战入口横幅（#chal-bar），点击记为 event/home-challenge-bar。

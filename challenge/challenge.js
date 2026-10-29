@@ -55,12 +55,29 @@
   // the video question plays its own clip; rematch rounds play the opening bars of real pieces in 2 or 3 time
   let clipBuf = null, clipLoad = null;
   function loadClip() { if (!clipLoad && ensureCtx()) clipLoad = decode(C.audio).then(b => { clipBuf = b; return b; }).catch(() => null); return clipLoad || Promise.resolve(null); }
-  const POOL = (window.PIECES || []).filter(p => !p.compound && (p.k === 2 || p.k === 3));
+  // each kind of question: which pieces fit the rematch, the right answer for a piece, and the words around it
+  const KINDS = {
+    meter23: {
+      pool: p => !p.compound && (p.k === 2 || p.k === 3), ansOf: p => String(p.k), other: a => (a === '2' ? '3' : '2'),
+      opt: o => o + ' beats', title: a => a + ' beats in a bar', count: true, again: '♪ Hear it with the count', pick: 'Pick 2 or 3. Or hear it once more.',
+      explain: a => (a === '3' ? 'Strong, light, light: <b>ONE</b> two three.' : 'Strong, light: <b>ONE</b> two.'), hint: 'listen for the strong beat', helpBubble: 'Listen to the count with me!',
+      says: { '2': ['I know, it’s TWO!', 'Easy. Two!', 'Two, for sure!'], '3': ['I know, it’s THREE!', 'Three! Definitely.', 'Sounds like three to me!'] }
+    },
+    mode: {
+      pool: p => typeof p.minor === 'boolean', ansOf: p => (p.minor ? 'Minor' : 'Major'), other: a => (a === 'Major' ? 'Minor' : 'Major'),
+      opt: o => o, title: a => a, count: false, again: '♪ Hear it again', pick: 'Major or minor? Or hear it once more.',
+      explain: a => (a === 'Minor' ? 'A darker colour, and it settles on a <b>minor</b> chord.' : 'A bright colour, and it settles on a <b>major</b> chord.'), hint: 'listen to where the music ends', helpBubble: 'Listen to the ending with me!',
+      says: { Major: ['It’s MAJOR!', 'Bright. Major!', 'Major, for sure!'], Minor: ['It’s MINOR!', 'Sounds minor to me!', 'Minor. Definitely.'] }
+    }
+  };
+  const K = KINDS[C.kind] || KINDS.meter23;
+  const POOL = (window.PIECES || []).filter(K.pool);
   function excerpt(p) { const beats = Math.min(p.T, p.k * Math.ceil(7.2 / p.B / p.k)); return { p, beats, ev: p.ev.filter(e => e.t < beats - 0.01), len: beats * p.B }; }
-  function rematchSet() {
-    const two = POOL.filter(p => p.k === 2).sort(() => Math.random() - 0.5), three = POOL.filter(p => p.k === 3).sort(() => Math.random() - 0.5);
-    const pick = [two[0], three[0], Math.random() < 0.5 ? two[1] : three[1]].filter(Boolean).sort(() => Math.random() - 0.5);
-    return pick.map(p => ({ piece: excerpt(p), ans: String(p.k), basso: Math.random() < 0.55 ? String(p.k) : String(5 - p.k) }));
+  function rematchSet() { // one of each answer, plus one more of either, in random order
+    const [a, b] = C.opts, sh = arr => arr.sort(() => Math.random() - 0.5);
+    const A = sh(POOL.filter(p => K.ansOf(p) === a)), B = sh(POOL.filter(p => K.ansOf(p) === b));
+    const pick = sh([A[0], B[0], Math.random() < 0.5 ? A[1] : B[1]].filter(Boolean));
+    return pick.map(p => { const ans = K.ansOf(p); return { piece: excerpt(p), ans, basso: Math.random() < 0.55 ? ans : K.other(ans) }; });
   }
   function prepare(item) {
     if (item.piece) { const bases = [...new Set(item.piece.ev.map(e => baseOf(e.m)))]; return Promise.all(bases.map(loadSample)); }
@@ -89,7 +106,7 @@
   // ---------- game ----------
   const S = { round: 0, you: 0, basso: 0, items: [{ ans: C.ans, basso: C.basso }], answered: false, playing: false, heard: false };
   const item = () => S.items[S.round];
-  const BASSO_SAYS = { '2': ['I know, it’s TWO!', 'Easy. Two!', 'Two, for sure!'], '3': ['I know, it’s THREE!', 'Three! Definitely.', 'Sounds like three to me!'] };
+  const BASSO_SAYS = K.says;
   const pickOne = a => a[Math.floor(Math.random() * a.length)];
 
   function render() {
@@ -101,10 +118,10 @@
       <section class="card" aria-live="polite">
         <p class="eyebrow">${label}</p>
         ${S.answered
-          ? `<h1 class="q ans"><span class="mark ${right ? 'ok' : 'no'}" aria-hidden="true">${right ? '✓' : '•'}</span>${it.ans} beats in a bar</h1>
-             <p class="count">${it.ans === '3' ? 'Strong, light, light: <b>ONE</b> two three.' : 'Strong, light: <b>ONE</b> two.'}</p>
+          ? `<h1 class="q ans"><span class="mark ${right ? 'ok' : 'no'}" aria-hidden="true">${right ? '✓' : '•'}</span>${K.title(it.ans)}</h1>
+             <p class="count">${!it.piece && C.explain ? C.explain : K.explain(it.ans)}</p>
              ${it.piece ? `<p class="piece">♪ That was <b>${it.piece.p.composer}</b> · ${it.piece.p.title}${it.piece.p.work ? ` <span>(${it.piece.p.work})</span>` : ''}</p>` : ''}
-             <div class="beats" id="beats" aria-hidden="true">${Array.from({ length: +it.ans }, (x, i) => `<i>${i + 1}</i>`).join('')}</div>`
+             ${K.count ? `<div class="beats" id="beats" aria-hidden="true">${Array.from({ length: +it.ans }, (x, i) => `<i>${i + 1}</i>`).join('')}</div>` : ''}`
           : `<h1 class="q">${C.q}</h1><div class="bar"><i id="prog"></i></div>`}
       </section>
       <section class="stage">
@@ -112,25 +129,25 @@
         ${bassoSvg()}
       </section>
       <section class="below">
-        ${S.answered ? '' : `<div class="opts">${C.opts.map(o => `<button class="opt" data-v="${o}" ${S.heard || S.playing ? '' : 'disabled'}>${o} beats</button>`).join('')}</div>`}
+        ${S.answered ? '' : `<div class="opts">${C.opts.map(o => `<button class="opt" data-v="${o}" ${S.heard || S.playing ? '' : 'disabled'}>${K.opt(o)}</button>`).join('')}</div>`}
         <p class="caption" id="caption"></p>
         <div class="actions" id="actions"></div>
         ${S.round > 0 || S.answered ? `<p class="score"><span>You ${S.you}</span> · <span>Basso ${S.basso}</span></p>` : ''}
       </section>`;
     const cap = $('caption'), act = $('actions');
     if (!S.answered) {
-      cap.innerHTML = S.round === 0 && !S.heard && !S.playing ? `<b>Sound on!</b> <span class="hl">${C.teaser}</span>` : S.playing ? 'Listen carefully…' : 'Pick 2 or 3. Or hear it once more.';
+      cap.innerHTML = S.round === 0 && !S.heard && !S.playing ? `<b>Sound on!</b> <span class="hl">${C.teaser}</span>` : S.playing ? 'Listen carefully…' : K.pick;
       act.innerHTML = `<button class="btn ${S.heard || S.playing ? 'ghost' : 'primary'}" id="play"${S.playing ? ' disabled' : ''}>${S.playing ? '♪ Playing…' : S.heard ? '↻ Hear it again' : '▶ Play the music'}</button>`;
       $('play').onclick = start;
       app.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(b.dataset.v));
       pose('idle');
     } else {
-      cap.textContent = right && !bassoRight ? 'You beat Basso!' : right ? 'You both got it.' : bassoRight ? 'Basso got this one.' : 'Tricky one. Listen for the strong beat.';
-      act.innerHTML = `<button class="btn ghost" id="count">♪ Hear it with the count</button><button class="btn primary" id="next">${S.round === 0 ? 'Rematch Basso →' : last ? 'See the final score →' : 'Next round →'}</button>` + (S.round === 0 ? '<p class="teasenext">3 more rounds with real music by Burgmüller, Schumann and Tchaikovsky.</p>' : '');
-      $('count').onclick = () => { track('count'); playItem(it, true); };
+      cap.textContent = right && !bassoRight ? 'You beat Basso!' : right ? 'You both got it.' : bassoRight ? 'Basso got this one.' : 'Tricky one. Next time, ' + K.hint + '.';
+      act.innerHTML = `<button class="btn ghost" id="count">${K.again}</button><button class="btn primary" id="next">${S.round === 0 ? 'Rematch Basso →' : last ? 'See the final score →' : 'Next round →'}</button>` + (S.round === 0 ? '<p class="teasenext">3 more rounds with real music by Burgmüller, Schumann and Tchaikovsky.</p>' : '');
+      $('count').onclick = () => { track('count'); playItem(it, K.count); };
       $('next').onclick = next;
       const b = $('bubble'); b.hidden = false;
-      b.textContent = right && !bassoRight ? 'Wow, you heard it before me!' : right ? 'High five! We both heard it.' : bassoRight ? 'Listen to the count with me!' : 'That one fooled me too!';
+      b.textContent = right && !bassoRight ? 'Wow, you heard it before me!' : right ? 'High five! We both heard it.' : bassoRight ? K.helpBubble : 'That one fooled me too!';
       pose(right ? (bassoRight ? 'happy' : 'wow') : 'happy');
     }
   }
@@ -175,7 +192,7 @@
       <section class="card final">
         <p class="eyebrow">Final score</p>
         <h1 class="big"><span>You ${S.you}</span><em>·</em><span>Basso ${S.basso}</span></h1>
-        <p class="count">${won ? 'You out-listened Basso. He wants a rematch next week.' : tie ? 'A draw! Basso says you’re a tough opponent.' : 'Basso wins this time. Try again and listen for the strong beat.'}</p>
+        <p class="count">${won ? 'You out-listened Basso. He wants a rematch next week.' : tie ? 'A draw! Basso says you’re a tough opponent.' : 'Basso wins this time. Try again and ' + K.hint + '.'}</p>
       </section>
       <section class="stage small">${bassoSvg()}</section>
       <section class="below">
