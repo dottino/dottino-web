@@ -367,6 +367,13 @@ p { margin: 0; }
 .fd-grade input { accent-color: var(--coral); }
 .fd-terms { font-size: 13px; color: var(--muted); }
 .disc-note { font-size: 12px; color: var(--muted); margin-top: 6px; flex-basis: 100%; }
+.chal-bar { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 14px; margin: 4px 0 6px; font-weight: 700; }
+.chal-bar[hidden] { display: none; }
+.chal-bar:hover { background: var(--coral-soft); }
+.chal-bar .cb-badge { flex: none; background: var(--ink); color: var(--paper); border-radius: 7px; padding: 4px 8px; font: 800 11px/1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.chal-bar .cb-t { flex: 1; min-width: 0; font-size: 15px; }
+.chal-bar .cb-go { flex: none; color: var(--coral); font-size: 20px; }
+@media (max-width: 520px) { .chal-bar .cb-badge { display: none; } }
 </style>
 
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0}</style>
@@ -388,6 +395,7 @@ p { margin: 0; }
       <a class="btn-a ink home-only" href="aural.html" data-t="startFree" style="padding:9px 18px">Start free</a>
     </div>
   </header>
+  <a class="chal-bar home-only" id="chal-bar" href="/play"><span class="cb-badge">Basso Challenge</span><span class="cb-t" data-t="chalBar">Came from a Basso Challenge video? Play it here</span><span class="cb-go" aria-hidden="true">→</span></a>
 
   <!-- HOME -->
   <main id="v-home" class="wrap" style="padding:0;gap:0">
@@ -693,7 +701,7 @@ const DAY_NO = Math.max(1, Math.floor((Date.UTC(now.getFullYear(), now.getMonth(
 // ---------- text ----------
 const T = {
   en: {
-    navPath: 'The path', navParents: 'For parents', navPricing: 'Pricing', startFree: 'Start free', backHome: '← Dottino home',
+    chalBar: 'Came from a Basso Challenge video? Play it here', navPath: 'The path', navParents: 'For parents', navPricing: 'Pricing', startFree: 'Start free', backHome: '← Dottino home',
     hEyebrow: 'Ear-training app · Grades 3–5 aural', hTitle: 'Hear what<br>you play.', hSub: 'Most children who guess in aural tests were never shown what to listen for. Basso shows them, one small step at a time.',
     hCta: 'Start Foundations free', hNote: 'No sign-up · 10 minutes · any phone or tablet', hBubble: '', gHi: 'Hi! I’m Basso. Ready, little listener?', gAsk: 'I’ll play two notes. Can you hear which way they go?', gPlay: '▶ Play', gSound: '🔊 Sound on? On iPhone, check the silent switch too.',
     gCue: 'Listen carefully…', gWhich: 'Which way did my notes go?', gHigher: 'Higher', gLower: 'Lower', gReplay: '▶ Listen again', gSee: 'Can’t hear it? See the notes',
@@ -754,7 +762,7 @@ const T = {
     wlBad: 'Please enter a valid email address.', wlOk: 'Thank you. One email when the plans open, nothing else.', wlPreview: 'This preview can\u2019t send emails. On dottino.app this will save your place.'
   },
   zh: {
-    navPath: '学习路线', navParents: '给家长', navPricing: '价格', startFree: '免费开始', backHome: '← 回到 Dottino 首页',
+    chalBar: '从 Basso 挑战视频来的？点这里玩', navPath: '学习路线', navParents: '给家长', navPricing: '价格', startFree: '免费开始', backHome: '← 回到 Dottino 首页',
     hEyebrow: '听力训练软件 · 3–5 级听力', hTitle: '听见你弹的<br>每个音。', hSub: '很多孩子听力考试靠猜，是因为从来没人告诉他们该听什么。Basso 带着孩子，一小步一小步学会听。',
     hCta: '免费开始基础练习', hNote: '不用注册 · 10 分钟 · 手机平板都能用', hBubble: '', gHi: '你好！我是谱兽 Basso。准备好了吗，小小聆听者？', gAsk: '我来弹两个音，你能听出它们往哪里走吗？', gPlay: '▶ 播放', gSound: '🔊 打开声音了吗？iPhone 还要检查侧面的静音键。',
     gCue: '仔细听……', gWhich: '我的音往哪里走了？', gHigher: '更高', gLower: '更低', gReplay: '▶ 再听一次', gSee: '听不清？看看音符',
@@ -1167,6 +1175,7 @@ document.addEventListener('visibilitychange', () => {
 
 // referral code from a teacher's link (dottino.app/?ref=lily): remembered so a later signup or purchase can credit the teacher
 try { const r = new URLSearchParams(location.search).get('ref'); if (r) { saved.ref = r.slice(0, 40); persist(); } } catch (e) { /* no query string in some viewers */ }
+try { const cb = document.getElementById('chal-bar'), r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\w-]/g, '').slice(0, 30); if (cb) { cb.href = '/play' + (r ? '?ref=' + r : '?ref=home'); cb.addEventListener('click', () => track('home-challenge-bar')); } } catch (e) { /* ignore */ }
 $('wl-form').addEventListener('submit', e => {
   e.preventDefault();
   const L = t(), email = $('wl-email').value.trim();
