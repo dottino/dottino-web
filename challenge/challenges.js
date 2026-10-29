@@ -18,7 +18,7 @@ window.CHALLENGES = [
   },
   {
     n: 2,
-    date: '2026-10-29',
+    date: '2026-10-30',
     kind: 'mode',
     q: 'Major or minor?',
     opts: ['Major', 'Minor'],
