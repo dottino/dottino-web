@@ -6,6 +6,10 @@ const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), SITE = 'https://dottino.app';
 global.window = {}; require(path.join(ROOT, 'challenge/challenges.js'));
 const LIST = window.CHALLENGES.slice().sort((a, b) => a.n - b.n);
+// written guides (for the sitemap, share images and links from the challenge pages)
+window.GUIDES = [
+  { path: '/guides/abrsm-grade-4-aural/', date: '2026-10-30', og: 'guide-g4', title: 'How to help your child prepare for ABRSM Grade 4 aural', badge: 'Parent guide · Grade 4', small: 'What each test asks, and 10-minute games for home' }
+];
 // each challenge goes live on its date at 19:00 UK time (when the video is scheduled), so pages can be deployed ahead of the videos
 function releaseAt(d) {
   const guess = Date.parse(d + 'T19:00:00Z');
@@ -43,6 +47,7 @@ function head({ title, desc, url, img }) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <link rel="stylesheet" href="/challenge/challenge.css">
+<script>try { if (/[?&]embed=1/.test(location.search)) { document.documentElement.classList.add('embed'); const b = document.createElement('base'); b.target = '_top'; document.head.appendChild(b); } } catch (e) {}</script>
 </head>`;
 }
 const FOOT = `<footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>`;
@@ -74,6 +79,7 @@ function aboutBlock(c) {
     ${a.p.map(x => `<p>${x}</p>`).join('\n    ')}
     <h3>Practise at home</h3>
     <p>${a.home}</p>
+    <p class="about-more">For parents: <a href="/guides/abrsm-grade-4-aural/">how to help your child prepare for Grade 4 aural</a>.</p>
     <p class="about-more">Dottino turns these skills into short listening games built around the ABRSM aural tests (Grades 3–5). <a href="/aural.html?ref=c${c.n}">Try Week 1 free</a>, no sign-up. Dottino is independent and not affiliated with ABRSM; check the current syllabus for exam details.</p>
   </section>`;
 }
@@ -171,6 +177,7 @@ if (process.argv.includes('--images')) (async () => {
   const shot = async (html, name) => { await p.setContent(html, { waitUntil: 'load' }); await p.evaluate(() => document.fonts.ready); await p.screenshot({ path: path.join(out, name), type: 'png' }); };
   for (const c of LIST) await shot(card({ badge: `Basso Challenge <em>#${c.n}</em>`, big: esc(c.q), small: esc(c.teaser), eyes: 'idle' }), `c${c.n}.png`);
   await shot(card({ badge: 'Basso Challenges', big: 'Can you hear it before Basso does?', small: 'New listening games every week', eyes: 'happy' }), 'play.png');
+  for (const g of window.GUIDES) await shot(card({ badge: esc(g.badge), big: esc(g.title), small: esc(g.small), eyes: 'happy' }), g.og + '.png');
   await shot(card({ badge: 'Dottino', big: 'Hear what you play', small: 'Ear-training games for young pianists', eyes: 'happy' }), 'home.png');
   await b.close(); console.log('images: img/og/');
 })();

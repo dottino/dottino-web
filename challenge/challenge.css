@@ -98,3 +98,8 @@ h2.sec { margin: 6px 0 0; font: 800 15px var(--f-display); letter-spacing: .04em
 .about p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
 .about .about-more { color: var(--muted); font-size: 14px; }
 .about a { color: var(--coral); font-weight: 700; }
+
+/* inside a guide page (iframe): just the game */
+html.embed .top, html.embed .about, html.embed .foot { display: none; }
+html.embed body { min-height: 0; }
+html.embed .wrap { padding-top: 10px; padding-bottom: 10px; }

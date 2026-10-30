@@ -170,3 +170,4 @@
 - 挑战按"上线时间"显示：challenges.js 里的 date 就是视频发布日，当天英国时间 19:00 起才出现在 /play 合集页（/c/N 直达页提前就能打开，方便预览）。所以可以把几期一起提前部署。
 - 部署节奏：改动先推到 `next` 分支保存（不触发 Netlify 正式部署），凑齐一批再合并到 main 一次部署。
 - SEO 基础（2026-10-30）：robots.txt、sitemap.xml（make_challenges.js 自动生成）、首页和课程页 canonical；每个挑战页下方有一段可被搜索引擎读取的说明（make_challenges.js 里的 ABOUT，按题型写：练什么、对应 ABRSM 哪项考试、在家怎么练）。新题型要在 ABOUT 里补一段。
+- 指南文章（2026-10-30）：/guides/abrsm-grade-4-aural/（家长陪练指南），样式 guides/guide.css；文中用 iframe 嵌入 /c/2/?embed=1（挑战页的 embed 模式只显示游戏）。新指南加进 make_challenges.js 的 GUIDES，会进 sitemap 并生成分享图。
