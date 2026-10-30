@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /sound-lab.html
+
+Sitemap: https://dottino.app/sitemap.xml

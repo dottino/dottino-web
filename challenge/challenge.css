@@ -90,3 +90,11 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .list .d { margin-left: auto; font-size: 13px; color: var(--muted); flex: none; }
 h2.sec { margin: 6px 0 0; font: 800 15px var(--f-display); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .basso.hop { animation: none; } .bar i { transition: none !important; } }
+
+/* the explanation under the game (also what search engines read) */
+.about { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 8px; }
+.about h2 { margin: 0; font: 800 20px/1.2 var(--f-display); }
+.about h3 { margin: 6px 0 0; font: 800 16px var(--f-display); }
+.about p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.about .about-more { color: var(--muted); font-size: 14px; }
+.about a { color: var(--coral); font-weight: 700; }

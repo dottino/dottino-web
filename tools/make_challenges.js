@@ -48,6 +48,36 @@ function head({ title, desc, url, img }) {
 const FOOT = `<footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>`;
 const GC = `<script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>`;
 
+// a short, readable explanation under each game: what it trains, where it shows up in the ABRSM aural tests, and a way to practise at home
+const ABOUT = {
+  meter23: {
+    h: 'Hearing 2 or 3 beats in a bar',
+    p: [
+      'Music moves in groups of beats. In 2 time the pattern is strong, light; in 3 time it is strong, light, light. Hearing which one you are in is one of the first aural skills, and it keeps coming back: at Grade 4, for example, Test C(ii) asks you to clap a short passage and say whether it is in 2, 3 or 4 time.',
+      'The usual mistake is to answer after the first loud note. One strong beat does not tell you the group. Wait for the next strong beat and count the beats in between.'
+    ],
+    home: 'Put on any song and tap your knee on the strong beats. Count out loud between them: “one, two” or “one, two, three”. Marches and pop songs are usually in 2 or 4; waltzes are in 3.'
+  },
+  mode: {
+    h: 'Hearing major or minor',
+    p: [
+      'Major keys tend to sound bright and settled; minor keys sound darker or more serious. Telling them apart is part of describing a piece in the ABRSM aural tests: at Grade 4, Test C(i) asks about features such as tonality, dynamics, articulation and tempo.',
+      'The usual mistake is to decide from the first chord or from the speed. Fast music can be minor, and a piece can open on a bright chord and still be in a minor key. Listen to where the music comes to rest at the end.'
+    ],
+    home: 'Play or sing a short tune your child knows, then play it again in minor (on the piano, in C major, change every E to E♭ — that 3rd note decides most of the colour). Ask: which one sounds brighter? Which one sounds like a rainy day?'
+  }
+};
+function aboutBlock(c) {
+  const a = ABOUT[c.kind]; if (!a) return '';
+  return `<section class="about">
+    <h2>${a.h}</h2>
+    ${a.p.map(x => `<p>${x}</p>`).join('\n    ')}
+    <h3>Practise at home</h3>
+    <p>${a.home}</p>
+    <p class="about-more">Dottino turns these skills into short listening games built around the ABRSM aural tests (Grades 3–5). <a href="/aural.html?ref=c${c.n}">Try Week 1 free</a>, no sign-up. Dottino is independent and not affiliated with ABRSM; check the current syllabus for exam details.</p>
+  </section>`;
+}
+
 function challengePage(c) {
   const title = `Basso Challenge #${c.n}: ${c.q}`, desc = `${c.teaser} A 30-second listening game from Dottino.`;
   return `${head({ title, desc, url: `${SITE}/c/${c.n}/`, img: `${SITE}/img/og/c${c.n}.png` })}
@@ -58,6 +88,7 @@ function challengePage(c) {
     <section class="card"><p class="eyebrow">Listen</p><h1 class="q">${esc(c.q)}</h1><div class="bar"><i></i></div></section>
     <section class="below"><p class="caption"><b>Sound on!</b> <span class="hl">${esc(c.teaser)}</span></p><noscript><p>This game needs JavaScript turned on.</p></noscript></section>
   </main>
+  ${aboutBlock(c)}
   ${FOOT}
 </div>
 <script src="/challenge/challenges.js"></script>
@@ -114,6 +145,11 @@ ${GC}
 
 for (const c of LIST) { const dir = path.join(ROOT, 'c', String(c.n)); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, 'index.html'), challengePage(c)); }
 fs.mkdirSync(path.join(ROOT, 'play'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'play', 'index.html'), playPage());
+// sitemap: the real pages only (not the sound lab or test pages)
+const today = new Date().toISOString().slice(0, 10);
+const urls = [['/', today], ['/aural.html', today], ['/play/', today]].concat(LIST.map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today]]);
+fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, d]) => `  <url><loc>${SITE}${u}</loc><lastmod>${d}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /sound-lab.html\n\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log('pages:', LIST.map(c => 'c/' + c.n).join(' '), 'play/');
 
 // ---------- share images (1200 x 630) ----------
