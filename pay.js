@@ -8,6 +8,8 @@
     token: 'test_71993bc3ba8caec8a5d63f51608',       // client-side token (public by design)
     prices: { g4: 'pri_01m5y173swe9wpr5538rp338ee' }   // Grade 4 Aural Pack, £15 one-time
   };
+  // live account (switch over once Paddle verification passes): set env 'production', the live client token, and these prices
+  const LIVE = { prices: { g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5' }, product: 'pro_01m65fe6fwa0yxvcv4ym9qq5wv' };
   const LKEY = 'dottino:license';
   let testMode = false;
   try { const sp = new URLSearchParams(location.search); if (sp.get('paytest') === '1') sessionStorage.setItem('dottino:paytest', '1'); testMode = sessionStorage.getItem('dottino:paytest') === '1'; } catch (e) { /* ignore */ }
