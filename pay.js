@@ -4,10 +4,11 @@
 (function () {
   const CFG = {
     SELLING: false,
-    env: 'sandbox',
-    token: 'test_71993bc3ba8caec8a5d63f51608',       // client-side token (public by design)
-    prices: { g4: 'pri_01m5y173swe9wpr5538rp338ee' }   // Grade 4 Aural Pack, £15 one-time
+    env: 'production',
+    token: 'live_479830012ec48cd95f2ec833528',       // live client-side token (public by design)
+    prices: { g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5' }   // Grade 4 Aural Pack, £15 one-time (live)
   };
+  // sandbox values, kept for reference: token test_71993bc3ba8caec8a5d63f51608, price pri_01m5y173swe9wpr5538rp338ee
   // live account (switch over once Paddle verification passes): set env 'production', the live client token, and these prices
   const LIVE = { prices: { g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5' }, product: 'pro_01m65fe6fwa0yxvcv4ym9qq5wv' };
   const LKEY = 'dottino:license';
