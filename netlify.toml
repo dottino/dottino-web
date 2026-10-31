@@ -4,3 +4,19 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# short links for the social bios and the TikTok video end card; ref= is read by the site and by GoatCounter (Top referrers), utm_campaign shows under Campaigns
+[[redirects]]
+  from = "/ig"
+  to = "/play?ref=instagram&utm_campaign=bio"
+  status = 302
+
+[[redirects]]
+  from = "/yt"
+  to = "/play?ref=youtube&utm_campaign=bio"
+  status = 302
+
+[[redirects]]
+  from = "/tt"
+  to = "/play?ref=tiktok&utm_campaign=video"
+  status = 302

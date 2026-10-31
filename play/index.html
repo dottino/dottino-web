@@ -30,18 +30,18 @@
   <header class="top"><span class="badge">Basso Challenges</span><a class="brand" href="/" data-ref>dottino<i>.</i></a></header>
   <section class="hero"><h1>Can you hear it before Basso does?</h1><p>Short listening games from the videos. New challenges every week.</p></section>
   <h2 class="sec">Latest</h2>
-  <a class="card latest" href="/c/2" data-ref data-rel="1793386800000" hidden>
+  <a class="card latest" href="/c/2" data-ref data-rel="1793386800000">
     <p class="eyebrow">Basso Challenge #2</p>
     <h1 class="q">Major or minor?</h1>
     <span class="play">▶ Play</span>
   </a>
-  <a class="card latest" href="/c/1" data-ref data-rel="1793214000000">
+  <a class="card latest" href="/c/1" data-ref data-rel="1793214000000" hidden>
     <p class="eyebrow">Basso Challenge #1</p>
     <h1 class="q">2 or 3 beats in a bar?</h1>
     <span class="play">▶ Play</span>
   </a>
-  <h2 class="sec" id="allh" hidden>All challenges</h2>
-  <ul class="list"><li data-rel="1793386800000" hidden><a href="/c/2" data-ref><span class="n">#2</span><span class="t">Major or minor?</span><span class="d">30 Oct</span></a></li><li data-rel="1793214000000"><a href="/c/1" data-ref><span class="n">#1</span><span class="t">2 or 3 beats in a bar?</span><span class="d">28 Oct</span></a></li></ul>
+  <h2 class="sec" id="allh">All challenges</h2>
+  <ul class="list"><li data-rel="1793386800000"><a href="/c/2" data-ref><span class="n">#2</span><span class="t">Major or minor?</span><span class="d">30 Oct</span></a></li><li data-rel="1793214000000"><a href="/c/1" data-ref><span class="n">#1</span><span class="t">2 or 3 beats in a bar?</span><span class="d">28 Oct</span></a></li></ul>
   <h2 class="sec">More from Dottino</h2>
   <div class="next">
     <a class="go" href="/aural.html?w=1" data-ref><b>Play Week 1 free</b><span>Three 10-minute listening lessons with Basso, built around the ABRSM aural tests.</span></a>
@@ -59,8 +59,10 @@
 // keep the source (?ref=tiktok, ?ref=instagram) on every link, so we can see which bio link brought people in
 (function () { try { const r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\w-]/g, '').slice(0, 30); if (!r) return;
   document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('ref', r); a.setAttribute('href', u.pathname + u.search); });
-  setTimeout(() => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/play/from/' + r, title: 'play from ' + r, event: true }); } catch (e) {} }, 1500);
+  setTimeout(() => { try { if (window.goatcounter && window.goatcounter.count) { window.goatcounter.count({ path: 'event/play/from/' + r, title: 'play from ' + r, event: true }); cleanUrl(); } } catch (e) {} }, 1500);
 } catch (e) {} })();
+// once the visit is counted, take the source tags out of the address bar (the links above still carry ?ref=)
+function cleanUrl() { try { const u = new URL(location.href); let c = false; ['ref', 's', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(k => { if (u.searchParams.has(k)) { u.searchParams.delete(k); c = true; } }); if (c) history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) {} }
 </script>
 <script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

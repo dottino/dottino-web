@@ -140,8 +140,10 @@ function playPage() {
 // keep the source (?ref=tiktok, ?ref=instagram) on every link, so we can see which bio link brought people in
 (function () { try { const r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\\w-]/g, '').slice(0, 30); if (!r) return;
   document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('ref', r); a.setAttribute('href', u.pathname + u.search); });
-  setTimeout(() => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/play/from/' + r, title: 'play from ' + r, event: true }); } catch (e) {} }, 1500);
+  setTimeout(() => { try { if (window.goatcounter && window.goatcounter.count) { window.goatcounter.count({ path: 'event/play/from/' + r, title: 'play from ' + r, event: true }); cleanUrl(); } } catch (e) {} }, 1500);
 } catch (e) {} })();
+// once the visit is counted, take the source tags out of the address bar (the links above still carry ?ref=)
+function cleanUrl() { try { const u = new URL(location.href); let c = false; ['ref', 's', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(k => { if (u.searchParams.has(k)) { u.searchParams.delete(k); c = true; } }); if (c) history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) {} }
 </script>
 ${GC}
 </body>

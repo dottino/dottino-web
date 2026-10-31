@@ -11,7 +11,9 @@
   const ROUNDS = 4;
   function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/c' + C.n + '/' + name, title: 'c' + C.n + ' ' + name, event: true }); } catch (e) { /* ignore */ } }
   // where people came from: one event per visit, so the bio links can be compared (GoatCounter also reads ?ref=)
-  setTimeout(() => track('from/' + REF), 1500);
+  // once counted, take the source tags out of the address bar (REF is already kept for the links on this page)
+  setTimeout(() => { if (!(window.goatcounter && window.goatcounter.count)) return; track('from/' + REF);
+    try { const u = new URL(location.href); let c = false; ['ref', 's', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(k => { if (u.searchParams.has(k)) { u.searchParams.delete(k); c = true; } }); if (c) history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) { /* ignore */ } }, 1500);
 
   // ---------- audio ----------
   let ctx = null, bus = null, gen = 0, unlocked = false;
