@@ -171,3 +171,7 @@
 - 部署节奏：改动先推到 `next` 分支保存（不触发 Netlify 正式部署），凑齐一批再合并到 main 一次部署。
 - SEO 基础（2026-10-30）：robots.txt、sitemap.xml（make_challenges.js 自动生成）、首页和课程页 canonical；每个挑战页下方有一段可被搜索引擎读取的说明（make_challenges.js 里的 ABOUT，按题型写：练什么、对应 ABRSM 哪项考试、在家怎么练）。新题型要在 ABOUT 里补一段。
 - 指南文章（2026-10-30）：/guides/abrsm-grade-4-aural/（家长陪练指南），样式 guides/guide.css；文中用 iframe 嵌入 /c/2/?embed=1（挑战页的 embed 模式只显示游戏）。新指南加进 make_challenges.js 的 GUIDES，会进 sitemap 并生成分享图。
+
+## 13. 谱兽“惊讶鼓起来”动画（2026-10-31）
+- video/basso-surprise.mp4（约 3.8 秒，360×360，底色已调成 #F4EFE6），首帧 basso-surprise.jpg，末帧 basso-surprise-end.jpg（Basso 鼓成圆鼓鼓的样子，播完停在这里）。
+- 用途：Basso 抢答答错、揭晓正确答案的那一刻。网页里还没有接上（听力页现在用的是矢量 Basso），先放进素材库。
