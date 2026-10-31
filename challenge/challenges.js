@@ -36,7 +36,7 @@ window.CHALLENGES = [
     q: 'Which rhythm: A, B or C?',
     ans: 'C',
     basso: 'A',
-    explain: 'A and C start the same. Listen right to the end.',
+    explain: 'A ends long. B’s quick notes come late. Only C fits all the way.',
     teaser: 'Can you hear it before Basso does?',
     link: '/aural.html?w=3' // no rhythm rematch page yet: Week 3 has the "which rhythm" lesson (free, no sign-up)
   }
