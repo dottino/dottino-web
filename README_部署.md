@@ -172,6 +172,10 @@
 - SEO 基础（2026-10-30）：robots.txt、sitemap.xml（make_challenges.js 自动生成）、首页和课程页 canonical；每个挑战页下方有一段可被搜索引擎读取的说明（make_challenges.js 里的 ABOUT，按题型写：练什么、对应 ABRSM 哪项考试、在家怎么练）。新题型要在 ABOUT 里补一段。
 - 指南文章（2026-10-30）：/guides/abrsm-grade-4-aural/（家长陪练指南），样式 guides/guide.css；文中用 iframe 嵌入 /c/2/?embed=1（挑战页的 embed 模式只显示游戏）。新指南加进 make_challenges.js 的 GUIDES，会进 sitemap 并生成分享图。
 
-## 13. 谱兽“惊讶鼓起来”动画（2026-10-31）
-- video/basso-surprise.mp4（约 3.8 秒，360×360，底色已调成 #F4EFE6），首帧 basso-surprise.jpg，末帧 basso-surprise-end.jpg（Basso 鼓成圆鼓鼓的样子，播完停在这里）。
-- 用途：Basso 抢答答错、揭晓正确答案的那一刻。网页里还没有接上（听力页现在用的是矢量 Basso），先放进素材库。
+## 13. 谱兽新动画（2026-10-31 / 11-01）
+每段都是 360×360，底色 #F4EFE6（和网站一致），Basso 大小和位置统一；同名 .jpg 是首帧，-end.jpg 是末帧（播完停在这里）。网页里还没有接上（听力页现在用的是矢量 Basso），先放进素材库。谱兽小程序也可以直接用这几段。
+- basso-surprise：惊讶，鼓成圆鼓鼓的（约 3.8 秒）。用在答错、揭晓正确答案的那一刻。
+- basso-listen-hard：两边出现声波，眯眼专心听（4 秒）。用在播放题目、“认真听”的时候。
+- basso-wonder：变大一点，手托下巴，冒出黄色思考泡泡（4 秒）。用在“想一想”、等待作答。
+- basso-aha：歪头、手放嘴边，旁边闪出黄色小线条（4 秒）。用在“发现了！”、答对或听出变化。
+- basso-ponder：慢慢把手放到嘴边，安静地琢磨（4 秒）。用在提示、讲解前。
