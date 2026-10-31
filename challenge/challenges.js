@@ -1,7 +1,8 @@
 /* Basso Challenges: one entry per social video. Newest last.
    To add one: put the music clip in audio/challenge/, add an entry here, run `node tools/make_challenges.js`, push.
    kind 'meter23': "2 or 3 beats in a bar?" (answer '2' or '3'); kind 'mode': "Major or minor?" (answer 'Major' or 'Minor').  basso = what Basso blurts out while the music plays.
-   rematch: the follow-up questions use real pieces (pieces.js) of the same kind. */
+   rematch: the follow-up questions use real pieces (pieces.js) of the same kind.
+   link: for a question type with no rematch page yet, /play points to this lesson instead (no /c/<n> page is made). */
 window.CHALLENGES = [
   {
     n: 1,
@@ -27,5 +28,16 @@ window.CHALLENGES = [
     basso: 'Major',
     explain: 'It opens on a bright chord, but it’s in <b>A minor</b>. Listen to where it ends.',
     teaser: 'Can you hear it before Basso does?'
+  },
+  {
+    n: 3,
+    date: '2026-11-02',
+    kind: 'rhythm',
+    q: 'Which rhythm: A, B or C?',
+    ans: 'C',
+    basso: 'A',
+    explain: 'A and C start the same. Listen right to the end.',
+    teaser: 'Can you hear it before Basso does?',
+    link: '/aural.html?w=3' // no rhythm rematch page yet: Week 3 has the "which rhythm" lesson (free, no sign-up)
   }
 ];

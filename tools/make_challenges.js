@@ -107,6 +107,8 @@ ${GC}
 `;
 }
 
+// a challenge whose question type has no rematch page yet points to the matching lesson instead (link), and gets no /c/<n> page
+const hrefOf = c => c.link || `/c/${c.n}`;
 function playPage() {
   const title = 'Basso Challenges · Dottino', desc = 'Short listening games with Basso. Can you hear it before he does? New challenges every week.';
   const items = LIST.slice().reverse();
@@ -116,13 +118,13 @@ function playPage() {
   <header class="top"><span class="badge">Basso Challenges</span><a class="brand" href="/" data-ref>dottino<i>.</i></a></header>
   <section class="hero"><h1>Can you hear it before Basso does?</h1><p>Short listening games from the videos. New challenges every week.</p></section>
   <h2 class="sec">Latest</h2>
-  ${items.map(c => `<a class="card latest" href="/c/${c.n}" data-ref data-rel="${c.rel}"${c === LATEST ? '' : ' hidden'}>
+  ${items.map(c => `<a class="card latest" href="${hrefOf(c)}" data-ref data-rel="${c.rel}"${c === LATEST ? '' : ' hidden'}>
     <p class="eyebrow">Basso Challenge #${c.n}</p>
     <h1 class="q">${esc(c.q)}</h1>
-    <span class="play">▶ Play</span>
+    <span class="play">${c.link ? '▶ Practise this' : '▶ Play'}</span>
   </a>`).join('\n  ')}
   <h2 class="sec" id="allh"${LIVE.length > 1 ? '' : ' hidden'}>All challenges</h2>
-  <ul class="list">${items.map(c => `<li data-rel="${c.rel}"${c.rel <= BUILT ? '' : ' hidden'}><a href="/c/${c.n}" data-ref><span class="n">#${c.n}</span><span class="t">${esc(c.q)}</span><span class="d">${fmt(c.date)}</span></a></li>`).join('')}</ul>
+  <ul class="list">${items.map(c => `<li data-rel="${c.rel}"${c.rel <= BUILT ? '' : ' hidden'}><a href="${hrefOf(c)}" data-ref><span class="n">#${c.n}</span><span class="t">${esc(c.q)}</span><span class="d">${fmt(c.date)}</span></a></li>`).join('')}</ul>
   <h2 class="sec">More from Dottino</h2>
   <div class="next">
     <a class="go" href="/aural.html?w=1" data-ref><b>Play Week 1 free</b><span>Three 10-minute listening lessons with Basso, built around the ABRSM aural tests.</span></a>
@@ -151,14 +153,14 @@ ${GC}
 `;
 }
 
-for (const c of LIST) { const dir = path.join(ROOT, 'c', String(c.n)); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, 'index.html'), challengePage(c)); }
+for (const c of LIST.filter(c => !c.link)) { const dir = path.join(ROOT, 'c', String(c.n)); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, 'index.html'), challengePage(c)); }
 fs.mkdirSync(path.join(ROOT, 'play'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'play', 'index.html'), playPage());
 // sitemap: the real pages only (not the sound lab or test pages)
 const today = new Date().toISOString().slice(0, 10);
-const urls = [['/', today], ['/aural.html', today], ['/play/', today]].concat(LIST.map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today], ['/refunds.html', today]]);
+const urls = [['/', today], ['/aural.html', today], ['/play/', today]].concat(LIST.filter(c => !c.link).map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today], ['/refunds.html', today]]);
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, d]) => `  <url><loc>${SITE}${u}</loc><lastmod>${d}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /sound-lab.html\n\nSitemap: ${SITE}/sitemap.xml\n`);
-console.log('pages:', LIST.map(c => 'c/' + c.n).join(' '), 'play/');
+console.log('pages:', LIST.filter(c => !c.link).map(c => 'c/' + c.n).join(' '), 'play/');
 
 // ---------- share images (1200 x 630) ----------
 if (process.argv.includes('--images')) (async () => {
@@ -177,7 +179,7 @@ if (process.argv.includes('--images')) (async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1200, height: 630 } });
   const out = path.join(ROOT, 'img/og'); fs.mkdirSync(out, { recursive: true });
   const shot = async (html, name) => { await p.setContent(html, { waitUntil: 'load' }); await p.evaluate(() => document.fonts.ready); await p.screenshot({ path: path.join(out, name), type: 'png' }); };
-  for (const c of LIST) await shot(card({ badge: `Basso Challenge <em>#${c.n}</em>`, big: esc(c.q), small: esc(c.teaser), eyes: 'idle' }), `c${c.n}.png`);
+  for (const c of LIST.filter(c => !c.link)) await shot(card({ badge: `Basso Challenge <em>#${c.n}</em>`, big: esc(c.q), small: esc(c.teaser), eyes: 'idle' }), `c${c.n}.png`);
   await shot(card({ badge: 'Basso Challenges', big: 'Can you hear it before Basso does?', small: 'New listening games every week', eyes: 'happy' }), 'play.png');
   for (const g of window.GUIDES) await shot(card({ badge: esc(g.badge), big: esc(g.title), small: esc(g.small), eyes: 'happy' }), g.og + '.png');
   await shot(card({ badge: 'Dottino', big: 'Hear what you play', small: 'Ear-training games for young pianists', eyes: 'happy' }), 'home.png');
