@@ -39,5 +39,16 @@ window.CHALLENGES = [
     explain: 'A ends long. B’s quick notes come late. Only C fits all the way.',
     teaser: 'Can you hear it before Basso does?',
     link: '/aural.html?w=3' // no rhythm rematch page yet: Week 3 has the "which rhythm" lesson (free, no sign-up)
+  },
+  {
+    n: 4,
+    date: '2026-11-04',
+    kind: 'same',
+    q: 'Same or different?',
+    ans: 'Different',
+    basso: 'Same',
+    explain: 'Same start, but the last note went up. Keep the first tune in your head.',
+    teaser: 'Can you hear it before Basso does?',
+    link: '/aural.html?w=1' // no same/different rematch page yet: Week 1 (always free) has "spot the change" in stops 3 and 4
   }
 ];
