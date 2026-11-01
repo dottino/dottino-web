@@ -1,0 +1,32 @@
+{
+  "episode": 5,
+  "fps": 30,
+  "durationInFrames": 433,
+  "question": "How loud is it?",
+  "answer": "Getting softer",
+  "bassoGuess": "It stays LOUD!",
+  "oops": "Shh… it faded!",
+  "winLine": "There it is!",
+  "pauseLine": "Loud, soft or getting softer? Your call…",
+  "explain": "It starts loud, then fades away.\nFollow the volume all the way through.",
+  "url": "dottino.app",
+  "rematch": "Practise this →",
+  "outro": "Did you hear it\nbefore Basso?",
+  "phraseFrames": 120,
+  "music": [
+    {"src": "audio/ep5_question.wav", "at": 0, "frames": 138, "fadeFrom": 130},
+    {"src": "audio/ep5_ending.wav", "at": 245, "frames": 188, "fadeFrom": 185}
+  ],
+  "beats": {
+    "jump": 18, "doubt": 72, "listen": 110, "pause": 150, "reveal": 190, "replay": 245, "win": 360, "reset": 425,
+    "listenCap": 72, "commentCap": 120, "thinkEnd": 110
+  },
+  "sfx": [
+    {"name": "boing", "at": 18, "gain": 0.5},
+    {"name": "deflate", "at": 73, "gain": 0.4},
+    {"name": "tick", "at": 150, "gain": 0.6},
+    {"name": "hum", "at": 194, "gain": 0.5},
+    {"name": "pop", "at": 360, "gain": 0.25},
+    {"name": "correct", "at": 362, "gain": 0.55}
+  ]
+}

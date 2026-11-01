@@ -50,5 +50,16 @@ window.CHALLENGES = [
     explain: 'Same start, but the last note went up. Keep the first tune in your head.',
     teaser: 'Can you hear it before Basso does?',
     link: '/aural.html?w=1' // no same/different rematch page yet: Week 1 (always free) has "spot the change" in stops 3 and 4
+  },
+  {
+    n: 5,
+    date: '2026-11-06',
+    kind: 'dynamics',
+    q: 'Loud, soft, or getting softer?',
+    ans: 'Getting softer',
+    basso: 'It stays loud',
+    explain: 'It starts loud, then fades away. Follow the volume all the way through.',
+    teaser: 'Can you hear it before Basso does?',
+    link: '/aural.html?w=1' // no dynamics rematch page yet; Week 1 is always free
   }
 ];
