@@ -1,0 +1,199 @@
+{
+  "episode": 3,
+  "fps": 30,
+  "durationInFrames": 412,
+  "bpm": 104,
+  "question": "Which rhythm?",
+  "answer": "C",
+  "bassoGuess": "It's A!",
+  "surprise": "It's C?!",
+  "winLine": "There it is!",
+  "pauseLine": "A, B or C? Your call…",
+  "explain": "A ends long. B's quick notes come late.\nOnly C fits all the way.",
+  "url": "dottino.app",
+  "rematch": "Practise this →",
+  "outro": "Did you hear it\nbefore Basso?",
+  "rhythms": {
+    "A": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        0.5
+      ],
+      [
+        2.5,
+        0.5
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        2
+      ]
+    ],
+    "B": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        0.5
+      ],
+      [
+        3.5,
+        0.5
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "C": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        0.5
+      ],
+      [
+        2.5,
+        0.5
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ]
+  },
+  "music": [
+    {
+      "src": "audio/ep3_question.wav",
+      "at": 0,
+      "frames": 183,
+      "fadeFrom": 170,
+      "beat0": 0
+    },
+    {
+      "src": "audio/ep3_ending.wav",
+      "at": 270,
+      "frames": 142,
+      "fadeFrom": 139,
+      "beat0": 4
+    }
+  ],
+  "beats": {
+    "jump": 35,
+    "doubt": 78,
+    "listen": 118,
+    "pause": 185,
+    "reveal": 222,
+    "replay": 270,
+    "win": 340,
+    "reset": 404,
+    "listenCap": 78,
+    "commentCap": 150,
+    "thinkEnd": 118
+  },
+  "sfx": [
+    {
+      "name": "boing",
+      "at": 35,
+      "gain": 0.5
+    },
+    {
+      "name": "deflate",
+      "at": 79,
+      "gain": 0.4
+    },
+    {
+      "name": "tick",
+      "at": 185,
+      "gain": 0.6
+    },
+    {
+      "name": "boing",
+      "at": 223,
+      "gain": 0.35
+    },
+    {
+      "name": "pop",
+      "at": 340,
+      "gain": 0.25
+    },
+    {
+      "name": "correct",
+      "at": 342,
+      "gain": 0.55
+    }
+  ],
+  "marks": {
+    "A": [
+      6
+    ],
+    "B": [
+      3,
+      3.5
+    ],
+    "C": []
+  }
+}

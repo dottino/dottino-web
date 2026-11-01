@@ -1,0 +1,35 @@
+{
+  "episode": 4,
+  "fps": 30,
+  "durationInFrames": 428,
+  "bpm": 120,
+  "question": "Same or different?",
+  "answer": "Different",
+  "bassoGuess": "Same!",
+  "oops": "Oops… it went UP!",
+  "winLine": "There it is!",
+  "pauseLine": "Same or different? Your call…",
+  "explain": "Same start, but the last note went up.\nKeep the first tune in your head.",
+  "url": "dottino.app",
+  "rematch": "Practise this →",
+  "outro": "Did you hear it\nbefore Basso?",
+  "notes1": [0, 15, 30, 45],
+  "notes2": [75, 90, 105, 120],
+  "changed": 3,
+  "music": [
+    {"src": "audio/ep4_question.wav", "at": 0, "frames": 180, "fadeFrom": 168},
+    {"src": "audio/ep4_ending.wav", "at": 290, "frames": 138, "fadeFrom": 135}
+  ],
+  "beats": {
+    "jump": 100, "doubt": 128, "listen": 165, "pause": 182, "reveal": 222, "replay": 290, "win": 355, "reset": 420,
+    "listenCap": 18, "commentCap": 150, "thinkEnd": 165, "peekFrom": 40
+  },
+  "sfx": [
+    {"name": "boing", "at": 100, "gain": 0.5},
+    {"name": "deflate", "at": 129, "gain": 0.4},
+    {"name": "tick", "at": 182, "gain": 0.6},
+    {"name": "hum", "at": 226, "gain": 0.6},
+    {"name": "pop", "at": 355, "gain": 0.25},
+    {"name": "correct", "at": 357, "gain": 0.55}
+  ]
+}
