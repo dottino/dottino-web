@@ -60,6 +60,6 @@ window.CHALLENGES = [
     basso: 'It stays loud',
     explain: 'It starts loud, then fades away. Follow the volume all the way through.',
     teaser: 'Can you hear it before Basso does?',
-    link: '/aural.html?w=1' // no dynamics rematch page yet; Week 1 is always free
+    link: '/aural.html?w=6' // no dynamics rematch page yet: Week 6 stop 1 is dynamics (free until selling starts)
   }
 ];
