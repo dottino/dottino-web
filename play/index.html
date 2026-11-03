@@ -64,6 +64,7 @@
   </div>
   <footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>
 </div>
+<script src="/pay.js"></script>
 <script>
 // show only challenges whose video is already out (19:00 UK on their date); the newest of those is the big card
 (function () { const now = Date.now(), live = [...document.querySelectorAll('.list li')].filter(li => +li.dataset.rel <= now);
@@ -71,6 +72,14 @@
   const cards = [...document.querySelectorAll('a.latest')].filter(a => +a.dataset.rel <= now);
   if (cards.length) document.querySelectorAll('a.latest').forEach(a => { a.hidden = a !== cards[0]; });
   const h = document.getElementById('allh'); if (h) h.hidden = live.length < 2; })();
+// once the Grade 4 pack is on sale (pay.js SELLING = true), challenges that point to a paid week (Week 2+) send visitors who
+// don't own the pack to the free Week 1 instead of straight into a lock screen; runs before the ?ref= step so the source is kept
+(function () { try { const P = window.DottinoPay; if (!P || !P.active() || P.hasAccess(4)) return;
+  document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin), w = +u.searchParams.get('w');
+    if (!/^\/aural/.test(u.pathname) || !(w >= 2)) return;
+    u.searchParams.set('w', '1'); a.setAttribute('href', u.pathname + u.search);
+    const b = a.querySelector('.play'); if (b) b.textContent = '▶ Start free with Week 1 · this skill is in the Grade 4 pack'; });
+} catch (e) {} })();
 // keep the source (?ref=tiktok, ?ref=instagram) on every link, so we can see which bio link brought people in
 (function () { try { const r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\w-]/g, '').slice(0, 30); if (!r) return;
   document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('ref', r); a.setAttribute('href', u.pathname + u.search); });
