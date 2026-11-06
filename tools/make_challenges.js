@@ -85,7 +85,7 @@ function aboutBlock(c) {
 }
 
 function challengePage(c) {
-  const title = `Basso Challenge #${c.n}: ${c.q}`, desc = `${c.teaser} A 30-second listening game from Dottino.`;
+  const title = `Basso Challenge #${c.n}: ${c.q}`, desc = c.desc || `${c.teaser} A 30-second listening game from Dottino.`;
   return `${head({ title, desc, url: `${SITE}/c/${c.n}/`, img: `${SITE}/img/og/c${c.n}.png` })}
 <body>
 <div class="wrap">
@@ -133,6 +133,7 @@ function playPage() {
   </div>
   ${FOOT}
 </div>
+<script src="/pay.js"></script>
 <script>
 // show only challenges whose video is already out (19:00 UK on their date); the newest of those is the big card
 (function () { const now = Date.now(), live = [...document.querySelectorAll('.list li')].filter(li => +li.dataset.rel <= now);
@@ -140,6 +141,14 @@ function playPage() {
   const cards = [...document.querySelectorAll('a.latest')].filter(a => +a.dataset.rel <= now);
   if (cards.length) document.querySelectorAll('a.latest').forEach(a => { a.hidden = a !== cards[0]; });
   const h = document.getElementById('allh'); if (h) h.hidden = live.length < 2; })();
+// once the Grade 4 pack is on sale (pay.js SELLING = true), challenges that point to a paid week (Week 2+) send visitors who
+// don't own the pack to the free Week 1 instead of straight into a lock screen; runs before the ?ref= step so the source is kept
+(function () { try { const P = window.DottinoPay; if (!P || !P.active() || P.hasAccess(4)) return;
+  document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin), w = +u.searchParams.get('w');
+    if (!/^\\/aural/.test(u.pathname) || !(w >= 2)) return;
+    u.searchParams.set('w', '1'); a.setAttribute('href', u.pathname + u.search);
+    const b = a.querySelector('.play'); if (b) b.textContent = '▶ Start free with Week 1 · this skill is in the Grade 4 pack'; });
+} catch (e) {} })();
 // keep the source (?ref=tiktok, ?ref=instagram) on every link, so we can see which bio link brought people in
 (function () { try { const r = (new URLSearchParams(location.search).get('ref') || '').replace(/[^\\w-]/g, '').slice(0, 30); if (!r) return;
   document.querySelectorAll('a[data-ref]').forEach(a => { const u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('ref', r); a.setAttribute('href', u.pathname + u.search); });
@@ -158,7 +167,7 @@ for (const c of LIST.filter(c => !c.link)) { const dir = path.join(ROOT, 'c', St
 fs.mkdirSync(path.join(ROOT, 'play'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'play', 'index.html'), playPage());
 // sitemap: the real pages only (not the sound lab or test pages)
 const today = new Date().toISOString().slice(0, 10);
-const urls = [['/', today], ['/aural.html', today], ['/play/', today], ['/ear-check/', today]].concat(LIST.filter(c => !c.link).map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today], ['/refunds.html', today]]);
+const urls = [['/', today], ['/aural', today], ['/play/', today], ['/ear-check/', today]].concat(LIST.filter(c => !c.link).map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy', today], ['/terms', today], ['/refunds', today]]);
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, d]) => `  <url><loc>${SITE}${u}</loc><lastmod>${d}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /sound-lab.html\n\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log('pages:', LIST.filter(c => !c.link).map(c => 'c/' + c.n).join(' '), 'play/');

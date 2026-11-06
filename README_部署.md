@@ -200,4 +200,4 @@
 - 结果页：分享结果 / 发给家长或老师（系统分享，复制链接兜底）；从社交平台来的访客会看到「在视频下评论你的级别和分数」；免费第 1 周入口；邮箱登记进 Netlify 表单 **founding**（grade = 推荐的级别，src 里带分数、结果、所选级别），提示 13 岁以下请家长填写。
 - 统计（GoatCounter，event/ear/…）：`from/<来源>`、`plays/g12|g3|g4|g5|g6|none`（受众级别分布）、`start`、`q1-g3-meter/right|wrong` … `q6-g5-rhythm/…`（每题正确率）、`replay`、`tool/<题型>`、`finish`、`result/pre3|g3|g4|g5`、`gap/plays5-ear4` 这类（乐器级别 vs 耳朵级别）、`share`、`send-adult`、`email/g3|g4|g5`、`go/week1`、`again`。
 - 本地测试：地址加 `?test=1` 会暴露 `window.__ear`（出题函数和状态），线上不影响。
-- 注意：`tools/make_challenges.js` 比线上的 c/1、c/2、/play 页面旧（页面里后来手改过描述和付费跳转），直接运行会把这些改动覆盖。这次只手动改了 /play 和 sitemap；生成脚本里也加了自测入口，但下次运行前要先把脚本和页面对齐。
+- 2026-11-07：`tools/make_challenges.js` 已和线上页面对齐（之前 11-04 的 SEO 改动只改了页面）：每期挑战可在 challenges.js 里写 `desc`（页面描述，c/1、c/2 已补上）；/play 加载 pay.js，开卖后指向第 2 周以后的挑战会把没买包的访客带去第 1 周；sitemap 用不带 .html 的网址；/play 和 sitemap 里有 Ear Check。现在可以放心运行脚本，运行后只有 sitemap 日期和 /play 里“哪期已发布”的初始状态会变（页面打开时会按时间重新算）。
