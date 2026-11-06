@@ -24,7 +24,7 @@ META = {
  't16': ('Tchaikovsky', 'Old French Song', 'Op.39 No.16', 'sad', ['minor','slow','smooth'], 'legato', 'p'),
 }
 # pieces that start with a pickup (anacrusis), in beats (compound time: dotted-crotchet beats, so a quaver = 0.3333)
-UP = {'s10': 0.5, 's06': 0.5, 't16': 0.5, 's08': 0.3333, 'b09': 0.3333}
+UP = {'b12': 1.5, 's10': 0.5, 's06': 0.5, 't16': 0.5, 's08': 0.3333, 'b09': 0.3333}
 MINOR = {'b02','b12','b16','s06','s08','t16'}
 out = []
 for f in sorted(glob.glob(os.path.join(D, '*.mid'))):

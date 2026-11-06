@@ -92,8 +92,7 @@
   const rkey = r => r.join(',');
 
   function qMeter() { // Grade 3 Test A: 2, 3 or 4 time (a real piece)
-    const UNSURE = ['b12']; // pickup not confirmed yet: keep out of the beats question
-    const pool = (window.PIECES || []).filter(p => !p.compound && [2, 3, 4].includes(p.k) && !UNSURE.includes(p.id));
+    const pool = (window.PIECES || []).filter(p => !p.compound && [2, 3, 4].includes(p.k));
     const byK = k => pool.filter(p => p.k === k);
     const k = pick([2, 3, 4].filter(x => byK(x).length)), p = pick(byK(k));
     const up = p.up || 0, beats = Math.min(p.T, up + p.k * Math.ceil(7.2 / p.B / p.k));
