@@ -127,6 +127,7 @@ function playPage() {
   <ul class="list">${items.map(c => `<li data-rel="${c.rel}"${c.rel <= BUILT ? '' : ' hidden'}><a href="${hrefOf(c)}" data-ref><span class="n">#${c.n}</span><span class="t">${esc(c.q)}</span><span class="d">${fmt(c.date)}</span></a></li>`).join('')}</ul>
   <h2 class="sec">More from Dottino</h2>
   <div class="next">
+    <a class="go" href="/ear-check/" data-ref><b>Ear Check: how far can your ear go?</b><span>Six listening questions from Grade 3 to Grade 5 level. About 3 minutes.</span></a>
     <a class="go" href="/aural.html?w=1" data-ref><b>Play Week 1 free</b><span>Three 10-minute listening lessons with Basso, built around the ABRSM aural tests.</span></a>
     <a class="go" href="/" data-ref><b>What is Dottino?</b><span>For parents and teachers.</span></a>
   </div>
@@ -157,7 +158,7 @@ for (const c of LIST.filter(c => !c.link)) { const dir = path.join(ROOT, 'c', St
 fs.mkdirSync(path.join(ROOT, 'play'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'play', 'index.html'), playPage());
 // sitemap: the real pages only (not the sound lab or test pages)
 const today = new Date().toISOString().slice(0, 10);
-const urls = [['/', today], ['/aural.html', today], ['/play/', today]].concat(LIST.filter(c => !c.link).map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today], ['/refunds.html', today]]);
+const urls = [['/', today], ['/aural.html', today], ['/play/', today], ['/ear-check/', today]].concat(LIST.filter(c => !c.link).map(c => [`/c/${c.n}/`, c.date])).concat((window.GUIDES || []).map(g => [g.path, g.date])).concat([['/privacy.html', today], ['/terms.html', today], ['/refunds.html', today]]);
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, d]) => `  <url><loc>${SITE}${u}</loc><lastmod>${d}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /sound-lab.html\n\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log('pages:', LIST.filter(c => !c.link).map(c => 'c/' + c.n).join(' '), 'play/');

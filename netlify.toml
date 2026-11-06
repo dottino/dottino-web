@@ -20,3 +20,9 @@
   from = "/tt"
   to = "/play?ref=tiktok&utm_campaign=video"
   status = 302
+
+# short link for the ear check (video end cards, captions)
+[[redirects]]
+  from = "/ear"
+  to = "/ear-check/"
+  status = 302

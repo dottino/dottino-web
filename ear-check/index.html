@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ear Check: how far can your ear go? (Grades 3–5) · Dottino</title>
+<meta name="description" content="A free 3-minute listening check with Basso: six questions from Grade 3 to Grade 5 level, built around the ABRSM aural tests. See which grade your ear is at, and what to listen for.">
+<link rel="canonical" href="https://dottino.app/ear-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dottino">
+<meta property="og:title" content="Ear Check: how far can your ear go?">
+<meta property="og:description" content="Six listening questions, Grade 3 to Grade 5 level. Free, about 3 minutes.">
+<meta property="og:url" content="https://dottino.app/ear-check/">
+<meta property="og:image" content="https://dottino.app/img/og/play.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F2EEE6">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="/challenge/challenge.css">
+<style>
+/* ear check: extra pieces on top of the challenge look */
+.grades { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.opt.sm { font-size: 17px; padding: 12px 8px; }
+.opts.n3 { grid-template-columns: repeat(3, 1fr); }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qhead .eyebrow { margin: 0; }
+.dots { display: flex; gap: 5px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.dots i.cur { background: var(--ink); } .dots i.ok { background: var(--coral); } .dots i.no { background: var(--muted); }
+.q { margin-top: 6px; font-size: 25px; }
+.toolname { margin: 8px 0 0; display: inline-block; background: var(--coral-soft); color: var(--coral); border-radius: 999px; padding: 3px 10px; font: 800 13px var(--f-display); letter-spacing: .02em; }
+.figs:empty { display: none; }
+.figs { margin-top: 12px; display: grid; gap: 8px; }
+.choices { display: grid; gap: 8px; }
+.choice { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px 6px 8px; background: var(--paper); transition: opacity .2s; }
+.choice b { font: 800 20px var(--f-display); text-align: center; }
+.choice.right { border: 2px solid var(--coral); background: var(--card); }
+.choice.dim { opacity: .55; }
+.choice svg, .pair svg { width: 100%; height: auto; display: block; }
+.pair { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 4px 8px; }
+.pair span { font: 800 13px var(--f-display); color: var(--muted); }
+svg .gl { stroke: var(--line); stroke-width: 1.5; } svg .gb { stroke: #CFC5B5; stroke-width: 2.5; }
+svg .nb { fill: var(--ink); transition: fill .08s; } svg .nb.hl { fill: var(--coral); } svg .nb.on { fill: var(--coral); }
+svg .sl { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; opacity: .35; }
+svg .sd { fill: var(--ink); transition: r .08s, fill .08s; } svg .sd.hl { fill: var(--coral); } svg .sd.on { fill: var(--coral); r: 9px; }
+.rows { margin-top: 12px; display: grid; gap: 6px; }
+.rows .row { display: grid; grid-template-columns: 1fr auto 40px; align-items: center; gap: 10px; font-weight: 700; }
+.pips { display: flex; gap: 5px; } .pips i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); } .pips i.ok { background: var(--coral); }
+.muted { color: var(--muted); font-weight: 400; text-align: right; }
+.fine { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.go.linkish { font: inherit; text-align: left; cursor: pointer; width: 100%; color: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="badge" href="/play">Ear <em>Check</em></a><a class="brand" href="/">dottino<i>.</i></a></header>
+  <main id="app">
+    <section class="card"><p class="eyebrow">Ear check · Grades 3–5</p><h1 class="q">How far can your ear go?</h1><p class="count">Six short listening questions, from Grade 3 to Grade 5 level. About 3 minutes. Sound on.</p></section>
+    <section class="below"><noscript><p>This check needs JavaScript turned on.</p></noscript></section>
+  </main>
+  <section class="about">
+    <h2>What the ear check covers</h2>
+    <p>Every ABRSM practical exam ends with aural tests at the same grade as the instrument. Many students play well above the level their ear has been trained to, because lessons spend most of the time on pieces. This check gives a quick picture of where the ear is now.</p>
+    <p><b>Grade 3 level:</b> hearing whether music is in 2, 3 or 4 time, and spotting whether a phrase changed in pitch or in rhythm when it is played again. <b>Grade 4 level:</b> remembering the shape of a short tune and recognising a two-bar rhythm. <b>Grade 5 level:</b> the same skills with longer, minor-key tunes and rhythms with dotted notes, where the answers differ by just one note or one beat.</p>
+    <h3>The tools behind each answer</h3>
+    <p>After each question you see the tool that helps: counting to the next strong beat, drawing the tune as a shape line, or following a beat grid. These are the same tools Dottino’s lessons use.</p>
+    <p class="about-more">This is a short practice check, not an ABRSM mark: it does not test singing, clapping back or describing music. Dottino is independent and not affiliated with ABRSM; check the current syllabus for exam details. <a href="/aural.html?ref=ear-about">Try Week 1 free</a>.</p>
+  </section>
+  <footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>
+</div>
+<script src="/pieces.js"></script>
+<script src="/ear-check/ear-check.js"></script>
+<script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
