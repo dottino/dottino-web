@@ -40,7 +40,11 @@
 .pair { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 4px 8px; }
 .pair span { font: 800 13px var(--f-display); color: var(--muted); }
 svg .gl { stroke: var(--line); stroke-width: 1.5; } svg .gb { stroke: #CFC5B5; stroke-width: 2.5; }
-svg .nb { fill: var(--ink); transition: fill .08s; } svg .nb.hl { fill: var(--coral); } svg .nb.on { fill: var(--coral); }
+svg .nb { fill: var(--ink); } svg .nb.hl { fill: var(--coral); }
+/* rhythm tool: the fill grows from the note's start to its full length while it sounds (a dot becomes a long note) */
+svg .fl { fill: var(--coral); transform-box: fill-box; transform-origin: left center; transform: scaleX(0); }
+svg .fl.go { transform: scaleX(1); }
+svg rect.hl + g .fl { fill: #A8321C; } /* the changed notes are already coral: fill them a shade darker */
 svg .sl { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; opacity: .35; }
 svg .sd { fill: var(--ink); transition: r .08s, fill .08s; } svg .sd.hl { fill: var(--coral); } svg .sd.on { fill: var(--coral); r: 9px; }
 .rows { margin-top: 12px; display: grid; gap: 6px; }
@@ -55,7 +59,7 @@ svg .sd { fill: var(--ink); transition: r .08s, fill .08s; } svg .sd.hl { fill: 
 <div class="wrap">
   <header class="top"><a class="badge" href="/play">Ear <em>Check</em></a><a class="brand" href="/">dottino<i>.</i></a></header>
   <main id="app">
-    <section class="card"><p class="eyebrow">Ear check · Grades 3–5</p><h1 class="q">How far can your ear go?</h1><p class="count">Six short listening questions, from Grade 3 to Grade 5 level. About 3 minutes. Sound on.</p></section>
+    <section class="card"><p class="eyebrow">Ear check · Grades 3–5</p><h1 class="q">How far can your ear go?</h1><p class="count">Six short listening questions, from Grade 3 to Grade 5 level. About 3 minutes. Sound&nbsp;on.</p></section>
     <section class="below"><noscript><p>This check needs JavaScript turned on.</p></noscript></section>
   </main>
   <section class="about">
@@ -66,7 +70,7 @@ svg .sd { fill: var(--ink); transition: r .08s, fill .08s; } svg .sd.hl { fill: 
     <p>After each question you see the tool that helps: counting to the next strong beat, drawing the tune as a shape line, or following a beat grid. These are the same tools Dottino’s lessons use.</p>
     <p class="about-more">This is a short practice check, not an ABRSM mark: it does not test singing, clapping back or describing music. Dottino is independent and not affiliated with ABRSM; check the current syllabus for exam details. <a href="/aural.html?ref=ear-about">Try Week 1 free</a>.</p>
   </section>
-  <footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>
+  <footer class="foot"><span>Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Pieces: Mutopia Project&nbsp;editions.</span><span><a href="/">Dottino</a> · <a href="/privacy.html">Privacy</a></span></footer>
 </div>
 <script src="/pieces.js"></script>
 <script src="/ear-check/ear-check.js"></script>

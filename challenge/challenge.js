@@ -74,7 +74,10 @@
   };
   const K = KINDS[C.kind] || KINDS.meter23;
   const POOL = (window.PIECES || []).filter(K.pool);
-  function excerpt(p) { const beats = Math.min(p.T, p.k * Math.ceil(7.2 / p.B / p.k)); return { p, beats, ev: p.ev.filter(e => e.t < beats - 0.01), len: beats * p.B }; }
+  // up = pickup length: the first strong beat is at t = up (pieces.js), so whole bars run from there
+  const upOf = p => p.up || 0;
+  const isDown = (t, p) => { const r = (((t - upOf(p)) % p.k) + p.k) % p.k; return r < 0.01 || p.k - r < 0.01; };
+  function excerpt(p) { const beats = Math.min(p.T, upOf(p) + p.k * Math.ceil(7.2 / p.B / p.k)); return { p, beats, ev: p.ev.filter(e => e.t < beats - 0.01), len: beats * p.B }; }
   function rematchSet() { // one of each answer, plus one more of either, in random order
     const [a, b] = C.opts, sh = arr => arr.sort(() => Math.random() - 0.5);
     const A = sh(POOL.filter(p => K.ansOf(p) === a)), B = sh(POOL.filter(p => K.ansOf(p) === b));
@@ -97,11 +100,11 @@
     }
     const x = item.piece, p = x.p, soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char);
     x.ev.forEach(e => {
-      const at = lead + e.t * p.B, dur = e.d * p.B, acc = Math.abs(e.t % p.k) < 0.01 ? (soft ? 1.04 : 1.1) : 1;
+      const at = lead + e.t * p.B, dur = e.d * p.B, acc = isDown(e.t, p) ? (soft ? 1.04 : 1.1) : 1;
       const vel = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70) * acc * (e.mel ? 1 : soft ? 0.5 : 0.62));
       note(e.m, at, vel, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18));
     });
-    if (withCount) for (let i = 0; i < x.beats; i++) { const at = lead + i * p.B; tick(at, i % p.k === 0); later(() => lightBeat(i % p.k), at * 1000); }
+    if (withCount) { const f = upOf(p) % 1, n0 = Math.round(upOf(p) - f); for (let i = 0; f + i < x.beats - 0.01; i++) { const at = lead + (f + i) * p.B, b = (((i - n0) % p.k) + p.k) % p.k; tick(at, b === 0); later(() => lightBeat(b), at * 1000); } }
     return lead + x.len + 0.4;
   }
 

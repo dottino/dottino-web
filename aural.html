@@ -1451,6 +1451,10 @@ function makePiece(o) {
   return p;
 }
 // seconds from the start for a time t (in beats), with a slow-down or speed-up in the second half
+// up = pickup (anacrusis) length in beats (pieces.js): the first strong beat is at t = up
+function upOf(p) { return (p && p.up) || 0; }
+function isDownbeat(t, p) { const r = (((t - upOf(p)) % p.k) + p.k) % p.k; return r < 0.01 || p.k - r < 0.01; }
+function beatTimes(p, end) { const f = upOf(p) % 1, n0 = Math.round(upOf(p) - f), out = []; for (let i = 0; f + i < end - 0.01; i++) out.push({ t: f + i, strong: (((i - n0) % p.k) + p.k) % p.k === 0 }); return out; }
 function pieceClock(p) {
   const B = p.B || { slow: 0.78, mid: 0.58, fast: 0.4 }[p.tempo], T = p.T;
   const f = t => p.tch === 'slower' ? (t < T * 0.45 ? 1 : 1 + 0.85 * (t - T * 0.45) / (T * 0.55)) : p.tch === 'faster' ? (t < T * 0.3 ? 1 : 1 - 0.42 * (t - T * 0.3) / (T * 0.7)) : 1;
@@ -1469,7 +1473,7 @@ function playPiece(p, start) {
     const at = s0 + clk(e.t) + (Math.random() - 0.5) * 0.01, dur = clk(e.t + e.d) - clk(e.t);
     const arch = 1 + 0.08 * Math.sin(Math.PI * e.t / p.T), acc = Math.abs(e.t % p.k) < 0.01 ? 1.07 : 1;
     const vel = Math.min(1, dynAt(p, e.t) * arch * acc * (e.mel ? 1 : 0.62) * (e.v || 1) * (1 + (Math.random() - 0.5) * 0.08));
-    if (p.real) { const soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char), racc = Math.abs(e.t % p.k) < 0.01 ? (soft ? 1 : 1.04) : 1; const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * racc * (e.mel ? 1 : soft ? 0.5 : 0.62); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
+    if (p.real) { const soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char), racc = isDownbeat(e.t, p) ? (soft ? 1 : 1.04) : 1; const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * racc * (e.mel ? 1 : soft ? 0.5 : 0.62); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
     if (!pedal) play(e.m, at, vel, false, Math.min(0.16, dur * 0.45));
     else if (e.mel || p.lh === 'held') play(e.m, at, vel, false, dur + 0.05);
     else { const barEnd = s0 + clk((Math.floor(e.t / p.k + 0.001) + 1) * p.k); play(e.m, at, vel, false, dur, Math.max(at + dur, barEnd + 0.03)); } // left hand held by the pedal to the end of the bar
@@ -1540,7 +1544,7 @@ function featViz(q) {
     for (let i = 0; i < n; i++) { const tt = (i + 0.5) / n * p.T, v = dynAt(p, tt), h = 10 + v * 58, x = 8 + i * (W - 16) / n; const hot = (p.dyn === 'fp' || p.dyn === 'pf') && (i === n / 2 || i === n / 2 - 1); body += `<rect x="${x.toFixed(1)}" y="${(70 - h).toFixed(1)}" width="${((W - 16) / n - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${hot ? 'var(--coral)' : 'var(--ink)'}" opacity="${hot ? 1 : 0.45 + v * 0.5}"/>`; }
   } else if (q.aspect === 'tempo') {
     title = T_.vizBeat; const clk = pieceClock(p), tot = clk(p.T);
-    for (let b = 0; b <= p.T; b++) { const x = 10 + clk(b) / tot * (W - 20); body += `<circle cx="${x.toFixed(1)}" cy="38" r="${b % p.k === 0 ? 7 : 4.5}" fill="var(--ink)" opacity="${b % p.k === 0 ? 0.9 : 0.55}"/>`; }
+    beatTimes(p, p.T + 0.02).forEach(bt => { const x = 10 + clk(bt.t) / tot * (W - 20); body += `<circle cx="${x.toFixed(1)}" cy="38" r="${bt.strong ? 7 : 4.5}" fill="var(--ink)" opacity="${bt.strong ? 0.9 : 0.55}"/>`; });
   } else if (q.aspect === 'art') {
     title = T_.vizLen; const mel = p.ev.filter(e => e.mel).slice(0, 12), t0 = mel.length ? mel[0].t : 0, t1 = mel.length ? mel[mel.length - 1].t + mel[mel.length - 1].d : 1;
     mel.forEach(e => { const x = 8 + (e.t - t0) / (t1 - t0) * (W - 16), w = Math.max(4, (p.art === 'staccato' ? Math.min(e.d * 0.35, 0.3) : e.d) / (t1 - t0) * (W - 16) - (p.art === 'staccato' ? 0 : 1)), y = 64 - ((e.m % 24) / 24) * 44; body += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="9" rx="4.5" fill="var(--ink)" opacity=".75"/>`; });
@@ -1559,13 +1563,13 @@ function featFrom(pc) {
 }
 // C(ii): the first two bars of the piece's tune, played twice, then: 2, 3 or 4 time?
 function rhythmFrom(pc) {
-  const top = {}; pc.ev.filter(e => e.mel && e.t < 2 * pc.k - 1e-6).forEach(e => { if (!top[e.t] || e.m > top[e.t].m) top[e.t] = e; });
+  const u0 = upOf(pc), top = {}; pc.ev.filter(e => e.mel && e.t >= u0 - 1e-6 && e.t < u0 + 2 * pc.k - 1e-6).forEach(e => { const t0 = +(e.t - u0).toFixed(4), x = Object.assign({}, e, { t: t0 }); if (!top[t0] || e.m > top[t0].m) top[t0] = x; });
   const mel = Object.values(top).sort((a, b) => a.t - b.t), parts = [], notes = [];
   mel.forEach((e, i) => { if (i && Math.floor(e.t / pc.k + 1e-6) !== Math.floor(mel[i - 1].t / pc.k + 1e-6)) parts.push('|'); const nx = mel[i + 1]; parts.push(String(+((nx ? nx.t : Math.max(e.t + e.d, 2 * pc.k)) - e.t).toFixed(3))); notes.push(e.m); });
   return { type: 'taprhythm', k: pc.k, pattern: parts.join(','), notes, level: 1, taps: [], twice: true, piece: pc };
 }
 function meterFrom(pc) { return { type: 'meter', k: pc.k, bars: 4, ev: [], piece: pc, level: 2, accent: 1 }; }
-function playPieceCount(pc) { const d = playPiece(pc), clk = pieceClock(pc); for (let b = 0; b < pc.T; b++) tick(0.1 + clk(b), b % pc.k === 0); return d; }
+function playPieceCount(pc) { const d = playPiece(pc), clk = pieceClock(pc); beatTimes(pc, pc.T).forEach(bt => tick(0.1 + clk(bt.t), bt.strong)); return d; }
 // ---------- real repertoire (pieces.js) ----------
 // the next piece is one the child hasn't heard lately (all 20 come round before any repeats)
 function freshPiece(pool) {
@@ -1575,7 +1579,7 @@ function freshPiece(pool) {
   try { localStorage.setItem('dottino:recentPieces', JSON.stringify(recent)); } catch (e) { /* ignore */ }
   return pc;
 }
-function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii }; }
+function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, up: pc.up || 0, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii }; }
 function pieceLine(q) { const pc = q.piece; return pc && pc.real ? `<div class="small muted" style="margin-top:6px">♪ ${t().pieceWas(pc.composer, pc.title)}</div>` : ''; }
 function makeQ(type, level, force) {
   if (type === 'sight') return makeSight(level);

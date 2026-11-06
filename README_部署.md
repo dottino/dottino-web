@@ -201,3 +201,10 @@
 - 统计（GoatCounter，event/ear/…）：`from/<来源>`、`plays/g12|g3|g4|g5|g6|none`（受众级别分布）、`start`、`q1-g3-meter/right|wrong` … `q6-g5-rhythm/…`（每题正确率）、`replay`、`tool/<题型>`、`finish`、`result/pre3|g3|g4|g5`、`gap/plays5-ear4` 这类（乐器级别 vs 耳朵级别）、`share`、`send-adult`、`email/g3|g4|g5`、`go/week1`、`again`。
 - 本地测试：地址加 `?test=1` 会暴露 `window.__ear`（出题函数和状态），线上不影响。
 - 2026-11-07：`tools/make_challenges.js` 已和线上页面对齐（之前 11-04 的 SEO 改动只改了页面）：每期挑战可在 challenges.js 里写 `desc`（页面描述，c/1、c/2 已补上）；/play 加载 pay.js，开卖后指向第 2 周以后的挑战会把没买包的访客带去第 1 周；sitemap 用不带 .html 的网址；/play 和 sitemap 里有 Ear Check。现在可以放心运行脚本，运行后只有 sitemap 日期和 /play 里“哪期已发布”的初始状态会变（页面打开时会按时间重新算）。
+
+## 28. 弱起 + 自测第一轮反馈（2026-11-07）
+- **弱起**：pieces.js 新增 `up`（弱起长度，单位是拍；6/8 等复拍子按附点四分音符算，一个八分音符 = 0.3333）。第一个强拍在 t = up，不是 t = 0。已标：s10 Fröhlicher Landmann 0.5、s06 Armes Waisenkind 0.5、t16 Old French Song 0.5、s08 Wilder Reiter 0.3333、b09 La Chasse 0.3333（tools/make_pieces.py 的 UP 表同步）。
+  - 用到强拍的地方都改成按 `up` 算：挑战页复赛的重音和数拍（challenge.js）、课程页真实曲目的重音、速度图拍点、数拍点击声、C(ii) 节奏题取的“前两小节”（从第一个强拍开始，跳过弱起）。
+  - 待确认：b12 L'Adieu、b03 Pastorale 是否有弱起。L'Adieu 暂时不进自测的拍子题。
+- **自测**：拍子题强拍明显加重（4/4 的第三拍次强，反拍减弱）；播放时字幕分阶段提示（主和弦 → 起始音 → 第一遍 → 第二遍；节奏题“预备拍 1·2·3·4”），说明主和弦和起始音还不是题目；节奏工具改成“填满”效果：每个音按自己的时值从起点填到终点（短音像一个点，长音拉成一条）。
+- 排版：挑战页和自测的段落用 `text-wrap: pretty`，避免最后一行只剩一个词。

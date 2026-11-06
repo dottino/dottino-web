@@ -9,6 +9,7 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
+p, label span, .go span, .foot span { text-wrap: pretty; } /* no single word left alone on the last line */
 body { background: var(--paper); color: var(--ink); font: 17px/1.5 var(--f-body); min-height: 100vh; min-height: 100dvh; }
 a { color: inherit; }
 button, input { font: inherit; color: inherit; }

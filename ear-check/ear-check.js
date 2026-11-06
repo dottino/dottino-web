@@ -41,9 +41,9 @@
   }
   function stopAudio() { gen++; timers.forEach(clearTimeout); timers = []; if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); } catch (e) { /* ignore */ } }, 160); } bus = null; }
   const later = (fn, ms) => { const g = gen, t = setTimeout(() => { if (g === gen) fn(); }, ms); timers.push(t); };
-  function note(m, at, vel, len) {
+  function note(m, at, vel, len, boost) {
     const base = baseOf(m), b = buf[base]; if (!b) return;
-    const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * vel) * 0.92; g.connect(out()); g.connect(out().verb);
+    const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * vel) * 0.92 * (boost || 1); g.connect(out()); g.connect(out().verb);
     const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = Math.pow(2, (m - base) / 12); s.connect(g);
     const t0 = ctx.currentTime + at; s.start(t0); g.gain.setTargetAtTime(0, t0 + len, 0.18); s.stop(t0 + len + 1.4);
   }
@@ -92,10 +92,11 @@
   const rkey = r => r.join(',');
 
   function qMeter() { // Grade 3 Test A: 2, 3 or 4 time (a real piece)
-    const pool = (window.PIECES || []).filter(p => !p.compound && [2, 3, 4].includes(p.k));
+    const UNSURE = ['b12']; // pickup not confirmed yet: keep out of the beats question
+    const pool = (window.PIECES || []).filter(p => !p.compound && [2, 3, 4].includes(p.k) && !UNSURE.includes(p.id));
     const byK = k => pool.filter(p => p.k === k);
     const k = pick([2, 3, 4].filter(x => byK(x).length)), p = pick(byK(k));
-    const beats = Math.min(p.T, p.k * Math.ceil(7.2 / p.B / p.k));
+    const up = p.up || 0, beats = Math.min(p.T, up + p.k * Math.ceil(7.2 / p.B / p.k));
     return { kind: 'meter', grade: 3, piece: p, beats, ev: p.ev.filter(e => e.t < beats - 0.01), ans: String(k), opts: ['2', '3', '4'] };
   }
   function qChange() { // Grade 3 Test C: a phrase played twice, one change: pitch or rhythm?
@@ -139,10 +140,17 @@
   };
 
   // ---------- drawings: the listening tools ----------
+  let clipN = 0;
+  function noteBar(i, x, y, w, h, hl) { // a note block plus a fill layer (clipped to the block) that grows while the note sounds
+    const id = 'nc' + (++clipN), r = h / 2;
+    return `<clipPath id="${id}"><rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${r}"/></clipPath>`
+      + `<rect data-i="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${r}" class="${hl ? 'nb hl' : 'nb'}"/>`
+      + `<g clip-path="url(#${id})"><rect class="fl" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}"/></g>`;
+  }
   function gridSvg(r, beatsPerBar, hl, cls) { // beat grid: one block per note, length = how long it lasts
     const total = sum(r), W = 300, H = 46, pad = 6, u = (W - pad * 2) / total; let x = pad, s = `<svg class="${cls || 'grid'}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
     for (let b = 0; b <= total; b++) s += `<line x1="${pad + b * u}" y1="${b % beatsPerBar ? 10 : 2}" x2="${pad + b * u}" y2="${b % beatsPerBar ? H - 10 : H - 2}" class="${b % beatsPerBar ? 'gl' : 'gb'}"/>`;
-    r.forEach((d, i) => { s += `<rect data-i="${i}" x="${(x + 2).toFixed(1)}" y="15" width="${Math.max(6, d * u - 4).toFixed(1)}" height="16" rx="8" class="${hl && hl.includes(i) ? 'nb hl' : 'nb'}"/>`; x += d * u; });
+    r.forEach((d, i) => { s += noteBar(i, x + 2, 15, Math.max(6, d * u - 4), 16, hl && hl.includes(i)); x += d * u; });
     return s + '</svg>';
   }
   function shapeSvg(degs, hl, cls, lo, hi) { // shape line: one dot per note, height = pitch
@@ -155,7 +163,7 @@
   function timeSvg(notes, hl, lo, hi) { // both pitch and rhythm: dots placed in time, height = pitch
     const W = 300, H = 70, pad = 12, total = sum(notes.map(n => n.d)), span = Math.max(1, hi - lo), u = (W - pad * 2) / total; let t = 0, s = `<svg class="time" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
     for (let b = 0; b <= total; b++) s += `<line x1="${pad + b * u}" y1="${b % 4 ? 14 : 4}" x2="${pad + b * u}" y2="${b % 4 ? H - 14 : H - 4}" class="${b % 4 ? 'gl' : 'gb'}"/>`;
-    notes.forEach((n, i) => { const x = pad + t * u, y = H - pad - ((n.deg - lo) / span) * (H - pad * 2); s += `<rect x="${x + 1}" y="${(y - 5).toFixed(1)}" width="${Math.max(8, n.d * u - 3).toFixed(1)}" height="10" rx="5" class="${hl && hl.includes(i) ? 'nb hl' : 'nb'}"/>`; t += n.d; });
+    notes.forEach((n, i) => { const x = pad + t * u, y = H - pad - ((n.deg - lo) / span) * (H - pad * 2); s += noteBar(i, x + 1, y - 5, Math.max(8, n.d * u - 3), 10, hl && hl.includes(i)); t += n.d; });
     return s + '</svg>';
   }
 
@@ -165,37 +173,54 @@
     const k = q.key, lines = q.kind === 'change' ? q.a.concat(q.b) : q.line;
     return loadAll(lineMidis(lines, k).concat(triad(k)));
   }
+  function phase(text, at) { later(() => { const c = $('caption'); if (c && S.playing) c.innerHTML = text; }, at * 1000); }
   function playQ(q, withTool) { // returns seconds
     stopAudio(); unlock(); if (!ctx) return 0;
-    const lead = 0.15;
+    const lead = 0.15, cue = !withTool;
     if (q.kind === 'meter') {
       const p = q.piece, soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char);
-      q.ev.forEach(e => { const at = lead + e.t * p.B, dur = e.d * p.B, acc = Math.abs(e.t % p.k) < 0.01 ? (soft ? 1.04 : 1.1) : 1;
-        const vel = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70) * acc * (e.mel ? 1 : soft ? 0.5 : 0.62));
-        note(e.m, at, vel, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); });
-      if (withTool) for (let i = 0; i < q.beats; i++) { const at = lead + i * p.B; tick(at, i % p.k === 0); later(() => light('beats', i % p.k), at * 1000); }
+      const up = p.up || 0, pos = t => (((t - up) % p.k) + p.k) % p.k;
+      const boostAt = t => { const r = pos(t), near = x => Math.abs(r - x) < 0.01; if (near(0) || near(p.k)) return 1.75; if (p.k === 4 && near(2)) return 1.2; return Math.abs(r - Math.round(r)) < 0.01 ? 0.95 : 0.78; };
+      q.ev.forEach(e => { const at = lead + e.t * p.B, dur = e.d * p.B;
+        const vel = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70) * (e.mel ? 0.85 : soft ? 0.5 : 0.62));
+        note(e.m, at, vel, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18), boostAt(e.t) * 0.85); });
+      if (withTool) { const f = up % 1, n0 = Math.round(up - f); for (let i = 0; f + i < q.beats - 0.01; i++) { const at = lead + (f + i) * p.B, b = (((i - n0) % p.k) + p.k) % p.k; tick(at, b === 0); later(() => light('beats', b), at * 1000); } }
       return lead + q.beats * p.B + 0.4;
     }
     const k = q.key, ch = triad(k);
     if (q.kind === 'change') { // key chord, then the phrase twice (the second time with the change)
       ch.forEach(m => note(m, lead, 0.4, 1.1)); const beat = 0.55; let t = lead + 1.5;
+      if (cue) { phase('<b>Key chord</b> first. The question hasn’t started yet…', 0); phase('<b>1st time.</b> Remember it…', t - 0.1); }
       const l1 = playLine(q.a, k, beat, t); if (withTool) lightLine('t1', q.a, beat, t); t += l1 + 1.0;
+      if (cue) phase('<b>2nd time.</b> What’s different?', t - 0.1);
       const l2 = playLine(q.b, k, beat, t); if (withTool) lightLine('t2', q.b, beat, t);
       return t + l2 + 0.4;
     }
     if (q.kind === 'rhythm') { // count-in clicks, then the phrase
-      const beat = q.beat; let t = lead; for (let i = 0; i < 4; i++) tick(t + i * beat, i === 0); t += 4 * beat;
+      const beat = q.beat; let t = lead; for (let i = 0; i < 4; i++) tick(t + i * beat, i === 0);
+      if (cue) phase('<b>Count-in:</b> 1 · 2 · 3 · 4. The rhythm starts next…', 0);
+      t += 4 * beat; if (cue) phase('<b>Now the rhythm.</b>', t - 0.05);
       const l = playLine(q.line, k, beat, t, 0.6); if (withTool) lightLine('g-ok', q.line, beat, t);
       return t + l + 0.4;
     }
     // shape: key chord + starting note, then the tune twice (as in the exam)
     ch.forEach(m => note(m, lead, 0.4, 1.1)); note(midiOf(0, k), lead + 1.3, 0.55, 0.8);
-    let t = lead + 2.6; const l1 = playLine(q.line, k, q.beat, t); if (withTool) lightLine('s-ok', q.line, q.beat, t); t += l1 + 1.2;
+    let t = lead + 2.6;
+    if (cue) { phase('<b>Key chord</b> first. The tune hasn’t started yet…', 0); phase('<b>Starting note.</b> The tune begins on this note…', lead + 1.25); phase('<b>The tune, 1st time.</b>', t - 0.1); }
+    const l1 = playLine(q.line, k, q.beat, t); if (withTool) lightLine('s-ok', q.line, q.beat, t); t += l1 + 1.2;
+    if (cue) phase('<b>The tune, 2nd time.</b>', t - 0.1);
     const l2 = withTool ? 0 : playLine(q.line, k, q.beat, t);
     return t + l2 + 0.3 - (withTool ? 1.2 : 0);
   }
   function light(id, i) { const bx = $(id); if (!bx) return; [...bx.children].forEach((c, j) => c.classList.toggle('on', j === i)); }
-  function lightLine(id, notes, beat, at) { let t = at; notes.forEach((n, i) => { const on = t; later(() => { const s = $(id); if (!s) return; s.querySelectorAll('[data-i],rect.nb').forEach((el, j) => el.classList.toggle('on', j === i)); }, on * 1000); t += n.d * beat; }); later(() => { const s = $(id); if (s) s.querySelectorAll('.on').forEach(el => el.classList.remove('on')); }, t * 1000 + 300); }
+  // while the tool replay plays: shape dots light up one by one; rhythm blocks fill up over exactly as long as each note lasts
+  function lightLine(id, notes, beat, at) {
+    const box = $(id); if (box) box.querySelectorAll('.fl').forEach(f => { f.style.transition = 'none'; f.classList.remove('go'); });
+    let t = at; notes.forEach((n, i) => { const on = t, len = n.d * beat; later(() => { const s = $(id); if (!s) return;
+      s.querySelectorAll('circle[data-i]').forEach((el, j) => el.classList.toggle('on', j === i));
+      const f = s.querySelectorAll('.fl')[i]; if (f) { void f.getBoundingClientRect(); f.style.transition = `transform ${len.toFixed(2)}s linear`; f.classList.add('go'); } }, on * 1000); t += n.d * beat; });
+    later(() => { const s = $(id); if (s) s.querySelectorAll('circle.on').forEach(el => el.classList.remove('on')); }, t * 1000 + 300);
+  }
 
   // ---------- the check ----------
   const S = { stage: 'intro', plays: null, i: 0, qs: [], picks: [], playing: false, heard: false, answered: false, replays: 0 };
@@ -210,10 +235,10 @@
         <section class="card">
           <p class="eyebrow">Ear check · Grades 3–5</p>
           <h1 class="q">How far can your ear go?</h1>
-          <p class="count">Six short listening questions, from Grade 3 to Grade 5 level, built around the ABRSM aural tests. About 3 minutes. Sound on.</p>
+          <p class="count">Six short listening questions, from Grade 3 to Grade 5 level, built around the ABRSM aural tests. About 3 minutes. Sound&nbsp;on.</p>
         </section>
         <section class="below">
-          <p class="caption"><b>Which grade are you playing at, or working towards?</b> We’ll compare it with your ear.</p>
+          <p class="caption"><b>Which grade are you playing at, or working towards?</b> We’ll compare it with your&nbsp;ear.</p>
           <div class="grades">${GRADES.map(g => `<button class="opt sm" data-v="${g.v}">${g.t}</button>`).join('')}</div>
         </section>`;
       app.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { unlock(); S.plays = b.dataset.v; track('plays/' + S.plays); track('start'); build(); S.stage = 'q'; newQ(); });
@@ -237,7 +262,10 @@
     const cap = $('caption'), act = $('actions');
     if (!S.answered) {
       const twice = q.kind === 'shape' || q.kind === 'change';
-      cap.innerHTML = S.playing ? (twice ? 'Listen: it plays twice…' : 'Listen carefully…') : S.heard ? 'Choose your answer.' : twice ? '<b>Sound on.</b> You’ll hear the key chord, then the tune twice.' : '<b>Sound on.</b> Press play when you’re ready.';
+      cap.innerHTML = S.playing ? (q.kind === 'meter' ? 'Listen for the strong beats…' : cap.innerHTML || 'Listen…') : S.heard ? 'Choose your answer.'
+        : q.kind === 'shape' ? '<b>Sound on.</b> First the key chord and the starting note (not the question yet), then the tune twice.'
+        : q.kind === 'change' ? '<b>Sound on.</b> First the key chord (not the question yet), then the tune twice.'
+        : q.kind === 'rhythm' ? '<b>Sound on.</b> First a count-in of four clicks, then the rhythm.' : '<b>Sound on.</b> Press play when you’re ready.';
       const canReplay = !S.heard || S.replays < 1;
       act.innerHTML = `<button class="btn ${S.heard || S.playing ? 'ghost' : 'primary'}" id="play"${S.playing || !canReplay ? ' disabled' : ''}>${S.playing ? '♪ Playing…' : S.heard ? (canReplay ? '↻ Hear it once more' : 'Heard it twice') : '▶ Play'}</button>`;
       $('play').onclick = start;

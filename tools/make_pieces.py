@@ -23,6 +23,8 @@ META = {
  't05': ('Tchaikovsky', 'March of the Wooden Soldiers', 'Op.39 No.5', 'march', ['steady','detached','major'], 'staccato', 'mf'),
  't16': ('Tchaikovsky', 'Old French Song', 'Op.39 No.16', 'sad', ['minor','slow','smooth'], 'legato', 'p'),
 }
+# pieces that start with a pickup (anacrusis), in beats (compound time: dotted-crotchet beats, so a quaver = 0.3333)
+UP = {'s10': 0.5, 's06': 0.5, 't16': 0.5, 's08': 0.3333, 'b09': 0.3333}
 MINOR = {'b02','b12','b16','s06','s08','t16'}
 out = []
 for f in sorted(glob.glob(os.path.join(D, '*.mid'))):
@@ -64,8 +66,9 @@ for f in sorted(glob.glob(os.path.join(D, '*.mid'))):
     ons = sorted(set(e['t'] for e in mel)); iois = [b - a for a, b in zip(ons, ons[1:])]
     cii = (not compound) and den == 4 and k in (2, 3, 4) and 4 <= len(ons) <= 11 and (min(iois) if iois else 0) >= 0.5 - 1e-6
     mt = META[pid]
+    up = UP.get(pid, 0)  # pickup (anacrusis) in beats: the first strong beat is at t = up
     out.append({'id': pid, 'composer': mt[0], 'title': mt[1], 'work': mt[2], 'char': mt[3], 'why': mt[4], 'art': mt[5], 'dyn': mt[6],
-                'minor': pid in MINOR, 'k': k, 'B': round(B, 4), 'T': round(endq / unit, 4), 'compound': compound, 'cii': cii, 'ts': f'{num}/{den}', 'ev': ev})
+                'minor': pid in MINOR, **({'up': up} if up else {}), 'k': k, 'B': round(B, 4), 'T': round(endq / unit, 4), 'compound': compound, 'cii': cii, 'ts': f'{num}/{den}', 'ev': ev})
     print(pid, mt[1], f'{num}/{den}', 'bars', nb, 'notes', len(ev), 'cii', cii, 'dur %.1fs' % (endq / unit * B))
 js = ('/* Dottino repertoire excerpts. Note data from Mutopia Project editions (https://www.mutopiaproject.org).\n'
       '   Burgmüller Op.100 and Tchaikovsky Op.39: Public Domain. Schumann Op.68: CC BY-SA 2.5 / 3.0 (Mutopia Project contributors);\n'
