@@ -171,6 +171,7 @@
 - 部署节奏：改动先推到 `next` 分支保存（不触发 Netlify 正式部署），凑齐一批再合并到 main 一次部署。
 - SEO 基础（2026-10-30）：robots.txt、sitemap.xml（make_challenges.js 自动生成）、首页和课程页 canonical；每个挑战页下方有一段可被搜索引擎读取的说明（make_challenges.js 里的 ABOUT，按题型写：练什么、对应 ABRSM 哪项考试、在家怎么练）。新题型要在 ABOUT 里补一段。
 - 指南文章（2026-10-30）：/guides/abrsm-grade-4-aural/（家长陪练指南），样式 guides/guide.css；文中用 iframe 嵌入 /c/2/?embed=1（挑战页的 embed 模式只显示游戏）。新指南加进 make_challenges.js 的 GUIDES，会进 sitemap 并生成分享图。
+- 2026-10-30：Paddle 正式账户验证通过并切换到正式模式（pay.js 用 live token + 正式价格 pri_01m65ffd1mtr2r0fgsz558c3f5；Netlify PADDLE_ENV=production，PADDLE_API_KEY 为正式 key，2027-01-28 到期前要换）。用 100% 折扣码 TIMTEST100 完成了一笔 £0 正式交易：付款、自动解锁、无痕窗口恢复购买都通过。SELLING 仍为 false。注意：现在 ?paytest=1 走的是真实付款。
 
 ## 13. 谱兽新动画（2026-10-31 / 11-01）
 每段都是 360×360，底色 #F4EFE6（和网站一致），Basso 大小和位置统一；同名 .jpg 是首帧，-end.jpg 是末帧（播完停在这里）。网页里还没有接上（听力页现在用的是矢量 Basso），先放进素材库。谱兽小程序也可以直接用这几段。
