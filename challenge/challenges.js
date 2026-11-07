@@ -86,5 +86,16 @@ window.CHALLENGES = [
     explain: 'Up, up, up… then all the way home. Draw the tune in the air.',
     teaser: 'Can you hear it before Basso does?',
     link: '/ear-check/' // questions 4 and 5 of the ear check are "which shape is the tune?", with the same shape line
+  },
+  {
+    n: 8,
+    date: '2026-11-13',
+    kind: 'rhythm-3-rounds',
+    q: 'Which rhythm: A or B? (3 rounds)',
+    ans: 'B, A, B',
+    basso: 'B, A, then A',
+    explain: 'Round 3 has no help: long–short at the end is a dotted note.',
+    teaser: 'Three rounds, Grade 3 to Grade 5. Can you get 3/3?',
+    link: '/ear-check/' // questions 3 and 6 of the ear check are "which rhythm?", with the same beat grid
   }
 ];

@@ -1,0 +1,170 @@
+{
+  "episode": 8,
+  "fps": 30,
+  "durationInFrames": 665,
+  "bpm": 132,
+  "question": "Which rhythm: A or B?",
+  "oops": "…wait. B?!",
+  "url": "dottino.app",
+  "rounds": [
+    {
+      "n": 1,
+      "grade": 3,
+      "help": "Clicks all the way",
+      "a": [
+        1,
+        1,
+        2
+      ],
+      "b": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "ans": "B",
+      "basso": "B",
+      "say": "B!",
+      "explain": "Four even beats. A ends on a long note.",
+      "start": 0,
+      "audio": "audio/ep8_r1.wav",
+      "countIn": true,
+      "clicks": true,
+      "bassoAt": 110,
+      "think": 118,
+      "reveal": 150,
+      "end": 212
+    },
+    {
+      "n": 2,
+      "grade": 4,
+      "help": "Count-in only",
+      "a": [
+        1,
+        1,
+        0.5,
+        0.5,
+        1
+      ],
+      "b": [
+        1,
+        0.5,
+        0.5,
+        1,
+        1
+      ],
+      "ans": "A",
+      "basso": "A",
+      "say": "A! Too easy.",
+      "explain": "Same start. The quick notes come on beat 3.",
+      "start": 212,
+      "audio": "audio/ep8_r2.wav",
+      "countIn": true,
+      "clicks": false,
+      "bassoAt": 322,
+      "think": 330,
+      "reveal": 362,
+      "end": 424
+    },
+    {
+      "n": 3,
+      "grade": 5,
+      "help": "No help",
+      "a": [
+        1,
+        1,
+        1,
+        0.5,
+        0.5
+      ],
+      "b": [
+        1,
+        1,
+        1.5,
+        0.5
+      ],
+      "ans": "B",
+      "basso": "A",
+      "say": "A! 3 for 3!",
+      "explain": "Long–short at the end: a dotted note.",
+      "start": 424,
+      "audio": "audio/ep8_r3.wav",
+      "countIn": false,
+      "clicks": false,
+      "bassoAt": 452,
+      "think": 488,
+      "reveal": 520,
+      "end": 590
+    }
+  ],
+  "ending": {
+    "start": 590
+  },
+  "sfx": [
+    {
+      "name": "boing",
+      "at": 110,
+      "gain": 0.4
+    },
+    {
+      "name": "tick",
+      "at": 118,
+      "gain": 0.55
+    },
+    {
+      "name": "tap",
+      "at": 133,
+      "gain": 0.4
+    },
+    {
+      "name": "correct",
+      "at": 151,
+      "gain": 0.45
+    },
+    {
+      "name": "boing",
+      "at": 322,
+      "gain": 0.4
+    },
+    {
+      "name": "tick",
+      "at": 330,
+      "gain": 0.55
+    },
+    {
+      "name": "tap",
+      "at": 345,
+      "gain": 0.4
+    },
+    {
+      "name": "correct",
+      "at": 363,
+      "gain": 0.45
+    },
+    {
+      "name": "boing",
+      "at": 452,
+      "gain": 0.5
+    },
+    {
+      "name": "tick",
+      "at": 488,
+      "gain": 0.55
+    },
+    {
+      "name": "tap",
+      "at": 503,
+      "gain": 0.4
+    },
+    {
+      "name": "deflate",
+      "at": 521,
+      "gain": 0.45
+    },
+    {
+      "name": "pop",
+      "at": 592,
+      "gain": 0.3
+    }
+  ]
+}

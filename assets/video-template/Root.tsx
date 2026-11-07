@@ -14,6 +14,8 @@ import {Short6} from './Short6';
 import ep6 from './ep6.json';
 import {Short7} from './Short7';
 import ep7 from './ep7.json';
+import {Short8} from './Short8';
+import ep8 from './ep8.json';
 import ep from './ep1.json';
 
 const handle = delayRender('fonts');
@@ -41,5 +43,8 @@ export const Root: React.FC = () => (
     <Composition id="Ep7" component={Short7} durationInFrames={ep7.durationInFrames} fps={ep7.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
     <Composition id="Ep7TT" component={Short7} durationInFrames={ep7.durationInFrames} fps={ep7.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app/tt'}} />
     <Composition id="Ep7Cover" component={Short7} durationInFrames={ep7.durationInFrames} fps={ep7.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'hidePeek'}} />
+    <Composition id="Ep8" component={Short8} durationInFrames={ep8.durationInFrames} fps={ep8.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
+    <Composition id="Ep8TT" component={Short8} durationInFrames={ep8.durationInFrames} fps={ep8.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app/tt'}} />
+    <Composition id="Ep8Cover" component={Short8} durationInFrames={ep8.durationInFrames} fps={ep8.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'aha'}} />
   </>
 );

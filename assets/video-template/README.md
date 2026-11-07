@@ -7,6 +7,7 @@
 - Short5.tsx + ep5.json + ep5_env.json + make_audio5.py：力度（三个选项胶囊 f / p / 渐弱；揭晓后把音量画成形状，正好是渐弱记号）。Ep5Cover 用来出封面（换成本期时间线里没有的姿势）。
 - Short6.tsx + ep6.json + make_audio6.py：弱起「Where's beat ONE?」（3/4 原创旋律，一拍弱起；题目阶段圆点一样大、跟着音亮；揭晓后变成数拍工具：弱起灰色小点、强拍橙色大点、小节线；重放带数拍点击声和「(3) | ONE two three | ONE」）。#6 起的模板改动：揭晓前 3 秒倒计时圆环 + Pause & comment；结尾 "Did you beat Basso? ✅ or ❌"。Ep6Cover 用 wonder 姿势，封面不显示底部字幕。
 - Short7.tsx + ep7.json + make_audio7.py：旋律形状「Which shape is the tune?」（C D E G E C，4/4，120 bpm；三张横排形状卡 A 一直往上 / B 上去再回家（答案）/ C 只回到一半；题目阶段三张卡同一位置的点跟着音一起亮；重放时 B 卡的形状线一笔一笔画出来，底部 start up up up! down home 跟着亮）。Basso：揭晓害羞、重放哼歌、答对写音符。封面用 hidePeek 第 75 帧（配 "A! It just goes UP!"）。
+- Short8.tsx + ep8.json + make_audio8.py：三轮递增「Which rhythm: A or B?」（4/4 一小节，132 bpm；Grade 3 → 4 → 5；辅助逐轮撤掉：第 1 轮全程点击声、第 2 轮只有预备拍、第 3 轮没有；Basso 前两轮答对、第 3 轮答错；每轮揭晓时正确节奏按时值填满；右上角 Basso 计分 ✓ ✓ ✗）。新结尾：地址栏样式 🔒 dottino.app + "Free · in your browser · no download"（AddressBar 组件，TikTok 版自动显示 dottino.app/tt），配 "Did you get 3/3? Comment your score 👇"。时长约 22 秒。封面用 aha 姿势第 470 帧（"A! 3 for 3!"）。
 - 注意：压缩包 basso_video_template.zip 里只有第 1–2 期；做新一期时把这里的 Short3–6、ep3–6、make_audio3–6、Root.tsx 复制进 src/ 和工程根目录，basso-template 的 WebM 复制进 public/basso/，再依次运行 make_audio3–6（会生成 sfx_correct.wav）。
-- Root.tsx：注册 Ep3–Ep7（含 TT 版和封面）（TT = TikTok 版，结尾写 dottino.app/tt）
+- Root.tsx：注册 Ep3–Ep8（含 TT 版和封面）（TT = TikTok 版，结尾写 dottino.app/tt）
 - 动画 WebM 在 ../basso-template/
