@@ -144,10 +144,10 @@ const Countdown: React.FC = () => {
   const left = Math.max(0, 1 - t / total);
   const n = Math.max(1, 3 - Math.floor(t / 30));
   const R = 50, L = 2 * Math.PI * R;
-  const beat = spring({frame: t % 30, fps: 30, config: {damping: 10, stiffness: 220}});
+  const beat = spring({frame: t % 15, fps: 30, config: {damping: 10, stiffness: 240}}); // pulses twice a second, with the tick-tock
   return (
     <div style={{display: 'flex', alignItems: 'center', gap: 30}}>
-      <svg width={124} height={124} viewBox="0 0 124 124">
+      <svg width={124} height={124} viewBox="0 0 124 124" style={{transform: `scale(${1.06 - 0.06 * beat})`}}>
         <circle cx={62} cy={62} r={R} fill="none" stroke={C.line} strokeWidth={12} />
         <circle cx={62} cy={62} r={R} fill="none" stroke={C.orange} strokeWidth={12} strokeLinecap="round"
           strokeDasharray={L} strokeDashoffset={L * (1 - left)} transform="rotate(-90 62 62)" />
