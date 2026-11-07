@@ -1,0 +1,38 @@
+{
+  "episode": 7,
+  "fps": 30,
+  "durationInFrames": 458,
+  "bpm": 120,
+  "question": "Which shape is the tune?",
+  "answer": "Shape B",
+  "bassoGuess": "A! It just goes UP!",
+  "oops": "It came… back down?",
+  "winLine": "There it is!",
+  "commentLine": "Pause & comment:",
+  "choicesLine": "A, B or C?",
+  "explain": "Up, up, up… then all the way home.\nDraw the tune in the air.",
+  "url": "dottino.app",
+  "rematch": "Practise this →",
+  "outro": "Did you beat Basso?",
+  "answerKey": "B",
+  "shapes": {"A": [0, 1, 2, 3, 4, 5], "B": [0, 1, 2, 4, 2, 0], "C": [0, 1, 2, 4, 2, 1]},
+  "words": ["start", "up", "up", "up!", "down", "home"],
+  "music": [
+    {"src": "audio/ep7_question.wav", "at": 0, "frames": 125, "fadeFrom": 112},
+    {"src": "audio/ep7_ending.wav", "at": 262, "frames": 190, "fadeFrom": 182}
+  ],
+  "beats": {
+    "jump": 36, "doubt": 80, "pause": 112, "reveal": 202, "replay": 262, "win": 380, "reset": 450,
+    "listenCap": 80, "commentCap": 112, "thinkEnd": 100
+  },
+  "sfx": [
+    {"name": "boing", "at": 36, "gain": 0.5},
+    {"name": "deflate", "at": 81, "gain": 0.4},
+    {"name": "tick", "at": 112, "gain": 0.6}, {"name": "tap", "at": 127, "gain": 0.4},
+    {"name": "tick", "at": 142, "gain": 0.6}, {"name": "tap", "at": 157, "gain": 0.4},
+    {"name": "tick", "at": 172, "gain": 0.6}, {"name": "tap", "at": 187, "gain": 0.4},
+    {"name": "hum", "at": 206, "gain": 0.45},
+    {"name": "pop", "at": 380, "gain": 0.25},
+    {"name": "correct", "at": 382, "gain": 0.55}
+  ]
+}

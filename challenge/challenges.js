@@ -75,5 +75,16 @@ window.CHALLENGES = [
     explain: 'The first note was a pickup. Beat ONE comes in with the bass.',
     teaser: 'Can you hear it before Basso does?',
     link: '/ear-check/' // the ear check starts with a beats question and shows the same count tool
+  },
+  {
+    n: 7,
+    date: '2026-11-11',
+    kind: 'shape',
+    q: 'Which shape is the tune?',
+    ans: 'B',
+    basso: 'A, straight up',
+    explain: 'Up, up, up… then all the way home. Draw the tune in the air.',
+    teaser: 'Can you hear it before Basso does?',
+    link: '/ear-check/' // questions 4 and 5 of the ear check are "which shape is the tune?", with the same shape line
   }
 ];
