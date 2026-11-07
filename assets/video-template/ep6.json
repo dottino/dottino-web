@@ -1,0 +1,42 @@
+{
+  "episode": 6,
+  "fps": 30,
+  "durationInFrames": 498,
+  "bpm": 120,
+  "question": "Where's beat ONE?",
+  "answer": "Beat ONE is B",
+  "bassoGuess": "A! First note = beat ONE!",
+  "oops": "A was just a… pickup?!",
+  "winLine": "There it is!",
+  "commentLine": "Pause & comment:",
+  "choicesLine": "A, B, C or D?",
+  "explain": "The first note was a pickup.\nBeat ONE comes in with the bass.",
+  "url": "dottino.app",
+  "rematch": "Practise this →",
+  "outro": "Did you beat Basso?",
+  "notes": [
+    {"beat": 0, "len": 1, "label": "A", "count": "3"},
+    {"beat": 1, "len": 1, "label": "B", "count": "1"},
+    {"beat": 2, "len": 1, "label": "C", "count": "2"},
+    {"beat": 3, "len": 1, "label": "D", "count": "3"},
+    {"beat": 4, "len": 3, "label": "", "count": "1"}
+  ],
+  "music": [
+    {"src": "audio/ep6_question.wav", "at": 0, "frames": 137, "fadeFrom": 128},
+    {"src": "audio/ep6_ending.wav", "at": 300, "frames": 190, "fadeFrom": 182}
+  ],
+  "beats": {
+    "jump": 16, "doubt": 70, "pause": 150, "reveal": 240, "replay": 300, "win": 420, "reset": 490,
+    "listenCap": 70, "commentCap": 110, "thinkEnd": 105
+  },
+  "sfx": [
+    {"name": "boing", "at": 16, "gain": 0.5},
+    {"name": "deflate", "at": 71, "gain": 0.4},
+    {"name": "tick", "at": 150, "gain": 0.55},
+    {"name": "tick", "at": 180, "gain": 0.55},
+    {"name": "tick", "at": 210, "gain": 0.55},
+    {"name": "hum", "at": 244, "gain": 0.45},
+    {"name": "pop", "at": 420, "gain": 0.25},
+    {"name": "correct", "at": 422, "gain": 0.55}
+  ]
+}

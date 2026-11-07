@@ -64,5 +64,16 @@ window.CHALLENGES = [
     explain: 'It starts loud, then fades away. Follow the volume all the way through.',
     teaser: 'Can you hear it before Basso does?',
     link: '/aural.html?w=6' // no dynamics rematch page yet: Week 6 stop 1 is dynamics (free until selling starts)
+  },
+  {
+    n: 6,
+    date: '2026-11-09',
+    kind: 'pickup',
+    q: 'Where’s beat ONE?',
+    ans: 'B',
+    basso: 'A, the first note',
+    explain: 'The first note was a pickup. Beat ONE comes in with the bass.',
+    teaser: 'Can you hear it before Basso does?',
+    link: '/ear-check/' // the ear check starts with a beats question and shows the same count tool
   }
 ];
