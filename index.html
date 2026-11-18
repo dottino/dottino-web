@@ -629,7 +629,7 @@ p { margin: 0; }
         <div class="copied" id="copied" aria-live="polite"></div>
       </div>
       <form class="pack" id="wl-form" novalidate>
-        <h3 id="t-pack">ABRSM aural plans, Grades 3–5 · opening December</h3>
+        <h3 id="t-pack">ABRSM aural plans · Grade 4 open now</h3>
         <p id="t-packs">Week-by-week practice for playing and singing back, sight-singing, spotting changes and pulse. Designed by Tim. Pieces end, skills stay. Week 1 of Grade 4 is free now at dottino.app/aural.</p>
         <div class="price"><span id="t-founding">£15 per grade, founding price</span><s id="t-later"></s></div>
         <fieldset class="who">
@@ -757,12 +757,12 @@ const T = {
     obsPerfect: 'You cleared every level. Come back tomorrow for a new set.', clefName: { treble: 'treble clef', bass: 'bass clef' },
     line: k => 'line ' + k, space: k => 'space ' + k, ledgerBelow: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' below', ledgerAbove: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' above',
     spaceBelow: 'the space below the staff', spaceAbove: 'the space above the staff', tomorrow: 'New notes tomorrow.', lowZone: 'Low range · bass clef', highZone: 'High range · treble clef', fullZone: 'G2 – F5 · the orange dot is middle C', turn: 'Turn your phone sideways to see the whole keyboard',
-    pack: 'ABRSM aural plans, Grades 3–5 · opening December', packs: 'Week-by-week practice for playing and singing back, sight-singing, spotting changes and pulse. Designed by Tim. Pieces end, skills stay. Week 1 of Grade 4 is free now at dottino.app/aural.',
+    pack: 'ABRSM aural plans · Grade 4 open now (Grades 3 & 5 coming soon)', packs: 'Week-by-week practice for playing and singing back, sight-singing, spotting changes and pulse. Designed by Tim. Pieces end, skills stay. Week 1 of Grade 4 is free now at dottino.app/aural.',
     founding: '£15 per grade, founding price', later: '',
     fDisc: 'Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.',
-    fEyebrow: 'Founding members', fTitle: 'Aural Pack · £15 per grade', fP: 'One grade’s full 8-week aural plan, with 6 months of access. One payment, no subscription, no auto-renewal. Opens in December.',
-    fL1: 'Founding price £15 per grade, kept for everyone who registers before launch', fL2: 'No payment now: we email you a payment link when the plan opens', fL3: 'Not for you after all? Full refund within 14 days',
-    fGrade: 'Which grade?', fBtn: 'Lock the founding price', fBad: 'Please enter a valid email address.', fOk: 'Done. Your founding price is saved. One email when the plan opens, nothing else.', fFail: 'Couldn’t save just now. Please try again in a moment.', fTerms: 'Terms and refunds',
+    fEyebrow: 'Founding members', fTitle: 'Aural Pack · £15 per grade', fP: 'Grade 4’s full 8-week aural plan is open now (£15, 6 months access, one payment, no auto-renewal). Grades 3 & 5 are coming soon.',
+    fL1: 'Grade 4: available now — full 8-week plan unlocked on purchase', fL2: 'Grades 3 & 5: leave your email to keep the £15 founding price', fL3: 'Not for you after all? Full refund within 14 days',
+    fGrade: 'Which grade?', fBtn: 'Lock the founding price', fBuy4: 'Get Grade 4 Aural Pack · £15', fBad: 'Please enter a valid email address.', fOk: 'Done. Your founding price is saved. One email when that grade opens, nothing else.', fFail: 'Couldn’t save just now. Please try again in a moment.', fTerms: 'Terms and refunds',
  who: 'Who would use it?', who1: 'My child', who2: 'Myself', who3: 'My students', join: 'Tell me when it opens',
     wlBad: 'Please enter a valid email address.', wlOk: 'Thank you. One email when the plans open, nothing else.', wlPreview: 'This preview can\u2019t send emails. On dottino.app this will save your place.'
   },
@@ -818,12 +818,12 @@ const T = {
     obsPerfect: '六个级别全部通过。明天会有新的一套题。', clefName: { treble: '高音谱号', bass: '低音谱号' },
     line: k => '第' + k + '线', space: k => '第' + k + '间', ledgerBelow: n => '下加' + n + '线', ledgerAbove: n => '上加' + n + '线',
     spaceBelow: '下加一间', spaceAbove: '上加一间', tomorrow: '明天有新的一套题。', lowZone: '低音区 · 低音谱号', highZone: '高音区 · 高音谱号', fullZone: 'G2 – F5 · 橙色小点是中央 C', turn: '把手机横过来，可以看到完整的键盘',
-    pack: 'ABRSM 考级听力计划 3–5 级 · 12 月上线', packs: '按周练习：唱回或弹回旋律、视唱、找出变化、拍子。由 Tim 设计。曲子会弹完，能力会留下。四级第 1 周现在就能免费试：dottino.app/aural。',
+    pack: 'ABRSM 考级听力计划 · 四级现已开放（3 级、5 级即将上线）', packs: '按周练习：唱回或弹回旋律、视唱、找出变化、拍子。由 Tim 设计。曲子会弹完，能力会留下。四级第 1 周现在就能免费试：dottino.app/aural。',
     founding: '每个级别创始价 £15', later: '',
     fDisc: 'Dottino 是独立开发的听力训练软件，与 ABRSM 没有隶属关系，也未获得其认可。',
-    fEyebrow: '创始会员', fTitle: '听力训练包 · 每个级别 £15', fP: '一个级别完整的 8 周听力计划，可以使用 6 个月。一次付清，不是订阅，到期不自动续费。12 月上线。',
-    fL1: '上线前登记的人，都按创始价 £15 / 级别', fL2: '现在不用付钱：计划上线时，我们发一封带付款链接的邮件', fL3: '用了觉得不合适，14 天内全额退款',
-    fGrade: '哪个级别？', fBtn: '锁定创始价', fBad: '请输入正确的邮箱地址。', fOk: '已登记，你的创始价已经保留。计划上线时只发一封邮件。', fFail: '暂时没保存成功，请稍后再试。', fTerms: '条款与退款',
+    fEyebrow: '创始会员', fTitle: '听力训练包 · 每个级别 £15', fP: '四级完整的 8 周听力计划现已开放（£15，可用 6 个月，一次付清不自动续费）；3 级与 5 级即将上线。',
+    fL1: '四级：现已开售，购买后立即解锁全部 8 周计划', fL2: '3 级与 5 级：留下邮箱锁定 £15 创始价，上线时通知你', fL3: '用了觉得不合适，14 天内全额退款',
+    fGrade: '哪个级别？', fBtn: '锁定创始价', fBuy4: '前往购买四级训练包 · £15', fBad: '请输入正确的邮箱地址。', fOk: '已登记，你的创始价已经保留。该级别上线时只发一封邮件。', fFail: '暂时没保存成功，请稍后再试。', fTerms: '条款与退款',
  who: '给谁用？', who1: '我的孩子', who2: '我自己', who3: '我的学生', join: '上线时通知我',
     wlBad: '请输入正确的邮箱地址。', wlOk: '预约成功。上线时只会发一封邮件通知你。', wlPreview: '预览版不能发送邮件。在 dottino.app 上这里会帮你保留名额。'
   }
@@ -950,6 +950,7 @@ function setText() {
   ['letter', 'solfege'].forEach(k => $('nm-' + k).setAttribute('aria-pressed', S.naming === k));
   ['buttons', 'keys', 'midi'].forEach(k => $('in-' + k).setAttribute('aria-pressed', S.input === k));
   buildKeys();
+  if (typeof syncFounding === 'function') syncFounding();
 }
 // computer keys: three rows = three G-to-F blocks of white keys, low to high (Z row G2–F3, A row G3–F4, Q row G4–F5)
 const ROWS = ['zxcvbnm', 'asdfghj', 'qwertyu'];
@@ -1192,12 +1193,22 @@ $('wl-form').addEventListener('submit', e => {
     .catch(() => { $('wl-status').style.color = 'var(--muted)'; $('wl-status').textContent = L.wlPreview; });
 });
 
-// founding members: register interest (no payment yet); the founding price is kept for everyone who registers before launch
+// founding members: Grade 4 is open now (send to aural.html?w=2 to buy); Grades 3 & 5 register interest
+function syncFounding() {
+  const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
+  const open4 = grade === '4';
+  $('fd-email').hidden = open4;
+  $('fd-btn').textContent = open4 ? L.fBuy4 : L.fBtn;
+  if (open4) $('fd-status').textContent = '';
+}
+document.querySelectorAll('input[name=fdgrade]').forEach(r => r.addEventListener('change', syncFounding));
+syncFounding();
 $('fd-form').addEventListener('submit', e => {
   e.preventDefault();
-  const L = t(), email = $('fd-email').value.trim(), st = $('fd-status');
+  const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
+  if (grade === '4') { location.href = 'aural.html?w=2'; return; }
+  const email = $('fd-email').value.trim(), st = $('fd-status');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.style.color = 'var(--bad)'; st.textContent = L.fBad; return; }
-  const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
   const body = new URLSearchParams({ 'form-name': 'founding', email, grade, ref: saved.ref || '', lang: S.lang, src: 'home-founding' });
   fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
     .then(r => { if (!r.ok) throw new Error(r.status); try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/founding-g' + grade, title: 'founding', event: true }); } catch (x) { /* ignore */ } st.style.color = 'var(--good)'; st.textContent = L.fOk; })
