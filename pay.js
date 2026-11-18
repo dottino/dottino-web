@@ -3,7 +3,7 @@
 // Add ?paytest=1 to a page to try the whole flow in Paddle's sandbox (test cards, no real money).
 (function () {
   const CFG = {
-    SELLING: false,
+    SELLING: true,
     env: 'production',
     token: 'live_479830012ec48cd95f2ec833528',       // live client-side token (public by design)
     prices: { g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5' }   // Grade 4 Aural Pack, £15 one-time (live)
