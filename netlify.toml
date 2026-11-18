@@ -26,3 +26,9 @@
   from = "/ear"
   to = "/ear-check/"
   status = 302
+
+# canonical URL consistency: /aural.html -> /aural
+[[redirects]]
+  from = "/aural.html"
+  to = "/aural"
+  status = 301

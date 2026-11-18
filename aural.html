@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Grade 4 aural ear training, week 1, free (built around the ABRSM aural test format): three 10-minute lessons that teach a child to hear which way the notes go, then play them back. By Tim, pianist and music education researcher.">
-<title>Dottino · Grade 4 Aural, Week 1</title>
+<meta name="description" content="Free ABRSM Grade 4 aural practice, week 1: four 10-minute lessons that teach a child to hear which way the notes go, then play them back. By Tim, pianist and music education researcher.">
+<title>Free ABRSM Grade 4 Aural Practice | Dottino</title>
 <link rel="canonical" href="https://dottino.app/aural">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dottino">
@@ -2545,7 +2545,7 @@ function renderWeek() {
   }).join('');
   $('lessons').querySelectorAll('.go').forEach(b => { b.onclick = () => startLesson(+b.dataset.l); });
   if (PREVIEW) { let pb = $('pv-banner'); if (!pb) { pb = document.createElement('div'); pb.id = 'pv-banner'; pb.className = 'pv-banner'; $('lessons').before(pb); } pb.textContent = S.lang === 'zh' ? '老师预览模式：所有站已解锁，可以跳着看。有意见点右下角「反馈」。' : 'Teacher preview: every stop is unlocked, so you can jump around. Spotted something? Tap “Feedback” at the bottom right.'; }
-  const wl = n => n === 1 ? 'aural.html' : 'aural.html?w=' + n, LAST = 8;
+  const wl = n => n === 1 ? '/aural' : '/aural?w=' + n, LAST = 8;
   $('weeknav').innerHTML = WEEK === 1 ? `<a href="${wl(2)}">${T_.weekNext}</a>` : `<a href="${wl(WEEK - 1)}">${T_.weekN(WEEK - 1, -1)}</a>` + (WEEK < LAST ? ` · <a href="${wl(WEEK + 1)}">${T_.weekN(WEEK + 1, 1)}</a>` : '');
   // week card once the core stops are done (week 1: stops 1–3; week 2: all four)
   const CARD = WEEK >= 2 ? [0, 1, 2, 3] : [0, 1, 2];

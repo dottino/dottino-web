@@ -396,7 +396,7 @@ p { margin: 0; }
       <div class="seg" role="group" aria-label="Note names">
         <button id="nm-letter" aria-pressed="true">C D E</button><button id="nm-solfege" aria-pressed="false">do re mi</button>
       </div>
-      <a class="btn-a ink home-only" href="aural.html" data-t="startFree" style="padding:9px 18px">Start free</a>
+      <a class="btn-a ink home-only" href="/aural" data-t="startFree" style="padding:9px 18px">Start free</a>
     </div>
   </header>
   <a class="chal-bar home-only" id="chal-bar" href="/play"><span class="cb-badge">Basso Challenge</span><span class="cb-t" data-t="chalBar">Came from a Basso Challenge video? Play it here</span><span class="cb-go" aria-hidden="true">→</span></a>
@@ -408,7 +408,7 @@ p { margin: 0; }
         <div class="h-eyebrow" data-t="hEyebrow">Ear-training app · Grades 3–5 aural</div>
         <h1 data-t="hTitle">Hear what<br>you play.</h1>
         <p data-t="hSub"></p>
-        <div class="hx-cta"><a class="btn-a coral big" href="aural.html" data-t="hCta">Start Foundations free</a><span data-t="hNote"></span></div>
+        <div class="hx-cta"><a class="btn-a coral big" href="/aural" data-t="hCta">Start Foundations free</a><span data-t="hNote"></span></div>
       </div>
       <div class="hx-side">
         <div class="hx-art">
@@ -443,7 +443,7 @@ p { margin: 0; }
               <div class="g-star-tag" id="g-star-tag"></div>
               <b id="g-card-title"></b>
               <p id="g-card-text"></p>
-              <div class="g-card-act"><a class="btn-a ink" href="aural.html" id="g-go" data-t="gGo">Let’s go →</a><button class="g-link" id="g-more" data-t="gMore">One more round</button></div>
+              <div class="g-card-act"><a class="btn-a ink" href="/aural" id="g-go" data-t="gGo">Let’s go →</a><button class="g-link" id="g-more" data-t="gMore">One more round</button></div>
               <p class="g-parent" id="g-parent"></p>
             </div>
           </div>
@@ -516,7 +516,7 @@ p { margin: 0; }
           <h3 data-t="k1Title">Build the ear</h3>
           <p data-t="k1p"></p>
           <div class="chips"><span data-t="k1a">Higher or lower</span><span data-t="k1b">Which way it goes</span><span data-t="k1c">Same or different</span><span data-t="k1d" style="border-style:dashed;border-color:var(--muted);color:var(--muted)">Pulse · Memory</span></div>
-          <a class="btn-a coral" href="aural.html" style="align-self:flex-start" data-t="k1Btn">Start week 1 free</a>
+          <a class="btn-a coral" href="/aural" style="align-self:flex-start" data-t="k1Btn">Start week 1 free</a>
         </div>
         <div class="track paid">
           <div class="k"><span data-t="k2Label">Track 2 · Exam Skills</span><span class="badge" data-t="k2Badge">In the 8-week plan</span></div>
@@ -1206,7 +1206,7 @@ syncFounding();
 $('fd-form').addEventListener('submit', e => {
   e.preventDefault();
   const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
-  if (grade === '4') { location.href = 'aural.html?w=2'; return; }
+  if (grade === '4') { location.href = '/aural?w=2'; return; }
   const email = $('fd-email').value.trim(), st = $('fd-status');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.style.color = 'var(--bad)'; st.textContent = L.fBad; return; }
   const body = new URLSearchParams({ 'form-name': 'founding', email, grade, ref: saved.ref || '', lang: S.lang, src: 'home-founding' });
