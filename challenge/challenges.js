@@ -97,5 +97,16 @@ window.CHALLENGES = [
     explain: 'Round 3 has no help: long–short at the end is a dotted note.',
     teaser: 'Three rounds, Grade 3 to Grade 5. Can you get 3/3?',
     link: '/ear-check/' // questions 3 and 6 of the ear check are "which rhythm?", with the same beat grid
+  },
+  {
+    n: 9,
+    date: '2026-11-20',
+    kind: 'articulation-3-rounds',
+    q: 'Legato or staccato? (3 rounds)',
+    ans: 'A, B, A',
+    basso: 'A, B, then B',
+    explain: 'Round 3 has a bouncy bass underneath, but the tune on top is smooth legato.',
+    teaser: 'Three rounds, Grade 3 to Grade 5. Can you get 3/3?',
+    link: '/aural?w=6' // Week 6 practises articulation (legato vs staccato) and dynamics
   }
 ];
