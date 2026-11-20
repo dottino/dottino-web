@@ -119,5 +119,16 @@ window.CHALLENGES = [
     explain: 'Round 2 plays twice as many notes per beat, but the underlying pulse stays steady at 82 BPM.',
     teaser: 'Three rounds, Grade 3 to Grade 5. Can you tell notes apart from the beat?',
     link: '/aural?w=5' // Week 5 practises keeping a steady beat (Test C(ii))
+  },
+  {
+    n: 11,
+    date: '2026-11-25',
+    kind: 'mode-3-rounds',
+    q: 'Major or minor? (3 rounds)',
+    ans: 'A, A, B',
+    basso: 'A, B, then A',
+    explain: 'Slow ≠ minor and fast ≠ major — always listen to the 3rd.',
+    teaser: 'Three rounds, Grade 3 to Grade 5. Speed fooled Basso twice — can you get 3/3?',
+    link: '/aural?w=4' // Week 4 practises Major or minor (Test A/C)
   }
 ];
