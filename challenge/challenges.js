@@ -108,5 +108,16 @@ window.CHALLENGES = [
     explain: 'Round 3 has a bouncy bass underneath, but the tune on top is smooth legato.',
     teaser: 'Three rounds, Grade 3 to Grade 5. Can you get 3/3?',
     link: '/aural?w=6' // Week 6 practises articulation (legato vs staccato) and dynamics
+  },
+  {
+    n: 10,
+    date: '2026-11-23',
+    kind: 'tempo-3-rounds',
+    q: 'More notes… is it faster? (3 rounds)',
+    ans: 'A, B, C',
+    basso: 'A, A, then C',
+    explain: 'Round 2 plays twice as many notes per beat, but the underlying pulse stays steady at 82 BPM.',
+    teaser: 'Three rounds, Grade 3 to Grade 5. Can you tell notes apart from the beat?',
+    link: '/aural?w=5' // Week 5 practises keeping a steady beat (Test C(ii))
   }
 ];
