@@ -378,6 +378,28 @@ p { margin: 0; }
 .chal-bar .cb-t { flex: 1; min-width: 0; font-size: 15px; }
 .chal-bar .cb-go { flex: none; color: var(--coral); font-size: 20px; }
 @media (max-width: 520px) { .chal-bar .cb-badge { display: none; } }
+/* visual product showcase + founder trust card + checkout trust badges */
+.showcase { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.sc-card { background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 8px 0 rgba(30,27,46,.04); }
+.sc-tag { align-self: flex-start; font: 800 11px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--coral); background: var(--coral-soft); padding: 5px 10px; border-radius: 999px; }
+.sc-card h3 { font-family: var(--f-display); font-weight: 800; font-size: 20px; line-height: 1.15; margin: 0; }
+.sc-card p { font-size: 14px; color: var(--muted); margin: 0; }
+.sc-frame { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 12px; margin-top: auto; }
+.sc-frame svg { width: 100%; height: auto; display: block; }
+.maker { background: var(--card); border: 1.5px solid var(--line); border-radius: 26px; padding: 26px 28px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; box-shadow: 0 8px 0 rgba(30,27,46,.04); }
+@media (max-width: 640px) { .maker { grid-template-columns: 1fr; padding: 22px; } }
+.maker-av { width: 84px; height: 84px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); display: grid; place-items: center; overflow: hidden; flex: none; }
+.maker-av img { width: 66px; height: 66px; }
+.maker-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.maker-body h3 { font-family: var(--f-display); font-weight: 800; font-size: 24px; line-height: 1.15; margin: 0; }
+.maker-body p { font-size: 15px; color: var(--muted); margin: 0; max-width: 62ch; }
+.cred-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.cred-pills span { font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
+.track.paid { box-shadow: 0 14px 32px rgba(30,27,46,.16); border: 2px solid rgba(255,154,128,.28); }
+.buy-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.trust-row { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.track.paid .trust-row { color: #CFC9D8; }
+.trust-row span { display: inline-flex; align-items: center; gap: 5px; }
 </style>
 
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0}</style>
@@ -393,7 +415,7 @@ p { margin: 0; }
       <div class="seg" role="group" aria-label="Language">
         <button id="lang-en" aria-pressed="true">EN</button><button id="lang-zh" aria-pressed="false">中文</button>
       </div>
-      <div class="seg" role="group" aria-label="Note names">
+      <div class="seg daily-only" role="group" aria-label="Note names" hidden>
         <button id="nm-letter" aria-pressed="true">C D E</button><button id="nm-solfege" aria-pressed="false">do re mi</button>
       </div>
       <a class="btn-a ink home-only" href="/aural" data-t="startFree" style="padding:9px 18px">Start free</a>
@@ -508,6 +530,83 @@ p { margin: 0; }
       </div>
     </section>
 
+    <section class="sec" id="inside">
+      <div class="sec-head">
+        <div><div class="h-eyebrow" data-t="inEyebrow">Inside the 8-week pack</div><h2 class="h2" data-t="inTitle">See what your child actually practises.</h2></div>
+        <p class="lead" data-t="inLead">Real visual tools built around ABRSM Grade 4 aural — not dry multiple-choice quizzes.</p>
+      </div>
+      <div class="showcase reveal">
+        <article class="sc-card">
+          <span class="sc-tag" data-t="sc1Tag">Test A · Spot the change</span>
+          <h3 data-t="sc1T">Full-width piano reveal</h3>
+          <p data-t="sc1P">When a note changes, kids see the exact white or black key move — not just “wrong”.</p>
+          <div class="sc-frame" aria-hidden="true">
+            <svg viewBox="0 0 300 66">
+              <rect x="2" y="2" width="296" height="42" rx="8" fill="var(--line)"/>
+              <rect x="5" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="42" y="4" width="35" height="38" rx="4" fill="var(--coral-soft)" stroke="var(--coral)" stroke-width="1.8" stroke-dasharray="3 2.5"/>
+              <rect x="79" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="116" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="153" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="190" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="227" y="4" width="35" height="38" rx="4" fill="var(--card)" stroke="var(--line)" stroke-width="1.2"/>
+              <rect x="264" y="4" width="31" height="38" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2.4"/>
+              <rect x="30" y="4" width="22" height="23" rx="3.5" fill="var(--coral)" stroke="var(--card)" stroke-width="1.5"/>
+              <rect x="104" y="4" width="22" height="23" rx="3.5" fill="var(--ink)"/>
+              <rect x="141" y="4" width="22" height="23" rx="3.5" fill="var(--ink)"/>
+              <rect x="215" y="4" width="22" height="23" rx="3.5" fill="var(--ink)"/>
+              <rect x="252" y="4" width="22" height="23" rx="3.5" fill="var(--ink)"/>
+              <text x="59" y="38" text-anchor="middle" font-size="9" font-weight="800" fill="var(--coral)">was</text>
+              <rect x="31" y="49" width="20" height="14" rx="7" fill="var(--coral)"/><text x="41" y="59" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">2</text>
+              <rect x="123" y="49" width="20" height="14" rx="7" fill="var(--line)"/><text x="133" y="59" text-anchor="middle" font-size="9" font-weight="800" fill="var(--muted)">3</text>
+              <rect x="269" y="49" width="20" height="14" rx="7" fill="var(--ink)"/><text x="279" y="59" text-anchor="middle" font-size="9" font-weight="800" fill="var(--paper)">4</text>
+            </svg>
+          </div>
+        </article>
+        <article class="sc-card">
+          <span class="sc-tag" data-t="sc2Tag">Test B · Sight-singing</span>
+          <h3 data-t="sc2T">Gentle live pitch guide</h3>
+          <p data-t="sc2P">Five-note melodies on real treble or bass staff, with a live microphone bar that shows when you’re on the note.</p>
+          <div class="sc-frame" aria-hidden="true">
+            <svg viewBox="0 0 300 66">
+              <g stroke="var(--line)" stroke-width="1.2">
+                <line x1="10" y1="12" x2="290" y2="12"/><line x1="10" y1="20" x2="290" y2="20"/>
+                <line x1="10" y1="28" x2="290" y2="28"/><line x1="10" y1="36" x2="290" y2="36"/>
+                <line x1="10" y1="44" x2="290" y2="44"/>
+              </g>
+              <ellipse cx="48" cy="36" rx="6" ry="4.5" fill="var(--good)" transform="rotate(-15 48 36)"/>
+              <ellipse cx="102" cy="32" rx="6" ry="4.5" fill="var(--good)" transform="rotate(-15 102 32)"/>
+              <ellipse cx="156" cy="24" rx="6.5" ry="5" fill="var(--coral)" transform="rotate(-15 156 24)"/>
+              <ellipse cx="210" cy="28" rx="6" ry="4.5" fill="var(--ink)" opacity=".45" transform="rotate(-15 210 28)"/>
+              <ellipse cx="264" cy="36" rx="6" ry="4.5" fill="var(--ink)" opacity=".45" transform="rotate(-15 264 36)"/>
+              <rect x="24" y="52" width="252" height="10" rx="5" fill="var(--line)"/>
+              <rect x="118" y="52" width="64" height="10" rx="5" fill="var(--good-soft)"/>
+              <circle cx="150" cy="57" r="6" fill="var(--good)"/>
+            </svg>
+          </div>
+        </article>
+        <article class="sc-card">
+          <span class="sc-tag" data-t="sc3Tag">Test C & Mock Exam</span>
+          <h3 data-t="sc3T">20 classical pieces & 3rd ladder</h3>
+          <p data-t="sc3P">Real Schumann, Bach and Clementi excerpts with Major/Minor 3rd visuals, BPM trends and a full Week 8 mock.</p>
+          <div class="sc-frame" aria-hidden="true">
+            <svg viewBox="0 0 300 66">
+              <text x="6" y="20" font-size="10" font-weight="800" fill="var(--muted)">THE 3RD</text>
+              <text x="6" y="36" font-size="11" font-weight="800" fill="var(--coral)">minor · ♭3</text>
+              <text x="6" y="55" font-size="9.5" font-weight="700" fill="var(--muted)">♪ Schumann · Melody</text>
+              <line x1="120" y1="48" x2="286" y2="48" stroke="var(--line)" stroke-width="1.3" stroke-dasharray="3 3"/>
+              <line x1="120" y1="14" x2="286" y2="14" stroke="var(--line)" stroke-width="1.3" stroke-dasharray="3 3"/>
+              <circle cx="144" cy="48" r="8.5" fill="var(--ink)"/><text x="144" y="51.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="var(--paper)">1</text>
+              <line x1="204" y1="22" x2="204" y2="40" stroke="var(--coral)" stroke-width="1.6" stroke-dasharray="2.5 2.5" opacity=".55"/>
+              <circle cx="204" cy="22" r="8" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="2.5 2.5" opacity=".6"/>
+              <circle cx="204" cy="40" r="11" fill="var(--coral)"/><text x="204" y="43.5" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">♭3</text>
+              <circle cx="264" cy="14" r="8.5" fill="var(--ink)"/><text x="264" y="17.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="var(--paper)">5</text>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="sec" id="pricing">
       <div style="display:flex;flex-direction:column;gap:8px;max-width:62ch"><div class="h-eyebrow" data-t="kEyebrow">Two tracks</div><h2 class="h2" data-t="kTitle"></h2></div>
       <div class="tracks reveal">
@@ -524,6 +623,28 @@ p { margin: 0; }
           <p data-t="k2p"></p>
           <div class="tests"><span data-t="k2a"></span><span data-t="k2b"></span><span data-t="k2c"></span><span data-t="k2d"></span></div>
           <div class="price" data-t="k2Price"></div>
+          <div class="buy-row">
+            <button class="btn-a coral" id="buy-g4-pricing" type="button" data-t="fBuy4">Buy Grade 4 Pack · £15</button>
+            <span class="wl-status" id="buy-g4-status" aria-live="polite" style="color:#CFC9D8"></span>
+          </div>
+          <div class="trust-row" data-t="trustRow"><span>🔒 Apple Pay & Card (Paddle)</span><span>📱 Restore on any device by email</span><span>✓ 14-day full refund</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="maker">
+      <div class="maker reveal">
+        <div class="maker-av"><img src="img/wave.png" alt="Basso"></div>
+        <div class="maker-body">
+          <div class="h-eyebrow" data-t="mkEyebrow">Who built Dottino</div>
+          <h3 data-t="mkTitle">Designed by a pianist & music education researcher</h3>
+          <p data-t="mkBio"></p>
+          <div class="cred-pills">
+            <span data-t="mkC1">Royal College of Music · MPerf</span>
+            <span data-t="mkC2">Royal Holloway, Univ. of London · PhD</span>
+            <span data-t="mkC3">Xinghai Conservatory · BA</span>
+            <span data-t="mkC4">15+ years piano teaching</span>
+          </div>
         </div>
       </div>
     </section>
@@ -541,6 +662,7 @@ p { margin: 0; }
         </fieldset>
         <div class="wl-row"><input type="email" id="fd-email" placeholder="you@example.com" aria-label="Email" autocomplete="email"><button class="btn-a coral" id="fd-btn" type="submit" data-t="fBtn">Lock the founding price</button></div>
         <div class="wl-status" id="fd-status" aria-live="polite"></div>
+        <div class="trust-row" data-t="trustRow"><span>🔒 Apple Pay & Card (Paddle)</span><span>📱 Restore on any device by email</span><span>✓ 14-day full refund</span></div>
         <a class="fd-terms" href="terms.html" data-t="fTerms">Terms and refunds</a>
       </form>
     </section>
@@ -650,6 +772,7 @@ p { margin: 0; }
 
 <form name="founding" data-netlify="true" netlify-honeypot="bot-field" hidden><input name="email"><input name="grade"><input name="ref"><input name="lang"><input name="src"><input name="bot-field"></form>
 <form name="waitlist" data-netlify="true" netlify-honeypot="bot-field" hidden><input name="email"><input name="who"><input name="ref"><input name="lang"><input name="best"><input name="src"><input name="bot-field"></form>
+<script src="/pay.js"></script>
 <script>
 (() => {
 // ---------- music model (ported from the 谱兽 mini program) ----------
@@ -730,13 +853,22 @@ const T = {
     kEyebrow: 'Two tracks', kTitle: 'Build the ear first.<br>Then use it in the exam.',
     k1Label: 'Track 1 · Foundations', k1Badge: 'Week 1 free', k1Title: 'Build the ear', k1p: 'Pitch direction, the shape of a tune, pulse and short musical memory. The skills under every aural test, trained in small steps with Basso.', k1a: 'Higher or lower', k1b: 'Which way it goes', k1c: 'Same or different', k1d: 'Pulse · Memory', k1Btn: 'Start week 1 free',
     k2Label: 'Track 2 · Exam-style practice', k2Badge: 'In the 8-week plan', k2Title: 'Use it in the exam', k2p: 'Each Grade 4 test, practised the way the examiner gives it, then full mock runs. A weekly card shows the teacher where things stand.',
-    k2a: '<b>A</b> · Play or sing back', k2b: '<b>B</b> · Sight-sing 5 notes', k2c: '<b>C(i)</b> · Describe a piece', k2d: '<b>C(ii)</b> · Clap + 2, 3 or 4 time', k2Price: '£15 per grade <em>· founding price · 6 months · no auto-renewal · opens December</em>',
-    jTitle: 'Start free. Progress at your pace.', j1: '1 · Try week 1', j1s: 'No sign-up, no payment screen. About 30 minutes over a few days.', j2: '2 · Get the card', j2s: 'What your child can hear now, and what still needs work.', j3: '3 · See the next 7 weeks', j3s: 'Exactly which stops come next and which test each one prepares.', j4: '4 · Continue if it helps', j4s: 'Aural Pack: £15 per grade founding price, 6 months, no auto-renewal. Opens in December.',
+    k2a: '<b>A</b> · Play or sing back', k2b: '<b>B</b> · Sight-sing 5 notes', k2c: '<b>C(i)</b> · Describe a piece', k2d: '<b>C(ii)</b> · Clap + 2, 3 or 4 time', k2Price: '£15 · Grade 4 open now <em>· 6 months · one-time · no auto-renewal</em>',
+    jTitle: 'Start free. Progress at your pace.', j1: '1 · Try week 1', j1s: 'No sign-up, no payment screen. About 30 minutes over a few days.', j2: '2 · Get the card', j2s: 'What your child can hear now, and what still needs work.', j3: '3 · See the next 7 weeks', j3s: 'Exactly which stops come next and which test each one prepares.', j4: '4 · Continue if it helps', j4s: 'Grade 4 Aural Pack is open now: £15 founding price, 6 months access, no auto-renewal.',
+    inEyebrow: 'Inside the 8-week pack', inTitle: 'See what your child actually practises.', inLead: 'Real visual tools built around ABRSM Grade 4 aural — not dry multiple-choice quizzes.',
+    sc1Tag: 'Test A · Spot the change', sc1T: 'Full-width piano reveal', sc1P: 'When a note changes, kids see the exact white or black key move — not just “wrong”.',
+    sc2Tag: 'Test B · Sight-singing', sc2T: 'Gentle live pitch guide', sc2P: 'Five-note melodies on treble or bass staff, with a live microphone bar that shows when you’re on the note.',
+    sc3Tag: 'Test C & Mock Exam', sc3T: '20 classical pieces & 3rd ladder', sc3P: 'Real Schumann, Bach and Clementi excerpts with Major/Minor 3rd visuals, BPM trends and a Week 8 mock.',
+    mkEyebrow: 'Who built Dottino', mkTitle: 'Designed by a pianist & music education researcher',
+    mkBio: 'Created by Tim after 15+ years of piano teaching and doctoral research in London on how children hear music. Instead of throwing random mock papers at students, Dottino breaks every aural skill into clear, visual 10-minute steps.',
+    mkC1: 'Royal College of Music · MPerf', mkC2: 'Royal Holloway, Univ. of London · PhD', mkC3: 'Xinghai Conservatory · BA', mkC4: '15+ years teaching',
+    trustRow: '<span>🔒 Apple Pay &amp; Card (Paddle)</span><span>📱 Restore on any device by email</span><span>✓ 14-day full refund</span>',
+    buyOwned: 'Grade 4 unlocked ✓ · Go to Week 2 →', buyPaid: 'Thank you! Opening Week 2…', buyFail: 'Could not open checkout right now. Opening Week 2 page…',
     dailyLink: 'Also free: the daily sight-reading game, 60 seconds a day →',
     fMe: 'Made by Tim: pianist, music education researcher, 15+ years teaching. Royal College of Music (MPerf) · Royal Holloway, University of London (PhD) · Xinghai Conservatory of Music (BA).', fPrivacy: 'Privacy',
     with: 'with Basso', tag: 'Hear what you play.', sub: 'An interactive ear-training app that shows children what to listen for, built around the ABRSM aural test format (Grades 3–5). By an RCM-trained pianist and music education researcher. Plus a free daily sight-reading game.',
     course_eyebrow: 'Grade 4 aural · Week 1 free', course: 'Start with what to listen for', course_p: 'Most children who “guess” in aural tests were never shown what to listen for. Week 1 builds it step by step, in the C D E names they already use.', c1: 'Higher or lower: from far apart to next-door notes', c2: 'Which way the tune goes, then play three notes back', c3: 'Same or different: spot the change', courseBtn: 'Try week 1 free',
-    pricing: 'What’s free, what isn’t', p1: 'Daily game', p1p: 'Free', p1s: 'Sight reading in both clefs. Free, always.', p2: 'Week 1 of each plan', p2p: 'Free', p2s: 'Four short lessons, about 10 minutes each. No sign-up.', p3: '8-week aural plan', p3p: '£15', p3l: '', p3s: 'Per grade, 6 months of access. Founding price. Opens in December.',
+    pricing: 'What’s free, what isn’t', p1: 'Daily game', p1p: 'Free', p1s: 'Sight reading in both clefs. Free, always.', p2: 'Week 1 of each plan', p2p: 'Free', p2s: 'Four short lessons, about 10 minutes each. No sign-up.', p3: '8-week aural plan', p3p: '£15', p3l: '', p3s: 'Per grade, 6 months of access. Grade 4 open now at founding price.',
 
     daily: "Today's sight-reading challenge", rules: 'Everyone gets the same notes today. Treble and bass clef keep switching, and each level gives you less time per note. One wrong note ends the run. Sound on: on iPhone, check the silent switch too.',
     howanswer: 'How you answer', in1: 'Screen piano', in1s: 'Tap the real key on a screen piano, octave included. Best on iPad or a phone turned sideways.', in2: 'Computer keys', in2s: 'Three rows of your keyboard become three octaves of white keys, low to high: Z, A and Q rows.', in3: 'Digital piano', in3s: 'Play the real key on a MIDI piano. Octave counts.',
@@ -791,13 +923,22 @@ const T = {
     kEyebrow: '两条路线', kTitle: '先把耳朵练好，<br>再用到考试上。',
     k1Label: '路线 1 · 基础练习', k1Badge: '第 1 周免费', k1Title: '练好耳朵', k1p: '音高方向、旋律形状、拍子感、短时音乐记忆。每道听力题背后的能力，和 Basso 一起一小步一小步练。', k1a: '高还是低', k1b: '旋律往哪走', k1c: '一样还是不一样', k1d: '拍子 · 记忆', k1Btn: '免费开始第 1 周',
     k2Label: '路线 2 · 考试题型练习', k2Badge: '包含在 8 周计划中', k2Title: '用到考试上', k2p: '四级的每道题都按考官出题的方式练，再完整模拟。每周一张进度卡，老师一看就知道练到哪了。',
-    k2a: '<b>A</b> · 唱回或弹回旋律', k2b: '<b>B</b> · 视唱 5 个音', k2c: '<b>C(i)</b> · 描述一段音乐', k2d: '<b>C(ii)</b> · 拍节奏 + 2/3/4 拍', k2Price: '每个级别 £15 <em>· 创始价 · 可用 6 个月 · 不自动续费 · 12 月上线</em>',
-    jTitle: '免费开始，按自己的节奏进步。', j1: '1 · 试第 1 周', j1s: '不用注册，不弹付费窗口。分几天做完，大约 30 分钟。', j2: '2 · 拿到听力卡', j2s: '孩子现在听得出什么，还有哪里要练。', j3: '3 · 看看后面 7 周', j3s: '清楚列出接下来每一站，以及各自对应哪道考题。', j4: '4 · 觉得有用再继续', j4s: '听力训练包：每个级别创始价 £15，可用 6 个月，不自动续费。12 月上线。',
+    k2a: '<b>A</b> · 唱回或弹回旋律', k2b: '<b>B</b> · 视唱 5 个音', k2c: '<b>C(i)</b> · 描述一段音乐', k2d: '<b>C(ii)</b> · 拍节奏 + 2/3/4 拍', k2Price: '四级现已开放 · £15 <em>· 创始价 · 可用 6 个月 · 一次付清不自动续费</em>',
+    jTitle: '免费开始，按自己的节奏进步。', j1: '1 · 试第 1 周', j1s: '不用注册，不弹付费窗口。分几天做完，大约 30 分钟。', j2: '2 · 拿到听力卡', j2s: '孩子现在听得出什么，还有哪里要练。', j3: '3 · 看看后面 7 周', j3s: '清楚列出接下来每一站，以及各自对应哪道考题。', j4: '4 · 觉得有用再继续', j4s: '四级听力训练包现已开放：创始价 £15，可用 6 个月，不自动续费。',
+    inEyebrow: '8 周训练包里有什么', inTitle: '看看孩子每天实际怎么练。', inLead: '围绕 ABRSM 四级听力打造的真实可视化听辨工具——不是枯燥的刷题网页。',
+    sc1Tag: 'A 题 · 找不同', sc1T: '全宽迷你键盘解析', sc1P: '音高变了之后，孩子直接看见是哪个白键或黑键动了，而不只是看到一个叉。',
+    sc2Tag: 'B 题 · 视唱 5 个音', sc2T: '温和的实时音高条', sc2P: '真实高低音五线谱配麦克风音高追踪，唱准瞬间亮绿，不打击孩子信心。',
+    sc3Tag: 'C 题 & 模拟考', sc3T: '20 首古典真曲与三度阶梯', sc3P: '舒曼、巴赫、克莱门蒂真曲片段，配大小三度对比、拍速趋势与第 8 周模拟考。',
+    mkEyebrow: '谁设计了 Dottino', mkTitle: '由钢琴家与音乐教育研究者亲手打造',
+    mkBio: '由 Tim 结合 15 年以上钢琴教学与伦敦音乐教育博士研究打造。不把整套模拟卷直接丢给孩子盲刷，而是把每项听力能力拆成每天 10 分钟、看得懂的清晰步骤。',
+    mkC1: '英国皇家音乐学院 · 演奏硕士', mkC2: '伦敦大学皇家霍洛威学院 · 博士', mkC3: '星海音乐学院 · 学士', mkC4: '15 年以上教学经验',
+    trustRow: '<span>🔒 支持 Apple Pay / 银行卡 (Paddle)</span><span>📱 凭邮箱在任意设备找回</span><span>✓ 14 天无理由全额退款</span>',
+    buyOwned: '已解锁四级 ✓ · 进入第 2 周 →', buyPaid: '购买成功！正在进入第 2 周…', buyFail: '暂时打不开支付窗口，正前往第 2 周页面…',
     dailyLink: '另外免费：每日识谱小游戏，每天 60 秒 →',
     fMe: '由 Tim 设计：钢琴家、音乐教育研究者，十五年以上教学经验。英国皇家音乐学院演奏硕士 · 伦敦大学皇家霍洛威学院音乐博士 · 星海音乐学院学士。', fPrivacy: '隐私',
     with: '和谱兽 Basso 一起', tag: '听见你弹的每个音。', sub: '互动听力训练软件，教孩子知道该听什么，按 ABRSM 3–5 级听力题型设计。由皇家音乐学院出身的钢琴家、音乐教育研究者设计。另有免费的每日识谱挑战。',
     course_eyebrow: '四级听力 · 第 1 周免费', course: '先学会听什么', course_p: '很多孩子听力考试「靠猜」，是因为从来没人告诉他们该听什么。第 1 周一步一步练，用孩子已经会的 C D E。', c1: '高还是低：从相隔很远，到相邻的两个音', c2: '旋律往哪走，再把三个音弹回来', c3: '一样还是不一样：找出变化', courseBtn: '免费试第 1 周',
-    pricing: '哪些免费，哪些收费', p1: '每日识谱挑战', p1p: '免费', p1s: '高低音谱号读谱，一直免费。', p2: '每个计划的第 1 周', p2p: '免费', p2s: '四节短课，每节约 10 分钟，不用注册。', p3: '8 周听力计划', p3p: '£15', p3l: '', p3s: '每个级别一份，可用 6 个月。创始价。12 月上线。',
+    pricing: '哪些免费，哪些收费', p1: '每日识谱挑战', p1p: '免费', p1s: '高低音谱号读谱，一直免费。', p2: '每个计划的第 1 周', p2p: '免费', p2s: '四节短课，每节约 10 分钟，不用注册。', p3: '8 周听力计划', p3p: '£15', p3l: '', p3s: '每个级别一份，可用 6 个月。四级创始价现已开放。',
 
     daily: '今天的识谱挑战', rules: '今天所有人做同一套题。高音和低音谱号来回切换，级别越高，每个音的时间越短。错一个就结束。记得打开声音，iPhone 还要检查侧面的静音键。',
     howanswer: '作答方式', in1: '屏幕琴键', in1s: '在屏幕钢琴上按对那个键，八度也要对。适合 iPad 或横过来的手机。', in2: '电脑键盘', in2s: '键盘上三排字母变成三个八度的白键，从低到高：Z 排、A 排、Q 排。', in3: '电钢琴', in3s: '在 MIDI 电钢琴上弹出这个键，八度也要对。',
@@ -931,6 +1072,7 @@ function show(v) {
   ['home', 'daily', 'play', 'result'].forEach(k => { $('v-' + k).hidden = k !== v; });
   document.querySelectorAll('.wrap').forEach(w => w.classList.toggle('wide', v === 'home'));
   document.querySelectorAll('.home-only').forEach(x => { x.hidden = v !== 'home'; });
+  document.querySelectorAll('.daily-only').forEach(x => { x.hidden = v === 'home'; });
   window.scrollTo(0, 0);
 }
 function setText() {
@@ -1148,8 +1290,8 @@ function finish() {
 }
 
 // ---------- wiring ----------
-$('lang-en').onclick = () => { S.lang = 'en'; saved.lang = 'en'; persist(); setText(); splitHero(); gameText(); };
-$('lang-zh').onclick = () => { S.lang = 'zh'; saved.lang = 'zh'; persist(); setText(); splitHero(); gameText(); };
+$('lang-en').onclick = () => { S.lang = 'en'; saved.lang = 'en'; persist(); setText(); syncFounding(); splitHero(); gameText(); };
+$('lang-zh').onclick = () => { S.lang = 'zh'; saved.lang = 'zh'; persist(); setText(); syncFounding(); splitHero(); gameText(); };
 $('nm-letter').onclick = () => { S.naming = 'letter'; saved.naming = 'letter'; persist(); setText(); splitHero(); gameText(); };
 $('nm-solfege').onclick = () => { S.naming = 'solfege'; saved.naming = 'solfege'; persist(); setText(); splitHero(); gameText(); };
 $('in-buttons').onclick = () => setInput('buttons');
@@ -1193,20 +1335,45 @@ $('wl-form').addEventListener('submit', e => {
     .catch(() => { $('wl-status').style.color = 'var(--muted)'; $('wl-status').textContent = L.wlPreview; });
 });
 
-// founding members: Grade 4 is open now (send to aural.html?w=2 to buy); Grades 3 & 5 register interest
+// founding members & direct Paddle checkout on homepage (Grade 4 open now; Grades 3 & 5 register interest)
+function hasG4() { return !!(window.DottinoPay && window.DottinoPay.hasAccess(4)); }
+function openBuyG4(stEl, src) {
+  const L = t();
+  if (hasG4()) { location.href = '/aural?w=2'; return; }
+  try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/buy-click-g4-' + src, title: 'buy-g4-' + src, event: true }); } catch (e) {}
+  if (window.DottinoPay && window.DottinoPay.active()) {
+    window.DottinoPay.buy(4, {
+      lang: S.lang,
+      ref: saved.ref || src,
+      onDone: ok => {
+        if (stEl) { stEl.style.color = ok ? 'var(--good)' : '#CFC9D8'; stEl.textContent = ok ? L.buyPaid : L.buyFail; }
+        syncFounding();
+        setTimeout(() => { location.href = '/aural?w=2'; }, 900);
+      }
+    }).catch(() => {
+      if (stEl) { stEl.style.color = 'var(--bad)'; stEl.textContent = L.buyFail; }
+      setTimeout(() => { location.href = '/aural?w=2'; }, 900);
+    });
+  } else {
+    location.href = '/aural?w=2';
+  }
+}
 function syncFounding() {
-  const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
+  const L = t(), owned = hasG4();
+  const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
   const open4 = grade === '4';
+  if ($('buy-g4-pricing')) $('buy-g4-pricing').textContent = owned ? L.buyOwned : L.fBuy4;
   $('fd-email').hidden = open4;
-  $('fd-btn').textContent = open4 ? L.fBuy4 : L.fBtn;
+  $('fd-btn').textContent = open4 ? (owned ? L.buyOwned : L.fBuy4) : L.fBtn;
   if (open4) $('fd-status').textContent = '';
 }
+if ($('buy-g4-pricing')) $('buy-g4-pricing').addEventListener('click', () => openBuyG4($('buy-g4-status'), 'home-pricing'));
 document.querySelectorAll('input[name=fdgrade]').forEach(r => r.addEventListener('change', syncFounding));
 syncFounding();
 $('fd-form').addEventListener('submit', e => {
   e.preventDefault();
   const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
-  if (grade === '4') { location.href = '/aural?w=2'; return; }
+  if (grade === '4') { openBuyG4($('fd-status'), 'home-founding'); return; }
   const email = $('fd-email').value.trim(), st = $('fd-status');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.style.color = 'var(--bad)'; st.textContent = L.fBad; return; }
   const body = new URLSearchParams({ 'form-name': 'founding', email, grade, ref: saved.ref || '', lang: S.lang, src: 'home-founding' });
@@ -1216,6 +1383,7 @@ $('fd-form').addEventListener('submit', e => {
 });
 
 setText();
+syncFounding();
 draw(q('bass', 4));
 show('home');
 
