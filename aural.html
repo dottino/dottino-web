@@ -265,6 +265,24 @@ a { color: inherit; }
 .cue.count{background:var(--ink);color:var(--paper)}.cue.turn{background:var(--good-soft);color:var(--good)}
 .cue.on i{display:inline-block;width:4px;height:14px;border-radius:2px;background:var(--coral);animation:eq .8s ease-in-out infinite}.cue.on i:nth-child(2){animation-delay:.15s}.cue.on i:nth-child(3){animation-delay:.3s}
 @keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+/* Craft v2.1 listening & reveal polish (1st/2nd live beat cue + full-width mini piano + major/minor 3rd ladder) */
+.cue.same-cue{gap:8px;padding:5px 10px}
+.same-cue .sp{padding:2px 9px;border-radius:999px;font-size:12px;font-weight:800;background:var(--line);color:var(--muted);transition:background .15s,color .15s}
+.same-cue .sp.p1{background:var(--ink);color:var(--paper)}
+.same-cue .sp.p2{background:var(--coral);color:#fff}
+.same-cue .sdots{display:inline-flex;align-items:center;gap:5px;padding:0 2px}
+.same-cue .sd{width:8px;height:8px;border-radius:50%;background:var(--line);transition:transform .12s,background .12s}
+.same-cue .sd.on1{background:var(--ink)}.same-cue .sd.on2{background:var(--coral)}.same-cue .sd.now{transform:scale(1.38)}
+.mini-kb,.mode-viz{width:100%;max-width:520px;margin:10px 0 4px;display:block}
+.mini-kb .mk-w{fill:var(--key);stroke:var(--line);stroke-width:1.6;transition:fill .12s,stroke .12s}
+.mini-kb .mk-b{fill:var(--keyb);stroke:var(--keyb);stroke-width:1.4;transition:fill .12s,stroke .12s}
+.mini-kb .mk-was{fill:var(--coral-soft);stroke:var(--coral);stroke-width:2.2;stroke-dasharray:4 3}
+.mini-kb .mk-chg{fill:var(--coral)!important;stroke:var(--coral)!important}
+.mini-kb .mk-b.mk-chg{stroke:var(--card)!important;stroke-width:2.2}
+.mini-kb .mk-w.mk-on{fill:#E9E4D6;stroke:var(--ink);stroke-width:3.6;transform:translateY(2px)}
+.mini-kb .mk-b.mk-on{fill:#5B5980;stroke:var(--ink);stroke-width:2.4}
+.mini-kb .mk-b-pill{fill:var(--line);transition:fill .12s}.mini-kb .mk-b-pill.on{fill:var(--ink)}.mini-kb .mk-b-pill.chg{fill:var(--coral)}
+.mini-kb .mk-b-txt{fill:var(--muted);font-weight:800;font-size:13px}.mini-kb .mk-b-txt.on,.mini-kb .mk-b-txt.chg{fill:#fff}
 /* vector Basso: the two dots of the bass clef are his mood lights */
 :root { --vb-ink: #211C2F; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --vb-ink: #2c2640; } }
@@ -1042,11 +1060,22 @@ function unlock() {
 ['pointerdown', 'keydown', 'touchend'].forEach(ev => addEventListener(ev, unlock, { once: false, passive: true }));
 // all question audio goes through one bus; stopAudio() silences everything still scheduled (answering early, next question, replays)
 let bus = null, audioGen = 0, audioEnd = 0;
-function outBus() { if (!bus || bus.context !== ctx) { bus = ctx.createGain(); bus.connect(ctx.destination); const an = typeof vbAnalyser === 'function' ? vbAnalyser() : null; if (an) bus.connect(an); } return bus; }
+function outBus() {
+  if (!bus || bus.context !== ctx) {
+    bus = ctx.createGain();
+    if (typeof ctx.createDynamicsCompressor === 'function') {
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.16;
+      bus.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
+    } else bus.connect(ctx.destination);
+    const an = typeof vbAnalyser === 'function' ? vbAnalyser() : null; if (an) bus.connect(an);
+  }
+  return bus;
+}
 function stopAudio() {
   audioGen++; audioEnd = 0;
   if (typeof followT !== 'undefined') { followT.forEach(clearTimeout); followT = []; }
-  if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); } catch (e) { /* ignore */ } }, 150); }
+  if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 150); }
   bus = null;
 }
 function play(midi, when, vol, waited, len, holdTo) {
@@ -1059,10 +1088,18 @@ function play(midi, when, vol, waited, len, holdTo) {
   const at = ctx.currentTime + (when || 0);
   const end = holdTo != null ? ctx.currentTime + holdTo : at + (len || 1.25);
   audioEnd = Math.max(audioEnd, Math.min(end, at + 1.4));
-  const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * v0) * LAYER_GAIN[layer] * 0.8; g.connect(outBus());
+  const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * v0) * LAYER_GAIN[layer] * 0.8;
+  // Pianist-perspective stereo imaging: bass gently left, treble gently right (±22%)
+  let outNode = g;
+  if (typeof ctx.createStereoPanner === 'function') {
+    const pan = ctx.createStereoPanner();
+    pan.pan.value = Math.max(-1, Math.min(1, (midi - 62) / 34)) * 0.22;
+    g.connect(pan); outNode = pan;
+  }
+  outNode.connect(outBus());
   if (buf[key]) {
     const s2 = ctx.createBufferSource(); s2.buffer = buf[key]; s2.playbackRate.value = Math.pow(2, (midi - base) / 12);
-    s2.connect(g); g.connect(roomIn());
+    s2.connect(g); outNode.connect(roomIn());
     s2.start(at); g.gain.setTargetAtTime(0, end, len && len < 0.3 && holdTo == null ? 0.06 : 0.2); s2.stop(end + 1.6);
   } else {
     const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
@@ -1828,7 +1865,7 @@ function say(img, text, bounce, clipName, loop) {
 }
 function toast(text) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = text; document.body.appendChild(d); setTimeout(() => d.remove(), 1900); }
 // musical rewards, only after the answer: rhythm → light percussion, singing/playing back → a soft cadence in the key, a run of three → Basso's motif
-function wood(when, hi) { if (!ctx) return; const t0 = ctx.currentTime + when, o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.setValueAtTime(hi ? 1500 : 1100, t0); o.frequency.exponentialRampToValueAtTime(hi ? 900 : 700, t0 + 0.05); f.type = 'bandpass'; f.frequency.value = hi ? 1400 : 1000; g.gain.setValueAtTime(0.32, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.09); o.connect(f); f.connect(g); g.connect(outBus()); o.start(t0); o.stop(t0 + 0.1); }
+function wood(when, hi) { if (!ctx) return; const t0 = ctx.currentTime + when, o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.setValueAtTime(hi ? 1500 : 1100, t0); o.frequency.exponentialRampToValueAtTime(hi ? 900 : 700, t0 + 0.05); f.type = 'bandpass'; f.frequency.value = hi ? 1400 : 1000; g.gain.setValueAtTime(0.24, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.09); o.connect(f); f.connect(g); g.connect(outBus()); o.start(t0); o.stop(t0 + 0.1); }
 function reward(q) {
   const ty = q && q.type;
   if (['rhythm', 'taprhythm', 'tapbeat', 'meter'].includes(ty)) { wood(0.03, false); wood(0.17, true); return; }
@@ -2138,8 +2175,30 @@ function cueThen(q, go) {
 }
 function watchTurn(q) {
   const c = $('cue'); if (!c || !ctx) return;
-  const T_ = t(); c.hidden = false; c.className = 'cue on'; if (!(L && L.seg && L.seg.exam && !L.reviewing)) basso('listen');
-  c.innerHTML = '<i></i><i></i><i></i> ' + (q.type === 'tapbeat' && q.stage === 'tap' ? T_.cueTapNow : T_.cueListen);
+  const T_ = t(); c.hidden = false; if (!(L && L.seg && L.seg.exam && !L.reviewing)) basso('listen');
+  if (q.type === 'same' && q._sameCue) {
+    const isZh = S.lang === 'zh';
+    const p1Lbl = isZh ? '第 1 遍' : '1st', p2Lbl = isZh ? '第 2 遍' : '2nd';
+    const nDots = q.notes.length;
+    c.className = 'cue same-cue';
+    c.innerHTML = `<span class="sp p1" id="sc-p1">${p1Lbl}</span><span class="sdots">${Array.from({ length: nDots }, (_, i) => `<span class="sd" data-i="${i}"></span>`).join('')}</span><span class="sp" id="sc-p2">${p2Lbl}</span>`;
+    const paint = (pass, idx) => {
+      if (!L || L.q !== q || L.answered) return;
+      const p1 = $('sc-p1'), p2 = $('sc-p2');
+      if (p1) p1.className = 'sp' + (pass === 1 ? ' p1' : '');
+      if (p2) p2.className = 'sp' + (pass === 2 ? ' p2' : '');
+      c.querySelectorAll('.sd').forEach((el, j) => {
+        el.className = 'sd' + (j <= idx ? (pass === 1 ? ' on1' : ' on2') : '') + (j === idx ? ' now' : '');
+      });
+    };
+    const { t1, t2 } = q._sameCue;
+    t1.forEach((sec, i) => followT.push(setTimeout(() => paint(1, i), Math.max(0, sec * 1000))));
+    if (t2.length) followT.push(setTimeout(() => paint(2, -1), Math.max(0, (t2[0] - 0.12) * 1000)));
+    t2.forEach((sec, i) => followT.push(setTimeout(() => paint(2, i), Math.max(0, sec * 1000))));
+  } else {
+    c.className = 'cue on';
+    c.innerHTML = '<i></i><i></i><i></i> ' + (q.type === 'tapbeat' && q.stage === 'tap' ? T_.cueTapNow : T_.cueListen);
+  }
   const tick2 = () => {
     if (!L || L.q !== q) return;
     if (L.answered) { c.hidden = true; return; }
@@ -2163,17 +2222,23 @@ function playQ(slow) {
   if (q.type === 'singmatch') { stopListen(); play(q.target, 0.1); play(q.target, 1.0); setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 1900); return; }
   if (q.type === 'sight') {
     stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (q.key === 'C' || q.key === 'F' || q.key === 'G' ? 4 : 3), h + 7];
-    ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach(m => play(m, 1.1, 0.55)); play(h, 2.2, 0.85);
+    ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach((m, i) => play(m, 1.1 + i * 0.007, 0.55)); play(h, 2.2, 0.85);
     setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
   }
   if (q.type === 'meter') { if (q.piece) playPiece(q.piece); else playMeter(q, slow, false); return; }
-  if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach(m => play(m, 0.2 + 3 * g2, 0.55)); if (q.tune) seq(q.tune, slow ? 0.75 : 0.55, 0.3 + 3 * g2 + 1.1); return; }
+  if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach((m, i) => play(m, 0.2 + 3 * g2 + i * 0.007, 0.55)); if (q.tune) seq(q.tune, slow ? 0.75 : 0.55, 0.3 + 3 * g2 + 1.1); return; }
   if (q.type === 'echo' && q.exam) { playExam(q, slow); return; }
   if (q.type === 'tonic') { [60, 64, 67].forEach((m, i) => play(m, 0.08 + i * 0.22, 0.6)); play(60, 0.8, 0.8); play(q.target, slow ? 2.2 : 1.8); return; }
   if (q.type === 'rhythm') { playRhythm(q.pattern, slow ? 0.75 : 0.55, 0.1); return; }
   if (q.type === 'taprhythm') { q.taps = []; drawTaps(q); let d = playRhythm(q.pattern, 0.6, 0.1, q.notes); if (q.twice) d = playRhythm(q.pattern, 0.6, d / 1000 + 1.0, q.notes); q.busyUntil = performance.now() + d - 150; return; } // taps while it is still playing don't count
   if (q.type === 'tapbeat') { if (q.stage !== 'tap') { playMeter(q, slow, true); return; } startTapBeat(q); return; }
-  if (q.type === 'same') { const d = seqD(q.notes, q.durs, gap); seqD(q.notes2, q.durs2, gap, d / 1000 + 0.7); }
+  if (q.type === 'same') {
+    const noteStarts = (ns, ds, start) => { const out = []; let t0 = start; ns.forEach((_, i) => { out.push(t0); t0 += (ds ? ds[i] : 1) * gap; }); return out; };
+    const d = seqD(q.notes, q.durs, gap);
+    const s2 = d / 1000 + 0.7;
+    seqD(q.notes2, q.durs2, gap, s2);
+    q._sameCue = { t1: noteStarts(q.notes, q.durs, 0.08), t2: noteStarts(q.notes2, q.durs2, s2) };
+  }
   else seq(q.notes, q.type === 'hl' ? (slow ? 1.1 : 0.8) : gap);
 }
 function answers(list, onPick) {
@@ -2338,7 +2403,7 @@ function explain(q, info) {
   }
   else if (q.type === 'mode') {
     const other = q.minor ? [60, 64, 67] : [57, 60, 64];
-    feedback(false, T_.wrongMode(q.minor), '', () => { const g2 = 0.5; q.chord.forEach((m, i) => play(m, 0.08 + i * g2)); other.forEach((m, i) => play(m, 2.2 + i * g2)); }, false, T_.hearMajMin(q.minor));
+    feedback(false, T_.wrongMode(q.minor), modeThirdSvg(q.minor), () => { const g2 = 0.5; q.chord.forEach((m, i) => play(m, 0.08 + i * g2)); other.forEach((m, i) => play(m, 2.2 + i * g2)); }, false, T_.hearMajMin(q.minor));
   }
   else if (q.type === 'tonic') { keyMark(info.tapped, 'no'); keyMark(q.target, 'ok'); html = pitchSvg([{ notes: [60, q.target], color: 'var(--good)' }, { notes: [60, info.tapped], color: 'var(--coral)', dx: 6 }]); feedback(false, T_.wrongTonic(nameOf(q.target), SCALE.indexOf(q.target)), html, replay, true); }
   else if (q.type === 'rhythm') { html = `<div class="rh-fb"><div><b>${T_.rhYou}</b>${rhythmSvg(info.chose)}</div><div><b>${T_.rhRight}</b>${rhythmSvg(q.pattern)}</div></div>`; feedback(false, T_.wrongRhythm, html, () => { const d = playRhythm(info.chose, 0.7); playRhythm(q.pattern, 0.7, d / 1000 + 0.8); }, false, T_.hearBothRh); }
@@ -2374,6 +2439,97 @@ function feedback(ok, text, svg, replay, legend, replayLabel) {
   if (!ok) { $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; $('btn-replay').hidden = true; }
 }
 
+// #11-inspired Major vs Minor 3rd pitch ladder (shows high 3 vs low ♭3 with contrasting dashed ghost)
+function modeThirdSvg(minor) {
+  const isZh = S.lang === 'zh';
+  const title = isZh ? '听中间的三度音' : 'THE 3RD';
+  const sub = minor ? (isZh ? '小调 · 低半音 (♭3)' : 'minor · lower (♭3)') : (isZh ? '大调 · 高半音 (3)' : 'major · higher (3)');
+  const ghostLbl = minor ? (isZh ? '大三度' : 'major') : (isZh ? '小三度' : 'minor');
+  const yHi = 31, yLo = 55;
+  const yActive = minor ? yLo : yHi, yGhost = minor ? yHi : yLo;
+  return `<svg class="mode-viz" viewBox="0 0 460 88" role="img" aria-label="${sub}">
+    <text x="2" y="34" font-size="13" font-weight="800" fill="var(--muted)" letter-spacing="1">${title}</text>
+    <text x="2" y="56" font-size="14" font-weight="800" fill="var(--coral)">${sub}</text>
+    <line x1="176" y1="68" x2="438" y2="68" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <line x1="176" y1="18" x2="438" y2="18" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <circle cx="210" cy="68" r="11" fill="var(--ink)"/>
+    <text x="210" y="72.5" text-anchor="middle" font-size="12" font-weight="800" fill="var(--paper)">1</text>
+    <line x1="306" y1="${yHi}" x2="306" y2="${yLo}" stroke="var(--coral)" stroke-width="2" stroke-dasharray="3 3" opacity=".55"/>
+    <circle cx="306" cy="${yGhost}" r="11" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="3 3" opacity=".6"/>
+    <text x="325" y="${yGhost + 4}" font-size="11" font-weight="700" fill="var(--muted)" opacity=".75">${ghostLbl}</text>
+    <circle cx="306" cy="${yActive}" r="15" fill="var(--coral)"/>
+    <text x="306" y="${yActive + 5}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">${minor ? '♭3' : '3'}</text>
+    <circle cx="404" cy="18" r="11" fill="var(--ink)"/>
+    <text x="404" y="22.5" text-anchor="middle" font-size="12" font-weight="800" fill="var(--paper)">5</text>
+  </svg>`;
+}
+
+// #12 Craft v2.1 Full-Width Mini Piano for pitch-change feedback (with live key press sync on replay)
+function miniPianoSvg(notes1, notes2, chgIdx) {
+  const isBlk = m => [1, 3, 6, 8, 10].includes(((m % 12) + 12) % 12);
+  const all = notes1.concat(notes2).filter(m => m != null);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  while (isBlk(lo)) lo--;
+  while (isBlk(hi)) hi++;
+  while (hi - lo < 12) { if (lo > 48) lo--; if (hi - lo < 12 && hi < 84) hi++; while (isBlk(lo)) lo--; while (isBlk(hi)) hi++; }
+  const whites = [];
+  for (let m = lo; m <= hi; m++) if (!isBlk(m)) whites.push(m);
+  const W = 500, KB_X = 6, KB_Y = 4, KB_W = W - 12, KB_H = 56;
+  const kw = KB_W / whites.length, bw = kw * 0.58, bh = KB_H * 0.62;
+  const cx = m => KB_X + (isBlk(m) ? whites.filter(w => w < m).length * kw : (whites.indexOf(m) + 0.5) * kw);
+  const origM = notes1[chgIdx], chgM = notes2[chgIdx];
+  const isZh = S.lang === 'zh';
+  const wasLbl = isZh ? '原' : 'was';
+  const badges = new Map();
+  notes2.forEach((m, i) => { if (m != null) badges.set(m, (badges.get(m) || []).concat(i + 1)); });
+  let out = `<svg class="mini-kb" id="fb-kb" viewBox="0 0 ${W} ${KB_H + 34}" role="img" aria-label="Mini piano keyboard">`;
+  out += `<rect x="${KB_X - 3}" y="${KB_Y - 3}" width="${KB_W + 6}" height="${KB_H + 6}" rx="10" fill="var(--line)"/>`;
+  whites.forEach((m, i) => {
+    const cls = ['mk-w'];
+    if (m === chgM) cls.push('mk-chg');
+    else if (m === origM && origM !== chgM) cls.push('mk-was');
+    out += `<rect class="${cls.join(' ')}" data-m="${m}" x="${(KB_X + i * kw + 1.5).toFixed(1)}" y="${KB_Y}" width="${(kw - 3).toFixed(1)}" height="${KB_H}" rx="5"/>`;
+  });
+  for (let m = lo; m <= hi; m++) {
+    if (!isBlk(m)) continue;
+    const cnt = whites.filter(w => w < m).length;
+    if (cnt <= 0 || cnt >= whites.length) continue;
+    const cls = ['mk-b'];
+    if (m === chgM) cls.push('mk-chg');
+    else if (m === origM && origM !== chgM) cls.push('mk-was');
+    out += `<rect class="${cls.join(' ')}" data-m="${m}" x="${(KB_X + cnt * kw - bw / 2).toFixed(1)}" y="${KB_Y}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="4"/>`;
+  }
+  if (origM !== chgM && !badges.has(origM)) {
+    out += `<text x="${cx(origM).toFixed(1)}" y="${isBlk(origM) ? KB_H + 25 : KB_Y + KB_H - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--coral)">${wasLbl}</text>`;
+  }
+  badges.forEach((idxs, m) => {
+    const lbl = idxs.join('·'), pw = 22 + (lbl.length - 1) * 9, isChg = m === chgM;
+    out += `<g data-bm="${m}"><rect class="mk-b-pill${isChg ? ' chg' : ''}" x="${(cx(m) - pw / 2).toFixed(1)}" y="${KB_H + 10}" width="${pw}" height="21" rx="10.5"/>` +
+      `<text class="mk-b-txt${isChg ? ' chg' : ''}" x="${cx(m).toFixed(1)}" y="${KB_H + 25}" text-anchor="middle">${lbl}</text></g>`;
+  });
+  out += `</svg>`;
+  return out;
+}
+function animateMiniKb(notes, durs, beat, startSec) {
+  const kb = $('fb-kb'); if (!kb) return;
+  const setKey = m => {
+    kb.querySelectorAll('[data-m]').forEach(el => el.classList.toggle('mk-on', m != null && +el.dataset.m === m));
+    kb.querySelectorAll('[data-bm]').forEach(g => {
+      const hit = m != null && +g.dataset.bm === m;
+      const r = g.querySelector('rect'), tx = g.querySelector('text');
+      if (r && !r.classList.contains('chg')) r.classList.toggle('on', hit);
+      if (tx && !tx.classList.contains('chg')) tx.classList.toggle('on', hit);
+    });
+  };
+  let t0 = startSec || 0.08;
+  notes.forEach((m, i) => {
+    const at = t0;
+    followT.push(setTimeout(() => setKey(m), Math.max(0, at * 1000)));
+    t0 += (durs ? durs[i] : 1) * beat;
+  });
+  followT.push(setTimeout(() => setKey(null), Math.max(0, t0 * 1000 + 180)));
+}
+
 // spot-the-change feedback in five steps:
 // 1 which note changed (marked) · 2 was it the pitch or the rhythm, and how · 3 hear original / changed / both
 // 4 the next question is a fresh tune with the same kind of change, no hints · 5 mistakes are logged by kind (summary at the end)
@@ -2381,24 +2537,26 @@ function feedbackSame(q, info) {
   const T_ = t(), fb = $('fb');
   const rows = q.same ? [{ notes: q.notes, durs: q.durs, color: 'var(--good)' }]
     : [{ notes: q.notes, durs: q.durs, color: 'var(--good)', mark: [q.changed] }, { notes: q.notes2, durs: q.durs2, color: 'var(--coral)', dx: 6, mark: [q.changed] }];
+  const useKb = !q.same && q.kind !== 'rhythm';
   let lines = [];
   if (q.same) lines.push(T_.fbSame);
   else {
     if (info.where) lines.push(T_.wrongWhere(q.changed < 2));
     if (info.kindPick) lines.push(T_.fbKindWrong(q.kind));
-    lines.push(T_.fbWhich(q.changed + 1));
+    lines.push(useKb ? (S.lang === 'zh' ? `第 ${q.changed + 1} 个音变了（下方橙色琴键）。` : `Note ${q.changed + 1} changed (shown in orange below).`) : T_.fbWhich(q.changed + 1));
     lines.push(q.kind === 'rhythm' ? T_.fbRhythm(q.changed + 1, q.how) : T_.fbPitch(q.changed + 1, nameOf(q.notes[q.changed]), nameOf(q.notes2[q.changed]), q.how));
   }
   const g = L.seg;
   fb.className = 'fb bad'; fb.hidden = false;
-  fb.innerHTML = lines.map((x, i) => `<div class="t"${i ? ' style="font-weight:600;margin-top:4px"' : ''}>${x}</div>`).join('') + pitchSvg(rows) +
-    (q.same ? '' : `<div class="legend"><span><i style="background:var(--good)"></i>${T_.orig}</span><span><i style="background:var(--coral)"></i>${T_.chg}</span></div>`) +
+  fb.innerHTML = lines.map((x, i) => `<div class="t"${i ? ' style="font-weight:600;margin-top:4px"' : ''}>${x}</div>`).join('') +
+    (useKb ? miniPianoSvg(q.notes, q.notes2, q.changed) : pitchSvg(rows)) +
+    (q.same || useKb ? '' : `<div class="legend"><span><i style="background:var(--good)"></i>${T_.orig}</span><span><i style="background:var(--coral)"></i>${T_.chg}</span></div>`) +
     `<div class="actions"><button class="btn ghost sm" id="fb-a">▶ ${T_.orig}</button>${q.same ? '' : `<button class="btn ghost sm" id="fb-b">▶ ${T_.chg}</button>`}<button class="btn ghost sm" id="fb-ab">▶ ${T_.both}</button></div>` +
     (g.type !== 'quiz' && !segDone() ? `<div class="small muted" style="margin-top:8px">${T_.fbNext}</div>` : '');
   const beat = 0.8;
-  $('fb-a').onclick = () => { stopAudio(); seqD(q.notes, q.durs, beat); };
-  if ($('fb-b')) $('fb-b').onclick = () => { stopAudio(); seqD(q.notes2, q.durs2, beat); };
-  $('fb-ab').onclick = () => { stopAudio(); const d = seqD(q.notes, q.durs, beat); seqD(q.notes2, q.durs2, beat, d / 1000 + 0.7); };
+  $('fb-a').onclick = () => { stopAudio(); seqD(q.notes, q.durs, beat); if (useKb) animateMiniKb(q.notes, q.durs, beat, 0.08); };
+  if ($('fb-b')) $('fb-b').onclick = () => { stopAudio(); seqD(q.notes2, q.durs2, beat); if (useKb) animateMiniKb(q.notes2, q.durs2, beat, 0.08); };
+  $('fb-ab').onclick = () => { stopAudio(); const d = seqD(q.notes, q.durs, beat); const s2 = d / 1000 + 0.7; seqD(q.notes2, q.durs2, beat, s2); if (useKb) { animateMiniKb(q.notes, q.durs, beat, 0.08); animateMiniKb(q.notes2, q.durs2, beat, s2); } };
   $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; $('btn-replay').hidden = true;
   L.afterWrong = true;
 }

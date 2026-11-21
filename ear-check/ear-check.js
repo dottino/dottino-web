@@ -34,16 +34,28 @@
   function loadSample(base) { if (!loads[base]) loads[base] = decode('/audio/sal/' + salName(base) + '.mp3').then(b => { buf[base] = b; return b; }).catch(() => null); return loads[base]; }
   function out() {
     if (bus && bus.context === ctx) return bus;
-    bus = ctx.createGain(); bus.connect(ctx.destination);
+    bus = ctx.createGain();
+    if (typeof ctx.createDynamicsCompressor === 'function') {
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.16;
+      bus.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
+    } else bus.connect(ctx.destination);
     if (!room || room.sampleRate !== ctx.sampleRate) { const len = Math.floor(ctx.sampleRate * 1.8); room = ctx.createBuffer(2, len, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = room.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.4) * (i < 240 ? i / 240 : 1); } }
     const cv = ctx.createConvolver(); cv.buffer = room; const wet = ctx.createGain(); wet.gain.value = 0.22; cv.connect(wet); wet.connect(bus); bus.verb = cv;
     return bus;
   }
-  function stopAudio() { gen++; timers.forEach(clearTimeout); timers = []; if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); } catch (e) { /* ignore */ } }, 160); } bus = null; }
+  function stopAudio() { gen++; timers.forEach(clearTimeout); timers = []; if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 160); } bus = null; }
   const later = (fn, ms) => { const g = gen, t = setTimeout(() => { if (g === gen) fn(); }, ms); timers.push(t); };
   function note(m, at, vel, len, boost) {
     const base = baseOf(m), b = buf[base]; if (!b) return;
-    const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * vel) * 0.92 * (boost || 1); g.connect(out()); g.connect(out().verb);
+    const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * vel) * 0.92 * (boost || 1);
+    let outNode = g;
+    if (typeof ctx.createStereoPanner === 'function') {
+      const pan = ctx.createStereoPanner();
+      pan.pan.value = Math.max(-1, Math.min(1, (m - 62) / 34)) * 0.22;
+      g.connect(pan); outNode = pan;
+    }
+    outNode.connect(out()); outNode.connect(out().verb);
     const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = Math.pow(2, (m - base) / 12); s.connect(g);
     const t0 = ctx.currentTime + at; s.start(t0); g.gain.setTargetAtTime(0, t0 + len, 0.18); s.stop(t0 + len + 1.4);
   }
@@ -188,7 +200,7 @@
     }
     const k = q.key, ch = triad(k);
     if (q.kind === 'change') { // key chord, then the phrase twice (the second time with the change)
-      ch.forEach(m => note(m, lead, 0.4, 1.1)); const beat = 0.55; let t = lead + 1.5;
+      ch.forEach((m, i) => note(m, lead + i * 0.007, 0.4, 1.1)); const beat = 0.55; let t = lead + 1.5;
       if (cue) { phase('<b>Key chord</b> first. The question hasn’t started yet…', 0); phase('<b>1st time.</b> Remember it…', t - 0.1); }
       const l1 = playLine(q.a, k, beat, t); if (withTool) lightLine('t1', q.a, beat, t); t += l1 + 1.0;
       if (cue) phase('<b>2nd time.</b> What’s different?', t - 0.1);
@@ -203,7 +215,7 @@
       return t + l + 0.4;
     }
     // shape: key chord + starting note, then the tune twice (as in the exam)
-    ch.forEach(m => note(m, lead, 0.4, 1.1)); note(midiOf(0, k), lead + 1.3, 0.55, 0.8);
+    ch.forEach((m, i) => note(m, lead + i * 0.007, 0.4, 1.1)); note(midiOf(0, k), lead + 1.3, 0.55, 0.8);
     let t = lead + 2.6;
     if (cue) { phase('<b>Key chord</b> first. The tune hasn’t started yet…', 0); phase('<b>Starting note.</b> The tune begins on this note…', lead + 1.25); phase('<b>The tune, 1st time.</b>', t - 0.1); }
     const l1 = playLine(q.line, k, q.beat, t); if (withTool) lightLine('s-ok', q.line, q.beat, t); t += l1 + 1.2;
