@@ -22,6 +22,8 @@ import {Short10} from './Short10';
 import ep10 from './ep10.json';
 import {Short11} from './Short11';
 import ep11 from './ep11.json';
+import {Short12} from './Short12';
+import ep12 from './ep12.json';
 import ep from './ep1.json';
 
 const handle = delayRender('fonts');
@@ -58,5 +60,7 @@ export const Root: React.FC = () => (
     <Composition id="Ep10Cover" component={Short10} durationInFrames={ep10.durationInFrames} fps={ep10.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'aha'}} />
     <Composition id="Ep11" component={Short11} durationInFrames={ep11.durationInFrames} fps={ep11.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
     <Composition id="Ep11Cover" component={Short11} durationInFrames={ep11.durationInFrames} fps={ep11.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'compose'}} />
+    <Composition id="Ep12" component={Short12} durationInFrames={ep12.durationInFrames} fps={ep12.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
+    <Composition id="Ep12Cover" component={Short12} durationInFrames={ep12.durationInFrames} fps={ep12.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'shy'}} />
   </>
 );

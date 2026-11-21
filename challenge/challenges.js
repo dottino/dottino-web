@@ -130,5 +130,16 @@ window.CHALLENGES = [
     explain: 'Slow ≠ minor and fast ≠ major — always listen to the 3rd.',
     teaser: 'Three rounds, Grade 3 to Grade 5. Speed fooled Basso twice — can you get 3/3?',
     link: '/aural?w=4' // Week 4 practises Major or minor (Test A/C)
+  },
+  {
+    n: 12,
+    date: '2026-11-27',
+    kind: 'spot-change-3-rounds',
+    q: 'Which note changed? (3 rounds)',
+    ans: 'B, A, C',
+    basso: 'B, A, then B',
+    explain: 'Round 2 drops a half-step to a black key (B → B♭), and Round 3 slips down on the final note.',
+    teaser: 'Three rounds, Grade 3 to Grade 5. Can you spot every changed note?',
+    link: '/aural?w=1' // Week 1 (always free) practises spotting pitch changes
   }
 ];
