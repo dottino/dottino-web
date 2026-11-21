@@ -195,42 +195,79 @@ export const Pop: React.FC<{children: React.ReactNode; delay?: number; style?: R
 };
 
 const IS_BLACK = (m: number) => [1, 3, 6, 8, 10].includes(m % 12);
-export const MiniPiano: React.FC<{range: [number, number]; activeMidi: number | null; origMidi?: number; highlightMidi?: number; highlightLit?: boolean; x: number; y: number; w: number; h: number}> = ({
-  range, activeMidi, origMidi, highlightMidi, highlightLit = false, x, y, w, h,
+// Approved Craft v2.1 Full-Width MiniPiano:
+// - NEVER fills active white keys with dark purple (avoids looking like a fat black key)
+// - Uses crisp navy outline + 3px press drop for active keys, dashed orange "was" for original pitch, solid orange for changed pitch
+// - Optional numbered pill badges below keys (e.g. "1", "2·4")
+export const MiniPiano: React.FC<{
+  range: [number, number];
+  activeMidi: number | null;
+  origMidi?: number;
+  highlightMidi?: number;
+  highlightLit?: boolean;
+  badges?: Map<number, number[]>;
+  litIdx?: (idx: number) => boolean;
+  playingIdx?: number;
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+}> = ({
+  range, activeMidi, origMidi, highlightMidi, highlightLit = false, badges, litIdx, playingIdx = -1,
+  x = 250, y = 2, w = 650, h = 64,
 }) => {
+  const [lo, hi] = range;
   const whites: number[] = [];
-  const blacks: Array<{m: number; afterWhiteIdx: number}> = [];
-  for (let m = range[0]; m <= range[1]; m++) {
-    if (IS_BLACK(m)) blacks.push({m, afterWhiteIdx: whites.length - 1});
-    else whites.push(m);
-  }
-  const kw = w / whites.length;
-  const bw = kw * 0.64, bh = h * 0.62;
+  for (let m = lo; m <= hi; m++) if (!IS_BLACK(m)) whites.push(m);
+  const kw = w / whites.length, bw = kw * 0.58, bh = h * 0.62;
+  const centerX = (m: number) => x + (IS_BLACK(m) ? whites.filter((w0) => w0 < m).length * kw : (whites.indexOf(m) + 0.5) * kw);
+  const isDiffOrig = (m: number) => origMidi !== undefined && m === origMidi && m !== highlightMidi;
+  const keyFill = (m: number, black: boolean) => {
+    if (highlightLit && m === highlightMidi) return C.orange;
+    if (isDiffOrig(m)) return C.soft;
+    if (activeMidi === m) return black ? '#5B5980' : '#E9E4D6';
+    return black ? C.navy : C.card;
+  };
+  const keyStroke = (m: number) => (isDiffOrig(m) ? C.orange : activeMidi === m && !(highlightLit && m === highlightMidi) ? C.navy : C.line);
+  const keyStrokeW = (m: number) => (activeMidi === m ? 5 : isDiffOrig(m) ? 3 : 2);
   return (
-    <g transform={`translate(${x}, ${y})`}>
-      <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={12} fill={C.line} />
+    <g>
+      <rect x={x - 4} y={y - 4} width={w + 8} height={h + 8} rx={14} fill={C.line} />
       {whites.map((m, i) => {
-        const isHi = highlightLit && m === highlightMidi;
-        const isOrig = origMidi !== undefined && m === origMidi;
-        const isNow = activeMidi === m;
-        const fill = isHi ? C.orange : isNow ? '#42405C' : isOrig ? C.soft : C.card;
+        const press = activeMidi === m ? 3 : 0;
         return (
-          <g key={m}>
-            <rect x={i * kw + 1} y={1} width={kw - 2} height={h - 2} rx={6} fill={fill} stroke={isOrig && !isHi ? C.orange : C.line} strokeWidth={isOrig && !isHi ? 2.5 : 1.5} strokeDasharray={isOrig && !isHi ? '4 3' : undefined} />
-            {isHi && <circle cx={i * kw + kw / 2} cy={h - 15} r={5.5} fill={C.card} />}
-          </g>
+          <rect
+            key={m} x={x + i * kw + 2} y={y + press} width={kw - 4} height={h - press} rx={7}
+            fill={keyFill(m, false)} stroke={keyStroke(m)} strokeWidth={keyStrokeW(m)}
+            strokeDasharray={isDiffOrig(m) ? '5 4' : undefined}
+          />
         );
       })}
-      {blacks.map(({m, afterWhiteIdx}) => {
-        if (afterWhiteIdx < 0 || afterWhiteIdx >= whites.length - 1) return null;
-        const bx = (afterWhiteIdx + 1) * kw - bw / 2;
-        const isHi = highlightLit && m === highlightMidi;
-        const isNow = activeMidi === m;
-        const fill = isHi ? C.orange : isNow ? '#555375' : C.navy;
+      {Array.from({length: hi - lo + 1}, (_, k) => lo + k).filter(IS_BLACK).map((m) => {
+        const cnt = whites.filter((w0) => w0 < m).length;
+        if (cnt <= 0 || cnt >= whites.length) return null;
+        return (
+          <rect
+            key={m} x={x + cnt * kw - bw / 2} y={y} width={bw} height={bh} rx={6}
+            fill={keyFill(m, true)}
+            stroke={m === highlightMidi && highlightLit ? C.card : isDiffOrig(m) ? C.orange : C.navy}
+            strokeWidth={m === highlightMidi && highlightLit ? 3 : 2}
+            strokeDasharray={isDiffOrig(m) ? '5 4' : undefined}
+          />
+        );
+      })}
+      {origMidi !== undefined && origMidi !== highlightMidi && (!badges || !badges.has(origMidi)) && (
+        <text x={centerX(origMidi)} y={IS_BLACK(origMidi) ? h + 32 : y + h - 10} textAnchor="middle" fontFamily={FONT} fontSize={20} fontWeight={900} fill={C.orange}>was</text>
+      )}
+      {badges && [...badges.entries()].map(([m, idxs]) => {
+        const on = idxs.some((n) => playingIdx === n - 1);
+        const done = litIdx ? idxs.some((n) => litIdx(n - 1)) : false;
+        const isHi = m === highlightMidi && highlightLit;
+        const label = idxs.join('·'), bwBadge = 30 + (label.length - 1) * 13;
         return (
           <g key={m}>
-            <rect x={bx} y={0} width={bw} height={bh} rx={5} fill={fill} stroke={isHi ? C.card : C.navy} strokeWidth={isHi ? 2 : 1} />
-            {isHi && <circle cx={bx + bw / 2} cy={bh - 12} r={4.5} fill={C.card} />}
+            <rect x={centerX(m) - bwBadge / 2} y={h + 14} width={bwBadge} height={28} rx={14} fill={isHi ? C.orange : on ? C.navy : C.line} />
+            <text x={centerX(m)} y={h + 35} textAnchor="middle" fontFamily={FONT} fontSize={21} fontWeight={900} fill={isHi || on ? C.card : done ? C.navy : C.muted}>{label}</text>
           </g>
         );
       })}
