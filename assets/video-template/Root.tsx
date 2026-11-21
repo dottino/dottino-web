@@ -61,6 +61,6 @@ export const Root: React.FC = () => (
     <Composition id="Ep11" component={Short11} durationInFrames={ep11.durationInFrames} fps={ep11.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
     <Composition id="Ep11Cover" component={Short11} durationInFrames={ep11.durationInFrames} fps={ep11.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'compose'}} />
     <Composition id="Ep12" component={Short12} durationInFrames={ep12.durationInFrames} fps={ep12.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app'}} />
-    <Composition id="Ep12Cover" component={Short12} durationInFrames={ep12.durationInFrames} fps={ep12.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'shy'}} />
+    <Composition id="Ep12Cover" component={Short12} durationInFrames={ep12.durationInFrames} fps={ep12.fps} width={1080} height={1920} defaultProps={{url: 'dottino.app', coverPose: 'wonder'}} />
   </>
 );

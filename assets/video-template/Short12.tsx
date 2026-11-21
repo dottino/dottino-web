@@ -215,114 +215,73 @@ const NoteStrip: React.FC<{idx: number; active: boolean; dim: boolean}> = ({idx,
 
 // Crisp illustrated mini piano keyboard inside RevealChange: shows 1st-time key tint + live key presses + bright orange changed key!
 const IS_BLACK = (m: number) => [1, 3, 6, 8, 10].includes(m % 12);
-const MiniPiano: React.FC<{range: [number, number]; activeMidi: number | null; origMidi: number; changedMidi: number; changedLit: boolean; x: number; y: number; w: number; h: number}> = ({
-  range, activeMidi, origMidi, changedMidi, changedLit, x, y, w, h,
-}) => {
-  const whites: number[] = [];
-  const blacks: Array<{m: number; afterWhiteIdx: number}> = [];
-  for (let m = range[0]; m <= range[1]; m++) {
-    if (IS_BLACK(m)) blacks.push({m, afterWhiteIdx: whites.length - 1});
-    else whites.push(m);
-  }
-  const kw = w / whites.length;
-  const bw = kw * 0.64, bh = h * 0.62;
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={12} fill={C.line} />
-      {whites.map((m, i) => {
-        const isChg = changedLit && m === changedMidi;
-        const isOrig = m === origMidi;
-        const isNow = activeMidi === m;
-        const fill = isChg ? C.orange : isNow ? '#42405C' : isOrig ? C.soft : C.card;
-        return (
-          <g key={m}>
-            <rect x={i * kw + 1} y={1} width={kw - 2} height={h - 2} rx={6} fill={fill} stroke={isOrig && !isChg ? C.orange : C.line} strokeWidth={isOrig && !isChg ? 2.5 : 1.5} strokeDasharray={isOrig && !isChg ? '4 3' : undefined} />
-            {isChg && <circle cx={i * kw + kw / 2} cy={h - 15} r={5.5} fill={C.card} />}
-          </g>
-        );
-      })}
-      {blacks.map(({m, afterWhiteIdx}) => {
-        if (afterWhiteIdx < 0 || afterWhiteIdx >= whites.length - 1) return null;
-        const bx = (afterWhiteIdx + 1) * kw - bw / 2;
-        const isChg = changedLit && m === changedMidi;
-        const isNow = activeMidi === m;
-        const fill = isChg ? C.orange : isNow ? '#555375' : C.navy;
-        return (
-          <g key={m}>
-            <rect x={bx} y={0} width={bw} height={bh} rx={5} fill={fill} stroke={isChg ? C.card : C.navy} strokeWidth={isChg ? 2 : 1} />
-            {isChg && <circle cx={bx + bw / 2} cy={bh - 12} r={4.5} fill={C.card} />}
-          </g>
-        );
-      })}
-    </g>
-  );
-};
 
-// Reveal visualizer: Left label + Middle 4-dot pitch shift + Right live MiniPiano keyboard
+// Reveal tool: ONE full-width keyboard (the old 4-dot row said the same thing in a second, smaller way).
+//  - navy outline  = the key sounding right now in the replay
+//  - dashed orange = where the note was the 1st time ("was")
+//  - solid orange  = the changed note, as soon as it sounds
+//  - numbers under the keys = which note of the tune sounds on that key (2·4 = notes 2 and 4 share a key)
+const KB_X = 250, KB_W = 650, KB_Y = 2, KB_H = 64;
 const RevealChange: React.FC<{rd: Round}> = ({rd}) => {
   const frame = useCurrentFrame();
   const fRel = frame - (rd.reveal + REP_LEAD);
   const fade = interpolate(frame - rd.reveal, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const xs = [268, 366, 464, 562];
-  const yBase = 54;
-  const yShift = rd.dir === 'up' ? 22 : 84;
   const lit = (i: number) => fRel >= rd.repNotes[i];
-  const pop = (i: number) => (fRel >= rd.repNotes[i] && fRel < rd.repNotes[i] + 10 ? 1.16 : 1);
-
-  // Determine currently pressed MIDI note during replay
-  let activeMidi: number | null = null;
+  let playing = -1;
   for (let i = 0; i < rd.repNotes.length; i++) {
-    const start = rd.repNotes[i], next = rd.repNotes[i + 1] ?? start + 18;
-    if (fRel >= start && fRel < next - 1) activeMidi = rd.newMidis[i];
+    const st = rd.repNotes[i], nx = rd.repNotes[i + 1] ?? st + 18;
+    if (fRel >= st && fRel < nx) playing = i;
   }
-  const changedLit = lit(rd.changedIdx);
-  const sparkP = changedLit ? interpolate(fRel - rd.repNotes[rd.changedIdx], [0, 14], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) : 0;
-
+  const [lo, hi] = rd.keyRange;
+  const whites: number[] = [];
+  for (let m = lo; m <= hi; m++) if (!IS_BLACK(m)) whites.push(m);
+  const kw = KB_W / whites.length, bw = kw * 0.58, bh = KB_H * 0.62;
+  const centerX = (m: number) => KB_X + (IS_BLACK(m) ? whites.filter((w) => w < m).length * kw : (whites.indexOf(m) + 0.5) * kw);
+  const chgMidi = rd.newMidis[rd.changedIdx], origMidi = rd.origMidis[rd.changedIdx];
+  const chgOn = lit(rd.changedIdx);
+  const playingMidi = playing >= 0 ? rd.newMidis[playing] : null;
+  const keyFill = (m: number, black: boolean) => {
+    if (chgOn && m === chgMidi) return C.orange;
+    if (m === origMidi && m !== chgMidi) return C.soft;
+    if (playingMidi === m) return black ? '#5B5980' : '#E9E4D6';
+    return black ? C.navy : C.card;
+  };
+  const keyStroke = (m: number) => (m === origMidi && m !== chgMidi ? C.orange : playingMidi === m && !(chgOn && m === chgMidi) ? C.navy : C.line);
+  const keyStrokeW = (m: number) => (playingMidi === m ? 5 : m === origMidi && m !== chgMidi ? 3 : 2);
+  // number badges, one per distinct sounding key
+  const badges = new Map<number, number[]>();
+  rd.newMidis.forEach((m, i) => badges.set(m, [...(badges.get(m) ?? []), i + 1]));
   return (
     <svg width={900} height={104} style={{display: 'block', opacity: fade, overflow: 'visible'}}>
-      <text x={0} y={40} fontFamily={FONT} fontSize={26} fontWeight={900} fill={C.muted} letterSpacing={1.4}>CHANGED</text>
-      <text x={0} y={74} fontFamily={FONT} fontSize={24} fontWeight={800} fill={C.orange}>
-        Note {rd.changedIdx + 1} · {rd.dir === 'up' ? 'higher ↑' : 'lower ↓'}
-      </text>
-      <line x1={246} y1={yBase} x2={584} y2={yBase} stroke={C.line} strokeWidth={3} />
-      {xs.map((x, i) => {
-        const isChg = i === rd.changedIdx;
-        const on = lit(i);
-        const y = isChg ? yShift : yBase;
-        const r = (isChg ? 21 : 13) * pop(i);
+      <text x={0} y={40} fontFamily={FONT} fontSize={28} fontWeight={900} fill={C.muted} letterSpacing={1.4}>CHANGED</text>
+      <text x={0} y={74} fontFamily={FONT} fontSize={25} fontWeight={800} fill={C.orange}>Note {rd.changedIdx + 1} · {rd.dir === 'up' ? 'higher ↑' : 'lower ↓'}</text>
+      <rect x={KB_X - 4} y={KB_Y - 4} width={KB_W + 8} height={KB_H + 8} rx={14} fill={C.line} />
+      {whites.map((m, i) => {
+        const press = playingMidi === m ? 3 : 0;
+        return <rect key={m} x={KB_X + i * kw + 2} y={KB_Y + press} width={kw - 4} height={KB_H - press} rx={7} fill={keyFill(m, false)}
+          stroke={keyStroke(m)} strokeWidth={keyStrokeW(m)} strokeDasharray={m === origMidi && m !== chgMidi ? '5 4' : undefined} />;
+      })}
+      {Array.from({length: hi - lo + 1}, (_, k) => lo + k).filter(IS_BLACK).map((m) => {
+        const cnt = whites.filter((w) => w < m).length;
+        if (cnt <= 0 || cnt >= whites.length) return null;
+        return <rect key={m} x={KB_X + cnt * kw - bw / 2} y={KB_Y} width={bw} height={bh} rx={6} fill={keyFill(m, true)}
+          stroke={m === chgMidi && chgOn ? C.card : m === origMidi && m !== chgMidi ? C.orange : C.navy} strokeWidth={m === chgMidi && chgOn ? 3 : 2}
+          strokeDasharray={m === origMidi && m !== chgMidi ? '5 4' : undefined} />;
+      })}
+      {origMidi !== chgMidi && !badges.has(origMidi) && (
+        <text x={centerX(origMidi)} y={IS_BLACK(origMidi) ? KB_H + 32 : KB_Y + KB_H - 10} textAnchor="middle" fontFamily={FONT} fontSize={20} fontWeight={900} fill={C.orange}>was</text>
+      )}
+      {[...badges.entries()].map(([m, idxs]) => {
+        const on = idxs.some((n) => playing === n - 1), done = idxs.some((n) => lit(n - 1));
+        const isChg = m === chgMidi && chgOn;
+        const label = idxs.join('·'), w = 30 + (label.length - 1) * 13;
         return (
-          <g key={i}>
-            {isChg && (
-              <>
-                <line x1={x} y1={yBase} x2={x} y2={yShift} stroke={C.orange} strokeWidth={3} strokeDasharray="4 4" opacity={0.65} />
-                <circle cx={x} cy={yBase} r={12} fill="none" stroke={C.muted} strokeWidth={2.5} strokeDasharray="4 3" opacity={0.6} />
-                {sparkP > 0 && sparkP < 1 && [0, 1, 2, 3].map((k) => {
-                  const ang = (k * Math.PI) / 2 + Math.PI / 4;
-                  const r0 = 24 + sparkP * 10, r1 = 30 + sparkP * 14;
-                  return <line key={k} x1={x + Math.cos(ang) * r0} y1={y + Math.sin(ang) * r0} x2={x + Math.cos(ang) * r1} y2={y + Math.sin(ang) * r1} stroke={C.orange} strokeWidth={3} strokeLinecap="round" opacity={1 - sparkP} />;
-                })}
-              </>
-            )}
-            <circle cx={x} cy={y} r={r} fill={on ? (isChg ? C.orange : C.navy) : C.line} />
-            {isChg && (
-              <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT} fontSize={23} fontWeight={900} fill={on ? C.card : C.muted}>
-                {rd.dir === 'up' ? '↑' : '↓'}
-              </text>
-            )}
+          <g key={m}>
+            <rect x={centerX(m) - w / 2} y={KB_H + 14} width={w} height={28} rx={14} fill={isChg ? C.orange : on ? C.navy : C.line} />
+            <text x={centerX(m)} y={KB_H + 35} textAnchor="middle" fontFamily={FONT} fontSize={21} fontWeight={900} fill={isChg || on ? C.card : done ? C.navy : C.muted}>{label}</text>
           </g>
         );
       })}
-      <MiniPiano
-        range={rd.keyRange}
-        activeMidi={activeMidi}
-        origMidi={rd.origMidis[rd.changedIdx]}
-        changedMidi={rd.newMidis[rd.changedIdx]}
-        changedLit={changedLit}
-        x={620}
-        y={8}
-        w={274}
-        h={88}
-      />
     </svg>
   );
 };
@@ -411,7 +370,7 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
     <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #FAF7F0 0%, #F3EFE6 75%, #EDE6D9 100%)', fontFamily: FONT}}>
       <AbsoluteFill style={{transform: `scale(${camScale})`, transformOrigin: '50% 58%'}}>
         {/* Subtle storybook floating stave & notes in the lower sky */}
-        <AmbientStorybook pulse={notePulse} />
+        {!coverPose && <AmbientStorybook pulse={notePulse} />}
 
         {/* header */}
         <div style={{position: 'absolute', top: 108, left: 60, right: 60, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -523,8 +482,8 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
           </Sequence>
         </AbsoluteFill>
 
-        {/* Comic emotion stickers next to Basso's head */}
-        {!coverPose && rd && revealed && (
+        {/* Comic emotion stickers next to Basso's head (skip win sparkle on aha which already has built-in rays) */}
+        {!coverPose && rd && revealed && (!bassoRight(rd) || pose !== A.aha) && (
           <BassoSticker kind={bassoRight(rd) ? 'win' : 'shock'} delay={rd.reveal + (bassoRight(rd) ? 4 : 8)} />
         )}
 
@@ -534,7 +493,9 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
         </Sequence>
         {RS.map((r) => (
           <React.Fragment key={r.n}>
-            <Sequence from={r.bassoAt} durationInFrames={r.reveal - r.bassoAt} layout="none"><Bubble text={r.say} y={BUB_Y} x={BUB_X} still={!!coverPose} mood="proud" /></Sequence>
+            <Sequence from={r.bassoAt} durationInFrames={r.reveal - r.bassoAt} layout="none">
+              <Bubble text={r.say} y={coverPose ? BUB_Y - 24 : BUB_Y} x={coverPose ? BUB_X + 18 : BUB_X} still={!!coverPose} mood="proud" />
+            </Sequence>
             {!bassoRight(r) && <Sequence from={r.reveal + 8} durationInFrames={r.end - r.reveal - 8} layout="none"><Bubble text={r.oops ?? ep.oops} y={BUB_Y} x={BUB_X} still={!!coverPose} mood="shock" /></Sequence>}
           </React.Fragment>
         ))}
