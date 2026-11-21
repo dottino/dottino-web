@@ -367,7 +367,7 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
   const camScale = 1 + (camTarget - 1) * camP;
 
   return (
-    <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #FAF7F0 0%, #F3EFE6 75%, #EDE6D9 100%)', fontFamily: FONT}}>
+    <AbsoluteFill style={{background: coverPose ? C.cream : 'radial-gradient(circle at 50% 30%, #FAF7F0 0%, #F3EFE6 75%, #EDE6D9 100%)', fontFamily: FONT}}>
       <AbsoluteFill style={{transform: `scale(${camScale})`, transformOrigin: '50% 58%'}}>
         {/* Subtle storybook floating stave & notes in the lower sky */}
         {!coverPose && <AmbientStorybook pulse={notePulse} />}
@@ -494,7 +494,7 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
         {RS.map((r) => (
           <React.Fragment key={r.n}>
             <Sequence from={r.bassoAt} durationInFrames={r.reveal - r.bassoAt} layout="none">
-              <Bubble text={r.say} y={coverPose ? BUB_Y - 24 : BUB_Y} x={coverPose ? BUB_X + 18 : BUB_X} still={!!coverPose} mood="proud" />
+              <Bubble text={r.say} y={BUB_Y} x={coverPose ? BUB_X + 70 : BUB_X} still={!!coverPose} mood="proud" />
             </Sequence>
             {!bassoRight(r) && <Sequence from={r.reveal + 8} durationInFrames={r.end - r.reveal - 8} layout="none"><Bubble text={r.oops ?? ep.oops} y={BUB_Y} x={BUB_X} still={!!coverPose} mood="shock" /></Sequence>}
           </React.Fragment>
@@ -522,8 +522,8 @@ export const Short12: React.FC<{url?: string; coverPose?: string}> = ({url = ep.
         </div>
       </AbsoluteFill>
 
-      {/* Subtle warm storybook paper grain over the scene */}
-      <PaperGrain />
+      {/* Subtle warm storybook paper grain over the scene (omitted on cover so feed cream matches #8-#11) */}
+      {!coverPose && <PaperGrain />}
 
       {/* audio */}
       {!coverPose && RS.map((r) => {
