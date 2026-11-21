@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/guides/guide.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"Article","headline":"How to help your child prepare for ABRSM Grade 4 aural","datePublished":"2026-10-30","dateModified":"2026-10-30",
+ {"@type":"Article","headline":"How to help your child prepare for ABRSM Grade 4 aural","datePublished":"2026-10-30","dateModified":"2026-11-21",
   "author":{"@type":"Person","name":"Tim","description":"Piano teacher (15+ years), Master of Performance (Royal College of Music), PhD in music education (Royal Holloway, University of London)"},
   "publisher":{"@type":"Organization","name":"Dottino","url":"https://dottino.app/"},"image":"https://dottino.app/img/og/guide-g4.png","mainEntityOfPage":"https://dottino.app/guides/abrsm-grade-4-aural/"},
  {"@type":"FAQPage","mainEntity":[
@@ -38,7 +38,7 @@
   <p class="eyebrow">ABRSM aural · Grade 4 · for parents</p>
   <h1>How to help your child prepare for ABRSM Grade 4 aural</h1>
   <p class="lede">Aural is the part of the exam most parents feel they can’t help with. You can. You don’t need to read music; you need to know what to listen for, and how to ask.</p>
-  <div class="byline"><img src="/img/wave.png" alt=""><span>By Tim · piano teacher for 15+ years, Royal College of Music, PhD in music education · Updated 30 October 2026</span></div>
+  <div class="byline"><img src="/img/wave.png" alt=""><span>By Tim · piano teacher for 15+ years, Royal College of Music, PhD in music education · Updated 21 November 2026</span></div>
 
   <h2>Why children guess in aural</h2>
   <p>When I ask a child what they heard, the most common answer is a guess. Not because they can’t hear it, but because nobody has told them <em>what</em> to listen for. “Is it major or minor?” is a hard question. “Where does the music end, bright or dark?” is an easy one. Most of aural practice is turning big questions into small ones.</p>
@@ -75,6 +75,10 @@
     <p>A 30-second listening game. Basso, our music-loving blob, will try to answer before you. Listen to where the music ends.</p>
     <iframe src="/c/2/?embed=1&amp;ref=guide-g4" title="Basso Challenge: Major or minor?" loading="lazy" allow="autoplay"></iframe>
   </div>
+  <div class="check-nudge">
+    <p><strong>Not sure where your child’s ear is right now?</strong> Try the free 3-minute Ear Check (Grades 3–5).</p>
+    <a href="/ear-check/?ref=guide-g4" id="guide-ear">Start Ear Check →</a>
+  </div>
 
   <h2>A four-week plan for home</h2>
   <p>Five to ten minutes on most days does more than one long session a week. Here is a simple shape, one skill a week, each building on the last.</p>
@@ -110,16 +114,44 @@
   </section>
 
   <div class="end">
-    <h2>Want a plan that does this for you?</h2>
-    <p>Dottino is a set of short listening games built around the ABRSM aural tests. Basso listens alongside your child and shows them what to listen for, one small step at a time. Week 1 is free, no sign-up.</p>
-    <a class="btn" href="/aural?ref=guide-g4">Try Week 1 free</a>
+    <h2>Want a structured 8-week plan that does this for you?</h2>
+    <p>Dottino turns every Grade 4 aural skill — melody playback, 5-note sight-singing, 20 classical pieces, rhythm &amp; time, and a full Week 8 mock — into short 10-minute games with Basso. Start with Week 1 free (no sign-up), or unlock all 8 weeks straight away.</p>
+    <div class="end-btns">
+      <a class="btn ghost" href="/aural?w=1&amp;ref=guide-g4">Try Week 1 free</a>
+      <button class="btn" id="guide-buy-g4" type="button">Unlock full 8-week Grade 4 pack · £15</button>
+    </div>
+    <p class="status" id="guide-buy-st" aria-live="polite" hidden></p>
+    <p class="trust">🔒 Apple Pay &amp; Card (Paddle) · 📱 Restore on any device by email · 6 months access · One payment, no auto-renewal · 14-day full refund</p>
   </div>
 
-  <p class="note">Dottino is independent and not affiliated with or endorsed by ABRSM. ABRSM is a registered trademark of the Associated Board of the Royal Schools of Music. More listening games: <a href="/play/">Basso Challenges</a> · <a href="/">dottino.app</a> · <a href="/privacy.html">Privacy</a></p>
+  <p class="note">Dottino is independent and not affiliated with or endorsed by ABRSM. ABRSM is a registered trademark of the Associated Board of the Royal Schools of Music. More listening games: <a href="/ear-check/?ref=guide-g4">3-Minute Ear Check</a> · <a href="/play/">Basso Challenges</a> · <a href="/">dottino.app</a> · <a href="/privacy.html">Privacy</a></p>
 </article>
+<script src="/pay.js"></script>
 <script>
-// count readers and clicks to the free week (cookie-free)
-document.querySelectorAll('a[href*="/aural"]').forEach(a => a.addEventListener('click', () => { try { window.goatcounter.count({ path: 'event/guide-g4/go-week1', title: 'guide g4 to week 1', event: true }); } catch (e) {} }));
+// count readers and clicks to free week, ear check & Grade 4 pack (cookie-free)
+const gc = (p, t) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: t, event: true }); } catch (e) {} };
+document.querySelectorAll('a[href*="/aural"]').forEach(a => a.addEventListener('click', () => gc('event/guide-g4/go-week1', 'guide g4 to week 1')));
+document.querySelectorAll('a[href*="/ear-check"]').forEach(a => a.addEventListener('click', () => gc('event/guide-g4/go-earcheck', 'guide g4 to ear check')));
+const buyBtn = document.getElementById('guide-buy-g4'), stEl = document.getElementById('guide-buy-st');
+if (buyBtn) {
+  if (window.DottinoPay && window.DottinoPay.hasAccess(4)) buyBtn.textContent = 'Grade 4 unlocked ✓ · Go to Week 2 →';
+  buyBtn.addEventListener('click', () => {
+    if (window.DottinoPay && window.DottinoPay.hasAccess(4)) { location.href = '/aural?w=2'; return; }
+    gc('event/buy-click-g4-guide', 'buy g4 from guide');
+    if (window.DottinoPay && window.DottinoPay.active()) {
+      window.DottinoPay.buy(4, {
+        lang: 'en', ref: 'guide-g4',
+        onDone: ok => {
+          stEl.hidden = false;
+          stEl.textContent = ok ? 'Thank you! Opening Week 2…' : 'Payment received — opening Week 2…';
+          setTimeout(() => { location.href = '/aural?w=2'; }, 900);
+        }
+      }).catch(() => { location.href = '/aural?w=2'; });
+    } else {
+      location.href = '/aural?w=2';
+    }
+  });
+}
 </script>
 <script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
