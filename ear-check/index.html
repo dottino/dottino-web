@@ -53,6 +53,17 @@ svg .sd { fill: var(--ink); transition: r .08s, fill .08s; } svg .sd.hl { fill: 
 .muted { color: var(--muted); font-weight: 400; text-align: right; }
 .fine { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
 .go.linkish { font: inherit; text-align: left; cursor: pointer; width: 100%; color: inherit; }
+.ec-kb { width: 100%; height: auto; display: block; margin-top: 4px; }
+.ec-kb .kw { fill: var(--card); stroke: var(--line); stroke-width: 1.6; transition: fill .12s, stroke .12s; }
+.ec-kb .kb { fill: var(--ink); stroke: var(--ink); stroke-width: 1.4; transition: fill .12s, stroke .12s; }
+.ec-kb .kwas { fill: var(--coral-soft); stroke: var(--coral); stroke-width: 2.2; stroke-dasharray: 4 3; }
+.ec-kb .kchg { fill: var(--coral)!important; stroke: var(--coral)!important; }
+.ec-kb .kb.kchg { stroke: var(--card)!important; stroke-width: 2.2; }
+.ec-kb .kw.kon { fill: #E9E4D6; stroke: var(--ink); stroke-width: 3.6; transform: translateY(2px); }
+.ec-kb .kb.kon { fill: #5B5980; stroke: var(--ink); stroke-width: 2.4; }
+.ec-kb .bp { fill: var(--line); transition: fill .12s; } .ec-kb .bp.on { fill: var(--ink); } .ec-kb .bp.chg { fill: var(--coral); }
+.ec-kb .bt { fill: var(--muted); font: 800 13px var(--f-display); } .ec-kb .bt.on, .ec-kb .bt.chg { fill: #fff; }
+.go.pack { border-color: var(--coral); background: var(--card); }
 </style>
 </head>
 <body>

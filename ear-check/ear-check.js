@@ -202,9 +202,12 @@
     if (q.kind === 'change') { // key chord, then the phrase twice (the second time with the change)
       ch.forEach((m, i) => note(m, lead + i * 0.007, 0.4, 1.1)); const beat = 0.55; let t = lead + 1.5;
       if (cue) { phase('<b>Key chord</b> first. The question hasn’t started yet…', 0); phase('<b>1st time.</b> Remember it…', t - 0.1); }
-      const l1 = playLine(q.a, k, beat, t); if (withTool) lightLine('t1', q.a, beat, t); t += l1 + 1.0;
+      const l1 = playLine(q.a, k, beat, t);
+      if (withTool) { if (q.ans === 'Pitch') lightKb(lineMidis(q.a, k), q.a, beat, t); else lightLine('t1', q.a, beat, t); }
+      t += l1 + 1.0;
       if (cue) phase('<b>2nd time.</b> What’s different?', t - 0.1);
-      const l2 = playLine(q.b, k, beat, t); if (withTool) lightLine('t2', q.b, beat, t);
+      const l2 = playLine(q.b, k, beat, t);
+      if (withTool) { if (q.ans === 'Pitch') lightKb(lineMidis(q.b, k), q.b, beat, t); else lightLine('t2', q.b, beat, t); }
       return t + l2 + 0.4;
     }
     if (q.kind === 'rhythm') { // count-in clicks, then the phrase
@@ -290,10 +293,60 @@
   }
   function optLabel(q, o) { return q.kind === 'meter' ? o + ' beats' : o; }
   function answerTitle(q) { return q.kind === 'meter' ? q.ans + ' beats in a bar' : q.kind === 'change' ? (q.ans === 'Pitch' ? 'The pitch changed' : 'The rhythm changed') : q.kind === 'rhythm' ? 'Rhythm ' + q.ans : 'Shape ' + q.ans; }
+  function lightKb(midis, notes, beat, at) {
+    const setK = m => {
+      const kb = $('ec-kb'); if (!kb) return;
+      kb.querySelectorAll('[data-m]').forEach(el => el.classList.toggle('kon', m != null && +el.dataset.m === m));
+      kb.querySelectorAll('[data-bm]').forEach(g => {
+        const hit = m != null && +g.dataset.bm === m;
+        const r = g.querySelector('rect'), tx = g.querySelector('text');
+        if (r && !r.classList.contains('chg')) r.classList.toggle('on', hit);
+        if (tx && !tx.classList.contains('chg')) tx.classList.toggle('on', hit);
+      });
+    };
+    let t = at;
+    notes.forEach((n, i) => { const on = t; later(() => setK(midis[i]), on * 1000); t += n.d * beat; });
+    later(() => setK(null), t * 1000 + 200);
+  }
+  function miniPianoSvg(m1, m2, chgIdx) {
+    const isBlk = m => [1, 3, 6, 8, 10].includes(((m % 12) + 12) % 12);
+    const all = m1.concat(m2);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    while (isBlk(lo)) lo--;
+    while (isBlk(hi)) hi++;
+    while (hi - lo < 12) { if (lo > 48) lo--; if (hi - lo < 12 && hi < 84) hi++; while (isBlk(lo)) lo--; while (isBlk(hi)) hi++; }
+    const whites = []; for (let m = lo; m <= hi; m++) if (!isBlk(m)) whites.push(m);
+    const W = 500, KX = 6, KY = 4, KW = W - 12, KH = 56, kw = KW / whites.length, bw = kw * 0.58, bh = KH * 0.62;
+    const cx = m => KX + (isBlk(m) ? whites.filter(w => w < m).length * kw : (whites.indexOf(m) + 0.5) * kw);
+    const origM = m1[chgIdx], chgM = m2[chgIdx];
+    const badges = new Map(); m2.forEach((m, i) => badges.set(m, (badges.get(m) || []).concat(i + 1)));
+    let s = `<svg class="ec-kb" id="ec-kb" viewBox="0 0 ${W} ${KH + 34}" role="img" aria-label="Piano keyboard showing the changed note">`;
+    s += `<rect x="${KX - 3}" y="${KY - 3}" width="${KW + 6}" height="${KH + 6}" rx="10" fill="var(--line)"/>`;
+    whites.forEach((m, i) => {
+      const c = ['kw', m === chgM ? 'kchg' : m === origM && origM !== chgM ? 'kwas' : ''].filter(Boolean).join(' ');
+      s += `<rect class="${c}" data-m="${m}" x="${(KX + i * kw + 1.5).toFixed(1)}" y="${KY}" width="${(kw - 3).toFixed(1)}" height="${KH}" rx="5"/>`;
+    });
+    for (let m = lo; m <= hi; m++) {
+      if (!isBlk(m)) continue;
+      const cnt = whites.filter(w => w < m).length; if (cnt <= 0 || cnt >= whites.length) continue;
+      const c = ['kb', m === chgM ? 'kchg' : m === origM && origM !== chgM ? 'kwas' : ''].filter(Boolean).join(' ');
+      s += `<rect class="${c}" data-m="${m}" x="${(KX + cnt * kw - bw / 2).toFixed(1)}" y="${KY}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="4"/>`;
+    }
+    if (origM !== chgM && !badges.has(origM)) s += `<text x="${cx(origM).toFixed(1)}" y="${isBlk(origM) ? KH + 25 : KY + KH - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--coral)">was</text>`;
+    badges.forEach((idxs, m) => {
+      const lbl = idxs.join('·'), pw = 22 + (lbl.length - 1) * 9, isChg = m === chgM;
+      s += `<g data-bm="${m}"><rect class="bp${isChg ? ' chg' : ''}" x="${(cx(m) - pw / 2).toFixed(1)}" y="${KH + 10}" width="${pw}" height="21" rx="10.5"/><text class="bt${isChg ? ' chg' : ''}" x="${cx(m).toFixed(1)}" y="${KH + 25}" text-anchor="middle">${lbl}</text></g>`;
+    });
+    return s + '</svg>';
+  }
   function figures(q) {
     if (q.kind === 'meter') return S.answered ? `<div class="beats" id="beats" aria-hidden="true">${Array.from({ length: +q.ans }, (x, i) => `<i>${i + 1}</i>`).join('')}</div><p class="piece">♪ ${q.piece.composer} · ${q.piece.title}</p>` : '';
-    if (q.kind === 'change') { if (!S.answered) return ''; const all = q.a.concat(q.b).map(n => n.deg), lo = Math.min(...all), hi = Math.max(...all);
-      return `<div class="pair"><span>1st</span><div id="t1">${timeSvg(q.a, [], lo, hi)}</div><span>2nd</span><div id="t2">${timeSvg(q.b, q.at, lo, hi)}</div></div>`; }
+    if (q.kind === 'change') {
+      if (!S.answered) return '';
+      if (q.ans === 'Pitch') return miniPianoSvg(lineMidis(q.a, q.key), lineMidis(q.b, q.key), q.at[0]);
+      const all = q.a.concat(q.b).map(n => n.deg), lo = Math.min(...all), hi = Math.max(...all);
+      return `<div class="pair"><span>1st</span><div id="t1">${timeSvg(q.a, [], lo, hi)}</div><span>2nd</span><div id="t2">${timeSvg(q.b, q.at, lo, hi)}</div></div>`;
+    }
     if (q.kind === 'rhythm') return `<div class="choices">${q.ropts.map(o => `<div class="choice${S.answered ? (o.ok ? ' right' : ' dim') : ''}"><b>${o.label}</b><div${o.ok ? ' id="g-ok"' : ''}>${gridSvg(o.r, 4, S.answered && !o.ok ? diffIdx(o.r, q.ropts.find(x => x.ok).r) : [])}</div></div>`).join('')}</div>`;
     const all = q.sopts.flatMap(o => o.d), lo = Math.min(...all), hi = Math.max(...all);
     return `<div class="choices">${q.sopts.map(o => `<div class="choice${S.answered ? (o.ok ? ' right' : ' dim') : ''}"><b>${o.label}</b><div${o.ok ? ' id="s-ok"' : ''}>${shapeSvg(o.d, S.answered && !o.ok ? [o.i] : [], 'shape', lo, hi)}</div></div>`).join('')}</div>`;
@@ -350,12 +403,13 @@
         <div class="actions"><button class="btn primary" id="share">Share my result</button><button class="btn ghost" id="send">Send to a parent or teacher</button></div>
         <p class="share-note" id="shareNote" hidden></p>
         <div class="next">
-          <a class="go" id="goWeek" href="/aural.html?w=1&ref=ear-${encodeURIComponent(REF)}"><b>Start listening practice free</b><span>Week 1 of the Grade 4 plan: three 10-minute lessons with Basso, the same tools you just saw. No sign-up.</span></a>
+          <a class="go" id="goWeek" href="/aural?w=1&ref=ear-${encodeURIComponent(REF)}"><b>Start listening practice free</b><span>Week 1 of the Grade 4 plan: four 10-minute lessons with Basso, the same tools you just saw. No sign-up.</span></a>
+          ${target === 4 ? `<a class="go pack" id="goPack" href="/aural?w=2&ref=ear-pack-${encodeURIComponent(REF)}"><b>Unlock the full 8-week Grade 4 pack · £15</b><span>All 8 weeks plus mock exam, 6 months access. One payment, no auto-renewal.</span></a>` : ''}
           <button class="go linkish" id="again"><b>Try a new set of questions</b><span>Every check is different.</span></button>
         </div>
         ${INAPP ? '<p class="tip">Tip: the full lessons work best in Safari or Chrome. Tap ••• and choose “Open in browser”.</p>' : ''}
         <form class="mail" id="mail" novalidate>
-          <label for="mailIn"><b>Get Grade ${target} listening practice by email</b><span>Tips for your level, and one email when the Grade ${target} pack opens (founding price £15). Under 13? Ask a parent to put in their email. No spam.</span></label>
+          <label for="mailIn"><b>Get Grade ${target} listening tips by email</b><span>${target === 4 ? 'Free Grade 4 practice tips for parents and students (the full Grade 4 pack is already open above). Under 13? Ask a parent to enter their email. No spam.' : `Tips for your level, and one email when the Grade ${target} pack opens (founding price £15). Under 13? Ask a parent to put in their email. No spam.`}</span></label>
           <div class="row"><input id="mailIn" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required><button class="btn primary" type="submit">Send it</button></div>
           <p class="mail-msg" id="mailMsg" role="status"></p>
         </form>
@@ -370,6 +424,7 @@
     $('share').onclick = () => share(`I got ${total}/6 on the Dottino Ear Check (${lv ? 'around Grade ' + lv : 'building up to Grade 3'}). How far can your ear go?`, 'share');
     $('send').onclick = () => share(`My ear check result: ${total}/6, ${lv ? 'around Grade ' + lv : 'building up to Grade 3'} ${plays ? '(I’m working at ' + GRADES.find(g => g.v === S.plays).t + ')' : ''}. Here’s the check:`, 'send-adult');
     $('goWeek').onclick = () => track('go/week1');
+    if ($('goPack')) $('goPack').onclick = () => track('go/grade4-pack');
     $('again').onclick = () => { track('again'); build(); S.stage = 'q'; newQ(); };
     $('mail').onsubmit = e => {
       e.preventDefault(); const v = $('mailIn').value.trim(), msg = $('mailMsg');

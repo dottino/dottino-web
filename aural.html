@@ -1581,12 +1581,21 @@ function featViz(q) {
     for (let i = 0; i < n; i++) { const tt = (i + 0.5) / n * p.T, v = dynAt(p, tt), h = 10 + v * 58, x = 8 + i * (W - 16) / n; const hot = (p.dyn === 'fp' || p.dyn === 'pf') && (i === n / 2 || i === n / 2 - 1); body += `<rect x="${x.toFixed(1)}" y="${(70 - h).toFixed(1)}" width="${((W - 16) / n - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${hot ? 'var(--coral)' : 'var(--ink)'}" opacity="${hot ? 1 : 0.45 + v * 0.5}"/>`; }
   } else if (q.aspect === 'tempo') {
     title = T_.vizBeat; const clk = pieceClock(p), tot = clk(p.T);
-    beatTimes(p, p.T + 0.02).forEach(bt => { const x = 10 + clk(bt.t) / tot * (W - 20); body += `<circle cx="${x.toFixed(1)}" cy="38" r="${bt.strong ? 7 : 4.5}" fill="var(--ink)" opacity="${bt.strong ? 0.9 : 0.55}"/>`; });
+    const beats = beatTimes(p, p.T + 0.02);
+    const bpmAt = t0 => Math.round(60 / Math.max(0.18, clk(Math.min(p.T, t0 + 1)) - clk(Math.max(0, t0))));
+    const bStart = bpmAt(0), bMid = bpmAt(p.T * 0.5), bEnd = bpmAt(Math.max(0, p.T - 1.5));
+    const trend = p.tch === 'steady' ? `${bStart} = ${bStart} BPM` : `${bStart} → ${bMid} → ${bEnd} BPM`;
+    body += `<text x="${W / 2}" y="18" text-anchor="middle" font-size="13" font-weight="800" fill="${p.tch === 'steady' ? 'var(--ink)' : 'var(--coral)'}">${trend}</text>`;
+    beats.forEach((bt, idx) => {
+      const x = 10 + clk(bt.t) / tot * (W - 20);
+      const hot = p.tch !== 'steady' && idx >= Math.floor(beats.length * 0.45);
+      body += `<circle cx="${x.toFixed(1)}" cy="46" r="${bt.strong ? 7.5 : 4.5}" fill="${hot ? 'var(--coral)' : 'var(--ink)'}" opacity="${bt.strong ? 0.95 : 0.55}"/>`;
+    });
   } else if (q.aspect === 'art') {
     title = T_.vizLen; const mel = p.ev.filter(e => e.mel).slice(0, 12), t0 = mel.length ? mel[0].t : 0, t1 = mel.length ? mel[mel.length - 1].t + mel[mel.length - 1].d : 1;
     mel.forEach(e => { const x = 8 + (e.t - t0) / (t1 - t0) * (W - 16), w = Math.max(4, (p.art === 'staccato' ? Math.min(e.d * 0.35, 0.3) : e.d) / (t1 - t0) * (W - 16) - (p.art === 'staccato' ? 0 : 1)), y = 64 - ((e.m % 24) / 24) * 44; body += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="9" rx="4.5" fill="var(--ink)" opacity=".75"/>`; });
-  } else { // tonality: the home chord, with its middle note
-    title = T_.vizKey; const third = p.minor ? 3 : 4; [0, third, 7].forEach((st, i) => { const x = 70 + i * 90, y = 64 - st * 6; body += `<circle cx="${x}" cy="${y}" r="13" fill="${i === 1 ? 'var(--coral)' : 'var(--ink)'}"/><text x="${x}" y="82" text-anchor="middle" font-size="12" fill="var(--muted)">${i === 0 ? T_.vizHome : i === 1 ? (p.minor ? T_.vizMin3 : T_.vizMaj3) : T_.vizFifth}</text>`; });
+  } else { // tonality: reuse the #11 Major vs Minor 3rd pitch ladder with contrasting dashed ghost
+    return `<div class="viz"><b>🔎 ${T_.vizKey}</b>${modeThirdSvg(p.minor)}</div>`;
   }
   const ends = q.aspect === 'ton' ? '' : `<text x="8" y="84" font-size="11" fill="var(--muted)">${T_.vizStart}</text><text x="${W - 8}" y="84" text-anchor="end" font-size="11" fill="var(--muted)">${T_.vizEnd}</text>`;
   return `<div class="viz"><b>🔎 ${title}</b><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">${body}${ends}</svg></div>`;
@@ -1685,12 +1694,14 @@ function makeQ(type, level, force) {
     return { type, notes, shape, shapes, level };
   }
   if (type === 'mode') {
-    // major or minor? level 0: the key chord (broken, then together) · level 1: a short tune that ends on home
-    const minor = Math.random() < 0.5, root = minor ? 57 : 60;
-    const scale = minor ? [57, 59, 60, 62, 64, 65, 67, 69] : [60, 62, 64, 65, 67, 69, 71, 72];
+    // major or minor across multiple roots (prevents guessing "lower pitch = minor") + varied tempo in level 1 (breaks "slow = minor" trap)
+    const minor = Math.random() < 0.5, root = pick([57, 60, 62, 65, 67]);
+    const iv = minor ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
+    const scale = iv.map(x => root + x);
     let tune = null;
     if (level >= 1) { let d, n, tries = 0; do { d = pick([0, 2, 4]); n = [d]; for (let k = 0; k < 4; k++) { d += pick([-1, 1, -2, 2]); n.push(d); } n.push(0); tries++; } while (n.some(x => x < 0 || x > 7) && tries < 80); tune = n.map(x => scale[x]); }
-    return { type, minor, root, chord: minor ? [57, 60, 64] : [60, 64, 67], tune, level };
+    const step = level >= 1 ? (minor ? pick([0.44, 0.54, 0.68]) : pick([0.46, 0.56, 0.74])) : 0.55;
+    return { type, minor, root, chord: [root, root + (minor ? 3 : 4), root + 7], tune, step, level };
   }
   if (type === 'echo' && level >= 5) return makeEchoR(level);
   if (type === 'echo' && level >= 3) {
@@ -2226,7 +2237,7 @@ function playQ(slow) {
     setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
   }
   if (q.type === 'meter') { if (q.piece) playPiece(q.piece); else playMeter(q, slow, false); return; }
-  if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach((m, i) => play(m, 0.2 + 3 * g2 + i * 0.007, 0.55)); if (q.tune) seq(q.tune, slow ? 0.75 : 0.55, 0.3 + 3 * g2 + 1.1); return; }
+  if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach((m, i) => play(m, 0.2 + 3 * g2 + i * 0.007, 0.55)); if (q.tune) seq(q.tune, slow ? 0.78 : (q.step || 0.55), 0.3 + 3 * g2 + 1.1); return; }
   if (q.type === 'echo' && q.exam) { playExam(q, slow); return; }
   if (q.type === 'tonic') { [60, 64, 67].forEach((m, i) => play(m, 0.08 + i * 0.22, 0.6)); play(60, 0.8, 0.8); play(q.target, slow ? 2.2 : 1.8); return; }
   if (q.type === 'rhythm') { playRhythm(q.pattern, slow ? 0.75 : 0.55, 0.1); return; }
@@ -2402,7 +2413,8 @@ function explain(q, info) {
     feedback(false, T_.wrongChar(T_.charName[q.c], o && o.c === q.c), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`, () => playPiece(q.piece), false, T_.hearAgain);
   }
   else if (q.type === 'mode') {
-    const other = q.minor ? [60, 64, 67] : [57, 60, 64];
+    // Parallel major/minor on the SAME root so the ear isolates ONLY the middle 3rd shifting by a half-step
+    const other = [q.root, q.root + (q.minor ? 4 : 3), q.root + 7];
     feedback(false, T_.wrongMode(q.minor), modeThirdSvg(q.minor), () => { const g2 = 0.5; q.chord.forEach((m, i) => play(m, 0.08 + i * g2)); other.forEach((m, i) => play(m, 2.2 + i * g2)); }, false, T_.hearMajMin(q.minor));
   }
   else if (q.type === 'tonic') { keyMark(info.tapped, 'no'); keyMark(q.target, 'ok'); html = pitchSvg([{ notes: [60, q.target], color: 'var(--good)' }, { notes: [60, info.tapped], color: 'var(--coral)', dx: 6 }]); feedback(false, T_.wrongTonic(nameOf(q.target), SCALE.indexOf(q.target)), html, replay, true); }
