@@ -35,11 +35,13 @@ const dummyEl = () => ({
   innerHTML: '', textContent: '', hidden: false, disabled: false, dataset: {}, value: '', children: []
 });
 
-function bootAural({ grade = 4, week = 1, lang = 'en', preview = false, clef = 'treble' } = {}) {
+function bootAural({ grade = 4, week = 1, lang = 'en', preview = false, rawPreview1 = false, clef = 'treble' } = {}) {
+  const sess = {};
+  const qExtra = preview ? '&invite=dottino-teach-2026' : (rawPreview1 ? '&preview=1' : '');
   const win = {
-    location: { search: `?g=${grade}&w=${week}${preview ? '&preview=1' : ''}`, origin: 'https://dottino.app', pathname: '/aural' },
+    location: { search: `?g=${grade}&w=${week}${qExtra}`, origin: 'https://dottino.app', pathname: '/aural' },
     localStorage: { getItem(k) { return k === 'dottino:v1' ? JSON.stringify({ lang, clef }) : null; }, setItem() {} },
-    sessionStorage: { getItem() { return preview ? '1' : null; }, setItem() {} },
+    sessionStorage: { getItem(k) { return sess[k] || null; }, setItem(k, v) { sess[k] = String(v); } },
     navigator: { language: lang },
     matchMedia: () => ({ matches: false }),
     scrollTo() {},
@@ -205,15 +207,49 @@ for (const lv of [0, 1, 2]) {
   assert(b3.length === 3, `Grade 3 Mock 3B has 3 consecutive echo phrases (${b3.length})`);
   assert(c3.length === 2 && c3.every(q => !q.same), `Grade 3 Mock 3C guarantees pitch/rhythm change`);
   assert(d3.length === 2 && d3[0].piece === d3[1].piece, `Grade 3 Mock 3D asks 2 features on ONE shared piece`);
+
+  // 6b. Exhaustive ExamPiece5 music-data consistency (ev === rPat/rNotes, bar sums === 2*k, evidence present, no ton on noTon!)
+  const seen5 = new Map();
+  let badLen = 0, badBars = 0, badEv = 0, missingEv = 0, badTonOnModern = 0;
+  for (let i = 0; i < 240; i++) {
+    R5.startLesson(0);
+    const L = R5.getL();
+    const qFeat = L.quizQs.find(q => q.sec === 'Ci' && q.type === 'feat');
+    if (qFeat && qFeat.piece && qFeat.piece.noTon && qFeat.aspect === 'ton') badTonOnModern++;
+    const ep = qFeat && qFeat.piece;
+    if (!ep) continue;
+    const key = ep.composer + ' | ' + ep.title;
+    if (seen5.has(key)) continue;
+    seen5.set(key, ep);
+    const tokens = String(ep.rPat || '').split(',').filter(x => x !== '|' && x !== '');
+    const patSum = tokens.reduce((s, x) => s + parseFloat(x), 0);
+    const rNotes = ep.rNotes || [];
+    if (tokens.length !== rNotes.length) badLen++;
+    if (Math.abs(patSum - 2 * ep.k) > 0.01) badBars++;
+    if (!(ep.evidence && ep.evidence.en && ep.evidence.zh)) missingEv++;
+    // Verify rPat/rNotes match actual melody events in [rStart, rStart + 2*k)
+    const start = ep.rStart != null ? ep.rStart : (ep.up || 0);
+    const raw = (ep.ev || []).filter(e => e.mel && e.t >= start - 1e-4 && e.t < start + 2 * ep.k - 1e-4);
+    const top = {};
+    raw.forEach(e => { const t0 = +(e.t - start).toFixed(4); if (!top[t0] || e.m > top[t0].m) top[t0] = { t: t0, m: e.m }; });
+    const mel = Object.values(top).sort((a, b) => a.t - b.t).filter((e, idx, arr) => idx === 0 || (e.t - arr[idx - 1].t) >= 0.20);
+    if (mel.length !== rNotes.length || mel.some((e, idx) => e.m !== rNotes[idx])) badEv++;
+  }
+  assert(seen5.size >= 30 && badLen === 0 && badBars === 0 && badEv === 0 && missingEv === 0 && badTonOnModern === 0,
+    `P0 ExamPiece5 100% ev-consistent (${seen5.size} unique pieces: badLen=${badLen}, badBars=${badBars}, badEv=${badEv}, missingEv=${missingEv}, badTonOnModern=${badTonOnModern})`);
 }
 
-// 7. Teacher Preview unlock + all 48 Grade x Week x Lang loads
+// 7. Teacher Invite unlock vs guessable ?preview=1 blocked + all 48 Grade x Week x Lang loads
 {
-  let previewLocked = 0, loadErrs = 0;
+  let previewLocked = 0, rawPreviewBypass = 0, loadErrs = 0;
   for (const g of [3, 4, 5]) {
     for (let w = 1; w <= 8; w++) {
       const rp = bootAural({ grade: g, week: w, lang: 'en', preview: true });
       if (rp.payLocked()) previewLocked++;
+      if (w >= 2) {
+        const raw = bootAural({ grade: g, week: w, lang: 'en', rawPreview1: true });
+        if (!raw.payLocked()) rawPreviewBypass++;
+      }
       for (const lang of ['en', 'zh']) {
         const r = bootAural({ grade: g, week: w, lang, preview: false });
         const T_ = r.t();
@@ -223,7 +259,8 @@ for (const lv of [0, 1, 2]) {
       }
     }
   }
-  assert(previewLocked === 0, `P1 Teacher Preview (?preview=1) unlocked across all 24 Grade x Week pages (locked=${previewLocked})`);
+  assert(previewLocked === 0, `P1 Teacher Invite (?invite=...) unlocked across all 24 Grade x Week pages (locked=${previewLocked})`);
+  assert(rawPreviewBypass === 0, `P0 Guessable ?preview=1 stays locked across all 21 paid Grade x Week pages (bypass=${rawPreviewBypass})`);
   assert(loadErrs === 0, `All 48 Grade x Week x Lang pages + paywall boundaries valid (errs=${loadErrs})`);
 }
 

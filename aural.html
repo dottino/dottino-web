@@ -468,7 +468,15 @@ a { color: inherit; }
 <script>
 (() => {
 // which grade & week this page shows (?g=3|4|5, ?w=1..8; defaults to Grade 4 Week 1)
-const PREVIEW = (() => { try { if (new URLSearchParams(location.search).get('preview') === '1') sessionStorage.setItem('dottino:preview', '1'); return sessionStorage.getItem('dottino:preview') === '1'; } catch (e) { return /[?&]preview=1/.test(location.search); } })();
+// Teacher preview requires an explicit invite token (not guessable ?preview=1); rotatable anytime
+const INVITE_CODE = 'dottino-teach-2026';
+const PREVIEW = (() => {
+  try {
+    const qInv = new URLSearchParams(location.search).get('invite');
+    if (qInv === INVITE_CODE) sessionStorage.setItem('dottino:invite', INVITE_CODE);
+    return sessionStorage.getItem('dottino:invite') === INVITE_CODE;
+  } catch (e) { return new URLSearchParams(location.search).get('invite') === INVITE_CODE; }
+})();
 const GRADE = (() => { try { const g = +new URLSearchParams(location.search).get('g'); return g === 3 || g === 5 ? g : 4; } catch (e) { return 4; } })();
 const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 8 ? w : 1; } catch (e) { return 1; } })();
 const AG = window.AURAL_GRADES || {};
@@ -1365,6 +1373,7 @@ function rhythmSvg(pattern, mark) {
 function playExam(q, slow) {
   if (q.rhythm) {
     const beat = slow ? 0.75 : 0.6;
+    q.beatMs = beat * 1000;
     q.chord.forEach(m => play(m, 0.1, 0.55)); play(q.notes[0], 1.0, 0.8);
     const c0 = 2.0; for (let b = 0; b < 2 * q.k; b++) tick(c0 + b * beat, b % q.k === 0);
     const t1 = c0 + 2 * q.k * beat, total = q.durs.reduce((a, b) => a + b, 0);
@@ -1669,7 +1678,8 @@ const KEYS_A = {
 function makeEchoR(level) {
   const key = pick(level >= 6 ? Object.keys(KEYS_A) : ['C', 'G', 'F', 'am', 'em', 'dm']), K = KEYS_A[key];
   const steps = K.min ? [0, 2, 3, 5, 7, 8, 10] : [0, 2, 4, 5, 7, 9, 11];
-  const k = pick([2, 3, 4]), bars = level >= 7 ? 4 : level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 6 ? -2 : -2, hi = level >= 6 ? 7 : 5;
+  let k = pick([2, 3, 4]), bars = level >= 7 ? 4 : level >= 6 ? (k === 4 ? 3 : 4) : 2;
+  const lo = -2, hi = level >= 6 ? 7 : 5;
   const toMidis = ds => ds.map((x, i) => {
     const o = Math.floor(x / 7), st = ((x % 7) + 7) % 7;
     let m = K.t + 12 * o + steps[st];
@@ -1692,10 +1702,10 @@ function makeEchoR(level) {
     tries++;
   } while ((degs.some(x => x < lo || x > hi) || (Math.max(...notes) - Math.min(...notes) > 12) || new Set(degs).size < 3 || degs.length > (level >= 7 ? 14 : 13) || degs.length < (level >= 7 ? 8 : level >= 6 ? 7 : 5)) && tries < 500);
   if (Math.max(...notes) - Math.min(...notes) > 12) {
-    degs = [0, 2, 4, 2, 1, 0]; durs = [1, 1, 1, 1, 1, 1]; parts = ['1', '1', '|', '1', '1', '|', '1', '1']; notes = toMidis(degs);
+    k = 2; bars = 3; degs = [0, 2, 4, 2, 1, 0]; durs = [1, 1, 1, 1, 1, 1]; parts = ['1', '1', '|', '1', '1', '|', '1', '1']; notes = toMidis(degs);
   }
   const third = K.min ? 3 : 4, wl = m => LET[((m % 12) + 12) % 12] ? m : m - 1;
-  return { type: 'echo', exam: true, rhythm: true, key, keyLabel: key, flats: K.fl, minor: K.min, notes, durs, pattern: parts.join(','), k, bars, given: notes[0], got: [], tapT: [], chord: [K.t, K.t + third, K.t + 7], lo: wl(Math.min(...notes) - 2), hi: wl(Math.max(...notes) + 2) + (LET[(Math.max(...notes) + 2) % 12] ? 0 : 0), level };
+  return { type: 'echo', exam: true, rhythm: true, key, keyLabel: key, flats: K.fl, minor: K.min, notes, durs, pattern: parts.join(','), k, bars, given: notes[0], got: [], tapT: [], beatMs: 600, chord: [K.t, K.t + third, K.t + 7], lo: wl(Math.min(...notes) - 2), hi: wl(Math.max(...notes) + 2) + (LET[(Math.max(...notes) + 2) % 12] ? 0 : 0), level };
 }
 function judgeEchoR(q) {
   const pitchOk = q.got.every((x, i) => x === q.notes[i]);
@@ -1704,7 +1714,7 @@ function judgeEchoR(q) {
   const got = tp.map(x => (x - tp[0]) / actualMs * span);
   const worst = Math.max(...want.map((w, i) => Math.abs(w - got[i])));
   const rhythmOk = worst < 0.25; // a quarter of a beat: enough to tell even notes from long-short
-  const tempoRatio = actualMs / (span * 620); // playExam uses 0.62s per beat
+  const tempoRatio = actualMs / (span * (q.beatMs || 600)); // matches actual playExam beat duration (600ms normal / 750ms slow)
   judge(pitchOk && rhythmOk, { pitchOk, rhythmOk, got, tempoRatio });
 }
 // Basso's tools: what the feature looked like, shown after the answer
@@ -2125,7 +2135,10 @@ function nextSeg() {
       }
       if (k.t === 'g5c' && AG.makeExamPiece5) {
         const pc = AG.makeExamPiece5();
-        const a1 = ['cresc', 'dim', 'fp', 'pf'].includes(pc.dyn) ? pick(['dyn', 'art', 'ton']) : pick(['art', 'ton']);
+        const featPool = ['art'];
+        if (['cresc', 'dim', 'fp', 'pf'].includes(pc.dyn)) featPool.push('dyn');
+        if (!pc.noTon) featPool.push('ton');
+        const a1 = pick(featPool);
         const qFeat = { type: 'feat', aspect: a1, opts: { dyn: ['cresc', 'dim', 'fp', 'pf'], art: ['legato', 'staccato'], ton: ['major', 'minor'] }[a1], ans: a1 === 'dyn' ? pc.dyn : a1 === 'art' ? pc.art : (pc.minor ? 'minor' : 'major'), piece: pc, level: 1, sec: 'Ci' };
         const qStyle = { type: 'style', ans: pc.period, opts: ['baroque', 'classical', 'romantic', 'modern'], piece: pc, level: 1, sec: 'Ci' };
         const qRh = { type: 'taprhythm', k: pc.k, pattern: pc.rPat, notes: pc.rNotes, level: 2, taps: [], twice: true, piece: pc, sec: 'Cii' };
@@ -2283,7 +2296,10 @@ function renderQ() {
     $('l-prompt').textContent = T_.pCt; $('l-sub').textContent = T_.sCt;
     answers(q.shapes.map(s => [s, shapeSvg(s), '']), v => judge(v === q.shape, { chose: v }));
   } else if (type === 'echo') {
-    $('l-prompt').textContent = T_.pEcho(nameOf(q.given)); $('l-sub').textContent = q.rhythm ? T_.sExamR(q.bars, T_.keyA[q.key]) : q.exam ? T_.sExam(q.notes.length, q.minor) : q.level >= 2 ? T_.sEcho5 : q.level >= 1 ? T_.sEcho4 : T_.sEcho;
+    const g3SingTip = (GRADE === 3 && !q.rhythm && (q.exam || q.sec === 'B3' || WEEK === 5))
+      ? (S.lang === 'zh' ? '（考场 3B 需开口模唱：先出声唱一遍，再用琴键核对音高。）' : ' (Exam 3B is sung: sing it back aloud first, then check your pitches on the keys.)')
+      : '';
+    $('l-prompt').textContent = T_.pEcho(nameOf(q.given)); $('l-sub').textContent = (q.rhythm ? T_.sExamR(q.bars, T_.keyA[q.key]) : q.exam ? T_.sExam(q.notes.length, q.minor) : q.level >= 2 ? T_.sEcho5 : q.level >= 1 ? T_.sEcho4 : T_.sEcho) + g3SingTip;
     drawSlots();
     $('btn-undo').textContent = T_.undo; $('btn-undo').hidden = false; $('btn-undo').disabled = !q.got.length;
     buildKeys(q.lo || 60, q.hi || 72, { given: q.given, blacks: !!q.rhythm, onTap: m => {

@@ -184,7 +184,45 @@
     return (maxT + 0.35) * 1000;
   }
 
-  // Convert a real Mutopia piece from window.PIECES into a crisp 8-second excerpt + rhythm pattern
+  // Single-source-of-truth 2-bar melody rhythm extractor from piece.ev (eliminates any mismatch between played audio & 5C(ii) clap-back)
+  function extractExactRhythm(ev, k, up) {
+    const u0 = up || 0, twoBars = 2 * k;
+    let best = null;
+    for (let b = 0; b < 6; b++) {
+      const start = u0 + b * k, end = start + twoBars;
+      const raw = (ev || []).filter(e => e.mel && e.t >= start - 1e-4 && e.t < end - 1e-4);
+      if (!raw.length) continue;
+      const top = {};
+      raw.forEach(e => {
+        const t0 = +(e.t - start).toFixed(4);
+        if (!top[t0] || e.m > top[t0].m) top[t0] = { t: t0, m: e.m };
+      });
+      // Ignore sub-16th ornamental MIDI grace notes (< 0.20 beats) that cannot be clapped separately
+      const mel = Object.values(top).sort((a, b2) => a.t - b2.t)
+        .filter((e, i, arr) => i === 0 || (e.t - arr[i - 1].t) >= 0.20);
+      if (mel.length >= 3 && mel[0].t < 0.05) {
+        const parts = [], rNotes = [];
+        mel.forEach((e, i) => {
+          if (i && Math.floor(e.t / k + 1e-6) !== Math.floor(mel[i - 1].t / k + 1e-6)) parts.push('|');
+          const nextT = i + 1 < mel.length ? mel[i + 1].t : twoBars;
+          const dur = +(nextT - e.t).toFixed(3);
+          parts.push(String(dur));
+          rNotes.push(e.m);
+        });
+        best = { rPat: parts.join(','), rNotes, rStart: start };
+        break;
+      }
+    }
+    return best;
+  }
+
+  function attachExactRhythm(piece) {
+    const ex = extractExactRhythm(piece.ev, piece.k || 4, piece.up || 0);
+    if (ex) { piece.rPat = ex.rPat; piece.rNotes = ex.rNotes; piece.rStart = ex.rStart; }
+    return piece;
+  }
+
+  // Convert a real Mutopia piece from window.PIECES into a crisp 8-second excerpt + exact ev-derived rhythm pattern
   function mutopiaExcerpt(pc) {
     const u0 = pc.up || 0;
     const maxBeats = Math.min(pc.T || 16, Math.max(pc.k * 4, Math.floor(8.2 / (pc.B || 0.5))));
@@ -193,28 +231,20 @@
       v: e.mel ? Math.min(0.84, (e.v || 1) * 0.68) : Math.min(0.62, (e.v || 0.85) * 0.56),
       mel: e.mel
     }));
-    // Extract 2-bar melody rhythm for unified Test 5C(ii)
-    const top = {};
-    ev.filter(e => e.mel && e.t >= u0 - 1e-6 && e.t < u0 + 2 * pc.k - 1e-6).forEach(e => {
-      const t0 = +(e.t - u0).toFixed(3);
-      if (!top[t0] || e.m > top[t0].m) top[t0] = Object.assign({}, e, { t: t0 });
-    });
-    const mel = Object.values(top).sort((a, b) => a.t - b.t);
-    const parts = [], rNotes = [];
-    mel.forEach((e, i) => {
-      if (i && Math.floor(e.t / pc.k + 1e-6) !== Math.floor(mel[i - 1].t / pc.k + 1e-6)) parts.push('|');
-      const nx = mel[i + 1];
-      parts.push(String(Math.max(0.25, +((nx ? nx.t : Math.max(e.t + e.d, 2 * pc.k)) - e.t).toFixed(3))));
-      rNotes.push(e.m);
-    });
-    const rPat = parts.length >= 3 ? parts.join(',') : (pc.k === 3 ? '1,1,1,|,2,1' : pc.k === 2 ? '0.5,0.5,1,|,1,1' : '1,0.5,0.5,1,1,|,1,1,2');
-    return {
+    const clueEn = pc.art === 'staccato'
+      ? `crisp Romantic character miniature by ${pc.composer} with expressive harmonic colour and vivid phrasing`
+      : `expressive Romantic lyricism by ${pc.composer} with a singing upper line over rich harmonic support`;
+    const clueZh = pc.art === 'staccato'
+      ? `${pc.composer}的浪漫派性格小品，颗粒感触键配合鲜明的和声色彩与乐句呼吸`
+      : `${pc.composer}的浪漫派歌唱性片段，上方抒情旋律搭配宽广温润的和声伴奏`;
+    const out = {
       real: true, id: pc.id, composer: pc.composer, title: pc.title,
       ev, B: pc.B || 0.5, T: maxBeats, k: pc.k, art: pc.art || 'legato', dyn: pc.dyn || 'mf',
       minor: !!pc.minor, tch: 'steady', period: 'romantic',
-      rPat, rNotes: rNotes.length >= 3 ? rNotes : [64, 67, 69, 67, 64, 62, 60],
+      evidence: { en: clueEn, zh: clueZh },
       up: u0, lh: 'real', compound: !!pc.compound
     };
+    return attachExactRhythm(out);
   }
 
   // --- A. CADENCE (Extension: 4 voicings x 5 keys via Shuffle Bag — zero repeats!) ---
@@ -273,6 +303,15 @@
   }
 
   // --- C. 38-PIECE REAL CLASSICAL & MODERN REPERTOIRE BANK (6 Baroque + 6 Classical + 20 Mutopia Romantic + 6 Modern) ---
+  // Dedicated textbook polyphony excerpt for Texture (Extension)
+  function buildInvention1() {
+    const ev = [];
+    const add = (list, mel, vol, stac) => list.forEach(([t0, d, m]) => ev.push({ t: t0, d: d * (stac ? 0.72 : 0.92), m, v: vol, mel }));
+    add([[0.25,0.25,60],[0.5,0.25,62],[0.75,0.25,64],[1,0.25,65],[1.25,0.25,62],[1.5,0.25,64],[1.75,0.25,60],[2,0.5,67],[2.5,0.5,72],[3,0.5,71],[3.5,0.5,72],[4,0.5,74],[4.5,0.25,67],[4.75,0.25,69],[5,0.25,71],[5.25,0.25,72],[5.5,0.25,69],[5.75,0.25,71],[6,0.25,67],[6.25,0.5,74],[6.75,0.5,79],[7.25,0.75,76]], 1, 0.76, true);
+    add([[2.25,0.25,48],[2.5,0.25,50],[2.75,0.25,52],[3,0.25,53],[3.25,0.25,50],[3.5,0.25,52],[3.75,0.25,48],[4,0.5,55],[4.5,0.5,52],[5,0.5,53],[5.5,0.5,50],[6,0.5,55],[6.5,0.5,59],[7,1,60]], 0, 0.70, true);
+    return { composer: 'J. S. Bach', title: 'Invention No. 1 in C (BWV 772)', ev, B: 0.52, T: 8, k: 4, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 'inv1', up: 0, lh: 'real', compound: false };
+  }
+
   function buildBaroque(idx) {
     const ev = [];
     const add = (list, mel, vol, stac) => list.forEach(([t0, d, m]) => ev.push({ t: t0, d: d * (stac ? 0.72 : 0.92), m, v: vol, mel }));
@@ -280,31 +319,36 @@
       // J. S. Bach — Minuet in G (BWV Anh. 114, 3/4, 124 BPM)
       add([[0,1,74],[1,0.5,67],[1.5,0.5,69],[2,0.5,71],[2.5,0.5,72],[3,1,74],[4,1,67],[5,1,67],[6,1,76],[7,0.5,72],[7.5,0.5,74],[8,0.5,76],[8.5,0.5,78],[9,1,79],[10,1,67],[11,1,67]], 1, 0.76, false);
       add([[0,2,59],[0,2,55],[2,1,57],[3,3,59],[6,3,60],[9,2,59],[11,1,57]], 0, 0.60, false);
-      return { composer: 'J. S. Bach', title: 'Minuet in G (BWV Anh. 114)', ev, B: 0.48, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 0, rPat: '1,0.5,0.5,0.5,0.5,|,1,1,1', rNotes: [74,67,69,71,72,74,67,67], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'J. S. Bach', title: 'Minuet in G (BWV Anh. 114)', ev, B: 0.48, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 0, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'graceful Baroque 3/4 court dance with clean two-part counterpoint and steady quaver motion', zh: '典雅的巴洛克三拍子小步舞曲，清晰的二声部线条与工整的八分音符流动' } });
     }
     if (idx === 1) {
-      // J. S. Bach — Invention No. 1 in C (BWV 772, 4/4, 114 BPM — textbook 2-voice polyphony!)
-      add([[0.25,0.25,60],[0.5,0.25,62],[0.75,0.25,64],[1,0.25,65],[1.25,0.25,62],[1.5,0.25,64],[1.75,0.25,60],[2,0.5,67],[2.5,0.5,72],[3,0.5,71],[3.5,0.5,72],[4,0.5,74],[4.5,0.25,67],[4.75,0.25,69],[5,0.25,71],[5.25,0.25,72],[5.5,0.25,69],[5.75,0.25,71],[6,0.25,67],[6.25,0.5,74],[6.75,0.5,79],[7.25,0.75,76]], 1, 0.76, true);
-      add([[2.25,0.25,48],[2.5,0.25,50],[2.75,0.25,52],[3,0.25,53],[3.25,0.25,50],[3.5,0.25,52],[3.75,0.25,48],[4,0.5,55],[4.5,0.5,52],[5,0.5,53],[5.5,0.5,50],[6,0.5,55],[6.5,0.5,59],[7,1,60]], 0, 0.70, true);
-      return { composer: 'J. S. Bach', title: 'Invention No. 1 in C (BWV 772)', ev, B: 0.52, T: 8, k: 4, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 1, rPat: '1,1,0.5,0.5,1,|,1,1,2', rNotes: [60,64,67,72,71,74,79,76], up: 0, lh: 'real', compound: false };
+      // J. S. Bach — March in D major (BWV Anh. 122, 4/4, 124 BPM — crisp two-voice Baroque counterpoint!)
+      add([[0,0.5,74],[0.5,0.5,76],[1,0.5,78],[1.5,0.5,79],[2,1,81],[3,1,74],[4,0.5,79],[4.5,0.5,78],[5,0.5,76],[5.5,0.5,74],[6,1,76],[7,1,69],[8,0.5,74],[8.5,0.5,76],[9,0.5,78],[9.5,0.5,79],[10,1,81],[11,1,78],[12,1,76],[13,1,73],[14,2,74]], 1, 0.76, true);
+      add([[0,1,50],[1,1,54],[2,1,57],[3,1,50],[4,1,55],[5,1,57],[6,1,52],[7,1,45],[8,1,50],[9,1,54],[10,1,57],[11,1,50],[12,1,55],[13,1,57],[14,2,50]], 0, 0.64, true);
+      return attachExactRhythm({ composer: 'C. P. E. Bach (Notebook for A. M. Bach)', title: 'March in D major (BWV Anh. 122)', ev, B: 0.48, T: 16, k: 4, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 1, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'crisp two-voice Baroque march with brisk walking bass and unhurried terraced rhythm', zh: '干脆利落的巴洛克二声部进行曲，清晰的行进低音与工整稳定的节奏推进' } });
     }
     if (idx === 2) {
       // Domenico Scarlatti — Minuet from Sonata in A, Kp. 83 (3 time, 142 BPM — 2027 ABRSM G4 A:1!)
       add([[0,1,73],[1,1,76],[2,1,81],[3,1,76],[4,0.5,74],[4.5,0.5,73],[5,0.5,71],[5.5,0.5,69],[6,1,73],[7,1,71],[8,1,69],[9,1,68],[10,1,71],[11,1,76]], 1, 0.76, true);
       add([[0,3,57],[3,3,56],[6,3,57],[9,3,52]], 0, 0.58, false);
-      return { composer: 'D. Scarlatti', title: 'Minuet (Sonata in A, Kp. 83)', ev, B: 0.42, T: 12, k: 3, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'melacc', tpl: 2, rPat: '1,1,1,|,1,0.5,0.5,0.5,0.5', rNotes: [73,76,81,76,74,73,71,69], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'D. Scarlatti', title: 'Minuet (Sonata in A, Kp. 83)', ev, B: 0.42, T: 12, k: 3, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'baroque', texture: 'melacc', tpl: 2, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'harpsichord-like Scarlatti keyboard clarity with crisp arpeggio leaps and agile scale turns', zh: '斯卡拉蒂羽管键琴般的颗粒感音色，干脆的分解和弦跳进与灵巧音阶转折' } });
     }
     if (idx === 3) {
       // J. C. F. Bach — Scherzo in D minor (2/4, 128 BPM — 2027 ABRSM G4 A:2!)
       add([[0,0.5,62],[0.5,0.5,64],[1,0.5,65],[1.5,0.5,67],[2,0.25,69],[2.25,0.25,67],[2.5,0.25,65],[2.75,0.25,64],[3,0.5,69],[3.5,0.5,62],[4,0.5,61],[4.5,0.5,64],[5,0.5,67],[5.5,0.5,65],[6,1,64],[7,1,62]], 1, 0.76, true);
       add([[0,1,50],[1,1,53],[2,1,57],[3,1,50],[4,1,55],[5,1,57],[6,1,45],[7,1,50]], 0, 0.62, true);
-      return { composer: 'J. C. F. Bach', title: 'Scherzo in D minor', ev, B: 0.47, T: 8, k: 2, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 3, rPat: '0.5,0.5,0.5,0.5,|,1,1', rNotes: [62,64,65,67,69,62], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'J. C. F. Bach', title: 'Scherzo in D minor', ev, B: 0.47, T: 8, k: 2, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 3, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'agile Baroque/early-Classical two-part writing with detached 16th-note turns and clear D-minor leading tones', zh: '灵巧的二声部织体、颗粒感十六分音符装饰音型与鲜明的 D 小调和声导音' } });
     }
     if (idx === 4) {
       // Henry Purcell — Minuet in A minor (Z. 649, 3/4, 108 BPM — expressive slow Baroque!)
       add([[0,1,69],[1,1,71],[2,1,72],[3,1.5,71],[4.5,0.5,69],[5,1,68],[6,1,69],[7,1,76],[8,1,74],[9,2,72],[11,1,71]], 1, 0.74, false);
       add([[0,1,57],[1,1,56],[2,1,57],[3,1,52],[4,1,50],[5,1,52],[6,1,57],[7,1,55],[8,1,53],[9,2,52],[11,1,56]], 0, 0.66, false);
-      return { composer: 'H. Purcell', title: 'Minuet in A minor (Z. 649)', ev, B: 0.55, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 4, rPat: '1,1,1,|,1.5,0.5,1', rNotes: [69,71,72,71,69,68], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'H. Purcell', title: 'Minuet in A minor (Z. 649)', ev, B: 0.55, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'poly', tpl: 4, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'poised Baroque minor-key minuet with independent contrary-motion bass and dotted cadence suspension', zh: '克制优雅的巴洛克小调小步舞曲，独立的反向低音声部与附点终止式色彩' } });
     }
     // G. F. Handel — Sarabande in D minor (HWV 437, 3/4, 96 BPM — stately slow chordal Baroque!)
     const chs = [
@@ -312,7 +356,8 @@
       [6,1,[53,57,60,65]],[7,2,[53,57,60,69]],[9,1,[52,55,60,67]],[10,2,[45,57,61,64]]
     ];
     chs.forEach(([t0,d,ch]) => ch.forEach((m,j) => ev.push({ t: t0, d: d * 0.94, m, v: j === 3 ? 0.76 : 0.56, mel: j === 3 ? 1 : 0 })));
-    return { composer: 'G. F. Handel', title: 'Sarabande in D minor (HWV 437)', ev, B: 0.62, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'chordal', tpl: 5, rPat: '1,2,|,1,2', rNotes: [65,65,64,64], up: 0, lh: 'real', compound: false };
+    return attachExactRhythm({ composer: 'G. F. Handel', title: 'Sarabande in D minor (HWV 437)', ev, B: 0.62, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: true, tch: 'steady', period: 'baroque', texture: 'chordal', tpl: 5, up: 0, lh: 'real', compound: false,
+      evidence: { en: 'stately Baroque Sarabande with solemn second-beat emphasis and noble minor-key chord progressions', zh: '庄严的巴洛克萨拉班德舞曲，第二拍延长重音与肃穆的柱式和弦序列' } });
   }
 
   function buildClassical(idx) {
@@ -320,147 +365,174 @@
     const add = (list, mel, vol, stac) => list.forEach(([t0, d, m]) => ev.push({ t: t0, d: d * (stac ? 0.68 : 0.92), m, v: vol, mel }));
     if (idx === 0) {
       // W. A. Mozart — Piano Sonata in C (K. 545, 4/4, 130 BPM — iconic Alberti bass!)
-      add([[0,2,72],[2,1,76],[3,1,79],[4,1.5,71],[5.5,0.25,72],[5.75,0.25,74],[6,1,72],[8,2,81],[10,1,79],[11,1,72]], 1, 0.78, false);
+      add([[0,2,72],[2,1,76],[3,1,79],[4,1.5,71],[5.5,0.25,72],[5.75,0.25,74],[6,2,72],[8,2,81],[10,1,79],[11,1,72]], 1, 0.78, false);
       const alb = [48,55,52,55, 48,55,52,55, 50,55,53,55, 48,55,52,55, 48,57,53,57, 48,55,52,55];
       alb.forEach((m, i) => ev.push({ t: i * 0.5, d: 0.44, m, v: 0.46, mel: 0 }));
-      return { composer: 'W. A. Mozart', title: 'Sonata in C (K. 545)', ev, B: 0.46, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 0, rPat: '2,1,1,|,1.5,0.5,2', rNotes: [72,76,79,71,74,72], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'W. A. Mozart', title: 'Sonata in C (K. 545)', ev, B: 0.46, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 0, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'textbook Classical Alberti-bass accompaniment supporting a crystal-clear, symmetrical melody', zh: '教科书级的古典阿尔贝蒂低音伴奏，托起对称、清澈透明的右手旋律' } });
     }
     if (idx === 1) {
       // Muzio Clementi — Sonatina in C (Op. 36 No. 1, 4/4, 154 BPM — bright Classical Allegro!)
-      add([[0,1,72],[1,0.5,76],[1.5,0.5,72],[2,1,79],[3,1,72],[4,1,74],[5,0.5,72],[5.5,0.5,71],[6,1,72],[8,0.5,76],[8.5,0.5,74],[9,0.5,72],[9.5,0.5,71],[10,1,74],[11,1,72]], 1, 0.78, true);
+      add([[0,1,72],[1,0.5,76],[1.5,0.5,72],[2,1,79],[3,1,72],[4,1,74],[5,0.5,72],[5.5,0.5,71],[6,2,72],[8,0.5,76],[8.5,0.5,74],[9,0.5,72],[9.5,0.5,71],[10,1,74],[11,1,72]], 1, 0.78, true);
       add([[0,2,48],[2,2,52],[4,2,55],[6,2,48],[8,2,53],[10,1,55],[11,1,48]], 0, 0.52, true);
-      return { composer: 'M. Clementi', title: 'Sonatina in C (Op. 36 No. 1)', ev, B: 0.39, T: 12, k: 4, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 1, rPat: '1,0.5,0.5,1,1,|,1,0.5,0.5,2', rNotes: [72,76,72,79,72,74,72,71,72], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'M. Clementi', title: 'Sonatina in C (Op. 36 No. 1)', ev, B: 0.39, T: 12, k: 4, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 1, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'bright Classical Sonatina style with clean triadic motif, light bass and crisp cadence punctuation', zh: '明快的古典小奏鸣曲风格，干净的三和弦动机、轻盈低音与工整终止句读' } });
     }
     if (idx === 2) {
       // Joseph Haydn — German Dance in D (Hob. IX:22, 3/4, 138 BPM)
       add([[0,0.5,74],[0.5,0.5,78],[1,1,81],[2,1,81],[3,0.5,79],[3.5,0.5,76],[4,1,73],[5,1,73],[6,0.5,74],[6.5,0.5,78],[7,1,81],[8,1,79],[9,1,78],[10,1,76],[11,1,74]], 1, 0.78, true);
       add([[0,1,50],[1,1,57],[2,1,57],[3,1,45],[4,1,55],[5,1,55],[6,1,50],[7,1,57],[8,1,55],[9,1,50],[10,1,57],[11,1,50]], 0, 0.52, true);
-      return { composer: 'J. Haydn', title: 'German Dance in D (Hob. IX:22)', ev, B: 0.43, T: 12, k: 3, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 2, rPat: '0.5,0.5,1,1,|,0.5,0.5,1,1', rNotes: [74,78,81,81,79,76,73,73], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'J. Haydn', title: 'German Dance in D (Hob. IX:22)', ev, B: 0.43, T: 12, k: 3, art: 'staccato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 2, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'witty Classical 3/4 dance with light “oom-pah-pah” accompaniment and balanced 2-bar question-and-answer phrases', zh: '机智轻快的古典三拍子舞曲，规整的“咚嚓嚓”伴奏与对称的问答式短句' } });
     }
     if (idx === 3) {
       // L. van Beethoven — Sonatina in G (Anh. 5 No. 1, 4/4, 118 BPM)
       add([[0,1,71],[1,0.5,74],[1.5,0.5,79],[2,1,78],[3,1,76],[4,1,74],[5,0.5,72],[5.5,0.5,71],[6,2,69],[8,1,71],[9,0.5,74],[9.5,0.5,79],[10,1,76],[11,1,74]], 1, 0.76, false);
       const alb = [55,59,62,59, 55,60,64,60, 55,59,62,59, 54,57,62,57, 55,59,62,59, 55,60,64,60];
       alb.forEach((m, i) => ev.push({ t: i * 0.5, d: 0.44, m, v: 0.46, mel: 0 }));
-      return { composer: 'L. van Beethoven', title: 'Sonatina in G (Anh. 5 No. 1)', ev, B: 0.51, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 3, rPat: '1,0.5,0.5,1,1,|,1,0.5,0.5,2', rNotes: [71,74,79,78,76,74,72,71,69], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'L. van Beethoven', title: 'Sonatina in G (Anh. 5 No. 1)', ev, B: 0.51, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 3, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'poised Classical melody over gentle Alberti-style broken chords, resolving neatly to a half cadence', zh: '典雅平稳的古典旋律配轻柔阿尔贝蒂分解和弦，句尾干净落向半终止' } });
     }
     if (idx === 4) {
       // W. A. Mozart — Minuet in F (K. 2, 3/4, 112 BPM — slower Classical Minuet!)
       add([[0,1,77],[1,1,72],[2,1,69],[3,1,70],[4,1,74],[5,1,72],[6,0.5,70],[6.5,0.5,69],[7,1,67],[8,1,72],[9,2,69],[11,1,65]], 1, 0.76, false);
       add([[0,2,53],[2,1,57],[3,2,58],[5,1,57],[6,2,55],[8,1,48],[9,3,53]], 0, 0.52, false);
-      return { composer: 'W. A. Mozart', title: 'Minuet in F (K. 2)', ev, B: 0.53, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 4, rPat: '1,1,1,|,1,1,1', rNotes: [77,72,69,70,74,72], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'W. A. Mozart', title: 'Minuet in F (K. 2)', ev, B: 0.53, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 4, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'galant Classical minuet with simple transparent two-part texture and poised symmetrical phrases', zh: '典雅清透的早期古典小步舞曲，织体简洁干净、乐句工整对称' } });
     }
     // Friedrich Kuhlau — Sonatina in C (Op. 20 No. 1, 4/4, 138 BPM)
     add([[0,1.5,76],[1.5,0.5,72],[2,1,79],[3,1,76],[4,1.5,77],[5.5,0.5,74],[6,2,72],[8,1.5,74],[9.5,0.5,76],[10,1,77],[11,1,74]], 1, 0.78, false);
     const alb = [48,55,52,55, 48,55,52,55, 50,55,53,55, 48,55,52,55, 50,55,53,55, 50,55,53,55];
     alb.forEach((m, i) => ev.push({ t: i * 0.5, d: 0.44, m, v: 0.46, mel: 0 }));
-    return { composer: 'F. Kuhlau', title: 'Sonatina in C (Op. 20 No. 1)', ev, B: 0.43, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 5, rPat: '1.5,0.5,1,1,|,1.5,0.5,2', rNotes: [76,72,79,76,77,74,72], up: 0, lh: 'real', compound: false };
+    return attachExactRhythm({ composer: 'F. Kuhlau', title: 'Sonatina in C (Op. 20 No. 1)', ev, B: 0.43, T: 12, k: 4, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'classical', texture: 'melacc', tpl: 5, up: 0, lh: 'real', compound: false,
+      evidence: { en: 'classic Viennese Sonatina opening: dotted lyric melody above a brisk, transparent Alberti bass', zh: '典型维也纳古典小奏鸣曲开篇：附点歌唱旋律配轻快透明的阿尔贝蒂低音' } });
   }
 
   function buildModern(idx) {
     const r = bagNext('mod-root', [60, 62, 65, 67]);
     const ev = [];
     if (idx === 0) {
-      // Bartók-style Folk Ostinato (2/4, 150 BPM, minor-2nd clusters)
+      // Bartók-style Folk Ostinato (2/4, 150 BPM, minor-2nd clusters — non-tonal!)
       const rh = [[0,0.5,13],[0.5,0.5,18],[1,0.5,17],[1.5,0.5,11],[2,1,18],[3,0.5,12],[3.5,0.5,13],[4,0.5,19],[4.5,0.5,13],[5,0.5,12],[5.5,0.5,6],[6,1,13],[7,1,18]];
       rh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.52, m: r + off, v: t0 < 4 ? 0.84 : 0.58, mel: 1 }));
       for (let i = 0; i < 8; i++) { ev.push({ t: i, d: 0.42, m: r - 12, v: i < 4 ? 0.68 : 0.46, mel: 0 }); ev.push({ t: i, d: 0.42, m: r - 11, v: i < 4 ? 0.62 : 0.42, mel: 0 }); }
-      return { composer: '20th Century Style', title: 'Folk Ostinato (Bartók-style)', ev, B: 0.40, T: 8, k: 2, art: 'staccato', dyn: 'fp', minor: true, tch: 'steady', period: 'modern', tpl: 0, rPat: '0.5,0.5,0.5,0.5,|,1,0.5,0.5', rNotes: [r+13,r+18,r+17,r+11,r+18,r+12,r+13], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'Style Study (after Bartók)', title: 'Folk Ostinato', isStudy: true, noTon: true, ev, B: 0.40, T: 8, k: 2, art: 'staccato', dyn: 'fp', minor: true, tch: 'steady', period: 'modern', tpl: 0, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'percussive minor-2nd ostinato clusters in the bass with angular folk leaps and sudden fp contrast', zh: '左手极具打击感的小二度音簇固定低音，配棱角分明的旋律跳进与突强突弱对比' } });
     }
     if (idx === 1) {
-      // Debussy-style Whole-Tone Reflection (4/4, 100 BPM — slow Impressionist Modern!)
+      // Debussy-style Whole-Tone Reflection (4/4, 100 BPM — slow Impressionist Modern, non-tonal!)
       const mel = [[0,1.5,14],[1.5,0.5,16],[2,1,18],[3,1,20],[4,1.5,18],[5.5,0.5,16],[6,2,14]];
       mel.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 1.04, m: r + off, v: 0.72, mel: 1 }));
       [[0,[-12,-6,-2,2]],[2,[-10,-4,0,4]],[4,[-8,-2,2,6]],[6,[-12,-6,-2,2]]].forEach(([t0,ch]) => ch.forEach((off,j) => ev.push({ t: t0 + j*0.09, d: 1.9, m: r + off, v: 0.46, mel: 0 })));
-      return { composer: '20th Century Style', title: 'Whole-Tone Prelude (Debussy-style)', ev, B: 0.60, T: 8, k: 4, art: 'legato', dyn: 'dim', minor: false, tch: 'steady', period: 'modern', tpl: 1, rPat: '1.5,0.5,1,1,|,1.5,0.5,2', rNotes: [r+14,r+16,r+18,r+20,r+18,r+16,r+14], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'Style Study (after Debussy)', title: 'Whole-Tone Prelude', isStudy: true, noTon: true, ev, B: 0.60, T: 8, k: 4, art: 'legato', dyn: 'dim', minor: false, tch: 'steady', period: 'modern', tpl: 1, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'floating Impressionist whole-tone scale and parallel colouristic chords without a traditional cadence', zh: '漂浮朦胧的印象派全音阶与平行色彩和弦，没有传统主属终止式归属感' } });
     }
     if (idx === 2) {
-      // Prokofiev-style Quirky Staccato March (4/4, 134 BPM)
+      // Prokofiev-style Quirky Staccato March (4/4, 134 BPM — chromatic/sardonic!)
       const rh = [[0,1,12],[1,0.5,15],[1.5,0.5,18],[2,1,17],[3,1,11],[4,1,12],[5,0.5,13],[5.5,0.5,18],[6,1,19],[7,1,12]];
       const lh = [[0,1,-12],[1,1,-6],[2,1,-11],[3,1,-5],[4,1,-12],[5,1,-6],[6,1,-1],[7,1,-12]];
       rh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.56, m: r + off, v: t0 >= 4 ? 0.84 : 0.60, mel: 1 }));
       lh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.56, m: r + off, v: t0 >= 4 ? 0.64 : 0.46, mel: 0 }));
-      return { composer: '20th Century Style', title: 'Quirky March (Prokofiev-style)', ev, B: 0.45, T: 8, k: 4, art: 'staccato', dyn: 'pf', minor: true, tch: 'steady', period: 'modern', tpl: 2, rPat: '1,0.5,0.5,1,1,|,1,0.5,0.5,2', rNotes: [r+12,r+15,r+18,r+17,r+11,r+12,r+13,r+18,r+12], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'Style Study (after Prokofiev)', title: 'Quirky Staccato March', isStudy: true, noTon: true, ev, B: 0.45, T: 8, k: 4, art: 'staccato', dyn: 'pf', minor: true, tch: 'steady', period: 'modern', tpl: 2, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'wry 20th-century march with spiky staccato touch, tritone bass steps and unexpected chromatic twists', zh: '诙谐尖锐的 20 世纪断奏进行曲，低音三全音跳动与出人意料的半音转折' } });
     }
     if (idx === 3) {
-      // Satie-style Modal Gymnopédie (3/4, 96 BPM — slow floating major-7th chords!)
+      // Satie-style Modal Gymnopédie (3/4, 96 BPM — slow floating major-7th chords, modal!)
       const mel = [[3,1,16],[4,1,19],[5,1,18],[6,1,14],[7,1,11],[8,1,14],[9,3,16]];
       mel.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 1.02, m: r + off, v: 0.68, mel: 1 }));
       [[0,-12,[0,4,11]],[3,-17,[-5,2,7]],[6,-12,[0,4,11]],[9,-17,[-5,2,7]]].forEach(([t0,bs,ch]) => {
         ev.push({ t: t0, d: 2.8, m: r + bs, v: 0.50, mel: 0 });
         ch.forEach(off => ev.push({ t: t0 + 1, d: 1.8, m: r + off, v: 0.42, mel: 0 }));
       });
-      return { composer: '20th Century Style', title: 'Modal Gymnopédie (Satie-style)', ev, B: 0.62, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'modern', tpl: 3, rPat: '1,1,1,|,1,1,1', rNotes: [r+16,r+19,r+18,r+14,r+11,r+14], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'Style Study (after Satie)', title: 'Modal Gymnopédie', isStudy: true, noTon: true, ev, B: 0.62, T: 12, k: 3, art: 'legato', dyn: 'mf', minor: false, tch: 'steady', period: 'modern', tpl: 3, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'sparse, hypnotic 20th-century modal harmony rocking slowly between unresolved major-7th chords', zh: '极简疏离的 20 世纪调式和声，在悬浮未解决的大七和弦之间缓慢摇曳' } });
     }
     if (idx === 4) {
-      // Kabalevsky-style Playful Toccatina (2/4, 152 BPM — sharp bitonal jumps!)
+      // Kabalevsky-style Playful Toccatina (2/4, 152 BPM — sharp bitonal/chromatic jumps!)
       const rh = [[0,0.5,12],[0.5,0.5,15],[1,0.5,16],[1.5,0.5,19],[2,0.5,18],[2.5,0.5,15],[3,1,12],[4,0.5,13],[4.5,0.5,16],[5,0.5,17],[5.5,0.5,20],[6,1,19],[7,1,12]];
       const lh = [[0,0.5,-12],[0.5,0.5,-5],[1,0.5,-12],[1.5,0.5,-6],[2,0.5,-12],[2.5,0.5,-5],[3,1,-12],[4,0.5,-11],[4.5,0.5,-4],[5,0.5,-11],[5.5,0.5,-5],[6,1,-12],[7,1,-12]];
       rh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.52, m: r + off, v: 0.80, mel: 1 }));
       lh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.52, m: r + off, v: 0.56, mel: 0 }));
-      return { composer: '20th Century Style', title: 'Playful Toccatina (Kabalevsky-style)', ev, B: 0.39, T: 8, k: 2, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'modern', tpl: 4, rPat: '0.5,0.5,0.5,0.5,|,0.5,0.5,1', rNotes: [r+12,r+15,r+16,r+19,r+18,r+15,r+12], up: 0, lh: 'real', compound: false };
+      return attachExactRhythm({ composer: 'Style Study (after Kabalevsky)', title: 'Playful Toccatina', isStudy: true, noTon: true, ev, B: 0.39, T: 8, k: 2, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'modern', tpl: 4, up: 0, lh: 'real', compound: false,
+        evidence: { en: 'motoric 20th-century toccatina with clashing major/minor 3rds and snappy chromatic bass shifts', zh: '机械律动感十足的 20 世纪小托卡塔，大小三度撞击与突然移位的半音低音' } });
     }
-    // Stravinsky-style Syncopated Miniature (4/4, 126 BPM)
+    // Stravinsky-style Syncopated Miniature (4/4, 126 BPM — syncopated & dissonant!)
     const rh = [[0,0.5,16],[0.5,1,19],[1.5,0.5,18],[2,0.5,14],[2.5,1,13],[3.5,0.5,16],[4,0.5,17],[4.5,1,22],[5.5,0.5,19],[6,1,18],[7,1,16]];
     const lh = [[0,1,-12],[1,1,-5],[2,1,-11],[3,1,-6],[4,1,-12],[5,1,-5],[6,1,-6],[7,1,-12]];
     rh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.62, m: r + off, v: 0.78, mel: 1 }));
     lh.forEach(([t0,d,off]) => ev.push({ t: t0, d: d * 0.62, m: r + off, v: 0.58, mel: 0 }));
-    return { composer: '20th Century Style', title: 'Syncopated Miniature (Stravinsky-style)', ev, B: 0.47, T: 8, k: 4, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'modern', tpl: 5, rPat: '0.5,1,0.5,1,1,|,1,1,2', rNotes: [r+16,r+19,r+18,r+14,r+16,r+17,r+22,r+16], up: 0, lh: 'real', compound: false };
+    return attachExactRhythm({ composer: 'Style Study (after Stravinsky)', title: 'Syncopated Miniature', isStudy: true, noTon: true, ev, B: 0.47, T: 8, k: 4, art: 'staccato', dyn: 'mf', minor: true, tch: 'steady', period: 'modern', tpl: 5, up: 0, lh: 'real', compound: false,
+      evidence: { en: 'off-beat neo-classical syncopations paired with dry staccato fifths and sharp dissonant accents', zh: '干脆的新古典切分重音、空五度与不协和尖锐重拍，极具 20 世纪节奏张力' } });
   }
 
-  function buildRomanticFromLibrary() {
+  function buildRomanticFromLibrary(forExam) {
     if (window.PIECES && window.PIECES.length) {
-      const pool = window.PIECES.filter(p => !p.compound); // clean simple 2/3/4 time pieces for ExamPiece compatibility
-      const pc = bagNext('rom-real', pool.length ? pool : window.PIECES);
+      const simple = window.PIECES.filter(p => !p.compound);
+      let pool = simple;
+      if (forExam) {
+        // Only include excerpts whose ev yields a clean, tappable 2-bar downbeat melody (4..12 notes)
+        pool = simple.filter(p => {
+          const ex = extractExactRhythm(p.ev, p.k, p.up || 0);
+          return ex && ex.rNotes.length >= 4 && ex.rNotes.length <= 12;
+        });
+      }
+      const pc = bagNext(forExam ? 'rom-exam' : 'rom-real', pool.length ? pool : simple);
       return mutopiaExcerpt(pc);
     }
     // Fallback only if pieces.js not loaded
     const r = bagNext('rom-root', [60, 62, 65, 67]), ev = [];
     [[0,1.5,16],[1.5,0.5,17],[2,1.5,19],[3.5,0.5,16],[4,1,14],[5,1,12],[6,2,11]].forEach(([t0,d,off]) => ev.push({ t: t0, d, m: r+off, v: 0.76, mel: 1 }));
     [[0,[-12,-5,0,4]],[2,[-15,-8,-3,0]],[4,[-10,-3,2,5]],[6,[-17,-10,-5,-1]]].forEach(([t0,ch]) => ch.forEach((off,j) => ev.push({ t: t0+j*0.14, d: 1.9, m: r+off, v: 0.46, mel: 0 })));
-    return { composer: 'Romantic Style', title: 'Lyrical Nocturne', ev, B: 0.53, T: 8, k: 4, art: 'legato', dyn: 'dim', minor: false, tch: 'steady', period: 'romantic', tpl: 0, rPat: '1.5,0.5,1.5,0.5,|,1,1,2', rNotes: [r+16,r+17,r+19,r+16,r+14,r+12,r+11], up: 0, lh: 'real', compound: false };
+    return attachExactRhythm({ composer: 'Style Study (Romantic)', title: 'Lyrical Nocturne', isStudy: true, ev, B: 0.53, T: 8, k: 4, art: 'legato', dyn: 'dim', minor: false, tch: 'steady', period: 'romantic', tpl: 0, up: 0, lh: 'real', compound: false,
+      evidence: { en: 'singing Romantic cantabile melody over warm rolled arpeggios and gentle diminuendo', zh: '歌唱性浪漫派旋律配温暖的分解琶音伴奏与柔和渐弱' } });
   }
 
-  function pickPeriodPiece(period) {
-    if (period === 'baroque') return buildBaroque(bagNext('sty-baroque', [0, 1, 2, 3, 4, 5]));
-    if (period === 'classical') return buildClassical(bagNext('sty-classical', [0, 1, 2, 3, 4, 5]));
-    if (period === 'romantic') return buildRomanticFromLibrary();
-    return buildModern(bagNext('sty-modern', [0, 1, 2, 3, 4, 5]));
+  function pickPeriodPiece(period, forExam) {
+    if (period === 'baroque') return buildBaroque(bagNext(forExam ? 'ex-baroque' : 'sty-baroque', [0, 1, 2, 3, 4, 5]));
+    if (period === 'classical') return buildClassical(bagNext(forExam ? 'ex-classical' : 'sty-classical', [0, 1, 2, 3, 4, 5]));
+    if (period === 'romantic') return buildRomanticFromLibrary(forExam);
+    return buildModern(bagNext(forExam ? 'ex-modern' : 'sty-modern', [0, 1, 2, 3, 4, 5]));
   }
 
   function makeStyle(level) {
     const opts = level >= 1 ? ['baroque', 'classical', 'romantic', 'modern'] : ['baroque', 'romantic', 'modern'];
     const ans = bagNext('sty-ans-' + level, opts);
-    const piece = pickPeriodPiece(ans);
+    const piece = pickPeriodPiece(ans, false);
     return { type: 'style', ans, opts, tpl: piece.id || (ans + ':' + piece.tpl), piece, level };
   }
 
   function playStyle(q, playFn, slow) {
-    const pc = q.piece || pickPeriodPiece(q.ans);
+    const pc = q.piece || pickPeriodPiece(q.ans, false);
     const b = (pc.B || 0.46) * (slow ? 1.28 : 1);
     return playHumanized(pc.ev, b, playFn, pc.art);
   }
 
   function styleSayIt(ans, zh, piece) {
-    const map = zh ? {
-      baroque: '「这听起来像巴洛克时期：声部线条独立清晰、节奏推进稳定工整，带有干脆的装饰音或复调感。」',
-      classical: '「这听起来像古典时期：乐句对称清晰，伴奏规整轻巧（如阿尔贝蒂低音），和声干净透明。」',
-      romantic: '「这听起来像浪漫时期：旋律充满歌唱性，和声宽广浓厚，力度起伏明显并富有情感呼吸。」',
-      modern: '「这听起来像 20 世纪/现代时期：包含不协和音程（二度/三全音/全音阶）、棱角分明的节奏或突发强弱对比。」'
-    } : {
-      baroque: '“This sounds Baroque: independent polyphonic lines, steady rhythmic drive, and crisp ornamentation.”',
-      classical: '“This sounds Classical: balanced, symmetrical phrases with a light, transparent accompaniment and clear cadences.”',
-      romantic: '“This sounds Romantic: a singing cantabile melody, richer wide harmonies, and expressive dynamic shaping.”',
-      modern: '“This sounds 20th Century / Modern: dissonant harmonies (clusters or whole-tone colours), angular rhythms, and sharp contrasts.”'
-    };
-    const tag = piece && piece.composer ? `<div class="small muted" style="margin-top:6px">♪ ${piece.composer} · ${piece.title}</div>` : '';
-    return `<div class="say-it">${zh ? '考场可以这样说：' : 'In the exam you could say: '}<q>${map[ans]}</q>${tag}</div>`;
+    const eraName = zh
+      ? { baroque: '巴洛克时期', classical: '古典时期', romantic: '浪漫时期', modern: '20 世纪 / 现代时期' }[ans]
+      : { baroque: 'Baroque', classical: 'Classical', romantic: 'Romantic', modern: '20th Century / Modern' }[ans];
+    const fallback = zh ? {
+      baroque: '声部线条独立清晰、节奏推进稳定工整，带有干脆的装饰音或复调感',
+      classical: '乐句对称清晰，伴奏规整轻巧（如阿尔贝蒂低音），和声干净透明',
+      romantic: '旋律充满歌唱性，和声宽广浓厚，力度起伏明显并富有情感呼吸',
+      modern: '包含不协和音程（二度/三全音/全音阶）、棱角分明的节奏或突发强弱对比'
+    }[ans] : {
+      baroque: 'independent polyphonic lines, steady rhythmic drive, and crisp ornamentation',
+      classical: 'balanced, symmetrical phrases with a light, transparent accompaniment and clear cadences',
+      romantic: 'a singing cantabile melody, richer wide harmonies, and expressive dynamic shaping',
+      modern: 'dissonant harmonies (clusters or whole-tone colours), angular rhythms, and sharp contrasts'
+    }[ans];
+    const evText = (piece && piece.evidence && (zh ? piece.evidence.zh : piece.evidence.en)) || fallback;
+    const quote = zh ? `「这听起来像${eraName}：${evText}。」` : `“This sounds ${eraName}: ${evText}.”`;
+    const badge = piece && piece.isStudy ? (zh ? '（教学风格仿作）' : ' (teaching style study)') : '';
+    const tag = piece && piece.composer ? `<div class="small muted" style="margin-top:6px">♪ ${piece.composer} · ${piece.title}${badge}</div>` : '';
+    return `<div class="say-it">${zh ? '考场可以这样说：' : 'In the exam you could say: '}<q>${quote}</q>${tag}</div>`;
   }
 
-  // Unified ExamPiece builder for Grade 5 Test 5C(i) + 5C(ii): Shuffle Bag across ALL 4 official periods (38 pieces!)
+  // Unified ExamPiece builder for Grade 5 Test 5C(i) + 5C(ii): 30 verified 100%-ev-consistent excerpts across ALL 4 official periods
   function makeExamPiece5() {
     const period = bagNext('g5c-period', ['baroque', 'classical', 'romantic', 'modern']);
-    return pickPeriodPiece(period);
+    return pickPeriodPiece(period, true);
   }
 
   // --- B. TEXTURE (Extension: 18+ real & classical excerpts via Shuffle Bag — zero repeats!) ---
@@ -495,7 +567,7 @@
     }
     // Polyphonic / Contrapuntal (6 distinct real Baroque & canon excerpts!)
     const slot = bagNext('tex-poly', ['bachInv', 'bachMin', 'purcell', 'jcf', 'canonSlow', 'contrary']);
-    if (slot === 'bachInv') return buildBaroque(1);
+    if (slot === 'bachInv') return buildInvention1();
     if (slot === 'bachMin') return buildBaroque(0);
     if (slot === 'purcell') return buildBaroque(4);
     if (slot === 'jcf') return buildBaroque(3);
