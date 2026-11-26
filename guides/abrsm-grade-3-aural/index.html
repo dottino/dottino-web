@@ -64,13 +64,44 @@
   <h2>An 8-week plan built specifically for Grade 3</h2>
   <p>Instead of throwing random mock papers at a child before they know what to listen for, Dottino’s <strong>Grade 3 Aural Plan</strong> walks step by step through Weeks 1–3 Foundations, dedicated exam-style weeks for <strong>3A (Week 4)</strong>, <strong>3B (Week 5)</strong>, <strong>3C (Week 6)</strong> and <strong>3D (Week 7)</strong>, and three full exam-order <strong>Grade 3 Mock Exams (Week 8)</strong> with a teacher-readable report card.</p>
 
-  <div class="check-nudge">
-    <p><strong>Ready to start Grade 3 practice?</strong> Open the interactive 8-week Grade 3 plan in your browser — no download, works on iPad, phone or laptop.</p>
-    <a href="/aural?g=3&amp;ref=guide-g3">Open Grade 3 Aural Plan →</a>
+  <div class="end">
+    <h2>Start the 8-week Grade 3 Aural Plan with Basso</h2>
+    <p>Dottino turns every Grade 3 aural test — 2/3/4 time pulse (3A), three-phrase echoes (3B), pitch vs rhythm changes (3C), real classical excerpts (3D) and Week 8 full mocks — into calm 10-minute visual steps. Try Week 1 free (no sign-up), or unlock all 8 weeks straight away.</p>
+    <div class="end-btns">
+      <a class="btn ghost" href="/aural?g=3&amp;w=1&amp;ref=guide-g3">Try Week 1 free</a>
+      <button class="btn" id="guide-buy-g3" type="button">Unlock full 8-week Grade 3 pack · £15</button>
+    </div>
+    <p class="status" id="guide-buy-st" aria-live="polite" hidden></p>
+    <p class="trust">🔒 Apple Pay &amp; Card (Paddle) · 📱 Restore on any device by email · 6 months access · One payment, no auto-renewal · 14-day full refund</p>
   </div>
 
-  <p class="note">Explore more: <a href="/aural?g=3">Grade 3 Aural (8 Weeks)</a> · <a href="/aural?g=3&amp;w=8">Grade 3 Mock Exam</a> · <a href="/pieces/?p=burgmuller-b16">Grade 3 Piece Pre-Flight</a> · <a href="/guides/abrsm-grade-4-aural/">Grade 4 Guide</a> · <a href="/guides/abrsm-grade-5-aural/">Grade 5 Guide</a> · <a href="/teachers/">For teachers</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
+  <p class="note">Explore more: <a href="/aural?g=3">Grade 3 Aural (8 Weeks)</a> · <a href="/aural?g=3&amp;w=8">Grade 3 Mock Exam</a> · <a href="/pieces/?p=burgmuller-b16">Grade 3 Piece Pre-Flight</a> · <a href="/guides/abrsm-grade-4-aural/">Grade 4 Guide</a> · <a href="/guides/abrsm-grade-5-aural/">Grade 5 Guide</a> · <a href="/teachers/">For teachers</a> · <a href="/ear-check/?ref=guide-g3">3-Minute Ear Check</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
 </article>
+<script src="/pay.js"></script>
+<script>
+const gc = (p, t) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: t, event: true }); } catch (e) {} };
+document.querySelectorAll('a[href*="/aural"]').forEach(a => a.addEventListener('click', () => gc('event/guide-g3/go-week1', 'guide g3 to week 1')));
+const buyBtn = document.getElementById('guide-buy-g3'), stEl = document.getElementById('guide-buy-st');
+if (buyBtn) {
+  if (window.DottinoPay && window.DottinoPay.hasAccess(3)) buyBtn.textContent = 'Grade 3 unlocked ✓ · Go to Week 2 →';
+  buyBtn.addEventListener('click', () => {
+    if (window.DottinoPay && window.DottinoPay.hasAccess(3)) { location.href = '/aural?g=3&w=2'; return; }
+    gc('event/buy-click-g3-guide', 'buy g3 from guide');
+    if (window.DottinoPay && window.DottinoPay.active()) {
+      window.DottinoPay.buy(3, {
+        lang: 'en', ref: 'guide-g3',
+        onDone: ok => {
+          stEl.hidden = false;
+          stEl.textContent = ok ? 'Thank you! Opening Grade 3 Week 2…' : 'Payment received — opening Week 2…';
+          setTimeout(() => { location.href = '/aural?g=3&w=2'; }, 900);
+        }
+      }).catch(() => { location.href = '/aural?g=3&w=2'; });
+    } else {
+      location.href = '/aural?g=3&w=2';
+    }
+  });
+}
+</script>
 <script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

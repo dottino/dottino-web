@@ -660,9 +660,11 @@ p { margin: 0; }
           <p data-t="k2p"></p>
           <div class="tests"><span data-t="k2a"></span><span data-t="k2b"></span><span data-t="k2c"></span><span data-t="k2d"></span></div>
           <div class="price" data-t="k2Price"></div>
-          <div class="buy-row">
-            <button class="btn-a coral" id="buy-g4-pricing" type="button" data-t="fBuy4">Buy Grade 4 Pack · £15</button>
-            <span class="wl-status" id="buy-g4-status" aria-live="polite" style="color:#CFC9D8"></span>
+          <div class="buy-row" style="gap:8px;flex-wrap:wrap">
+            <button class="btn-a coral" id="buy-g3-pricing" type="button" style="padding:11px 16px;font-size:14px">Grade 3 · £15</button>
+            <button class="btn-a coral" id="buy-g4-pricing" type="button" style="padding:11px 16px;font-size:14px">Grade 4 · £15</button>
+            <button class="btn-a coral" id="buy-g5-pricing" type="button" style="padding:11px 16px;font-size:14px">Grade 5 · £15</button>
+            <span class="wl-status" id="buy-g4-status" aria-live="polite" style="color:#CFC9D8;width:100%"></span>
           </div>
           <div class="trust-row" data-t="trustRow"><span>🔒 Apple Pay & Card (Paddle)</span><span>📱 Restore on any device by email</span><span>✓ 14-day full refund</span></div>
         </div>
@@ -897,13 +899,13 @@ const T = {
     cTitle: 'Stop 1 · Higher or lower', cTag: 'Example card', cBig: 'Big jumps', cSmall: 'Next-door notes', cNext: 'Next step', cNextP: 'Big jumps are secure. Going down by a step is still tricky, so stop 2 mixes in more of those.', cStar: 'Basso earned the Direction Detective sticker!',
     kEyebrow: 'Two tracks', kTitle: 'Build the ear first.<br>Then use it in the exam.',
     k1Label: 'Track 1 · Foundations', k1Badge: 'Week 1 free', k1Title: 'Build the ear', k1p: 'Pitch direction, the shape of a tune, pulse and short musical memory. The skills under every aural test, trained in small steps with Basso.', k1a: 'Higher or lower', k1b: 'Which way it goes', k1c: 'Same or different', k1d: 'Pulse · Memory', k1Btn: 'Start week 1 free',
-    k2Label: 'Track 2 · Exam-style practice', k2Badge: 'In the 8-week plan', k2Title: 'Use it in the exam', k2p: 'Each Grade 4 test, practised the way the examiner gives it, then full mock runs. A weekly card shows the teacher where things stand.',
-    k2a: '<b>A</b> · Play or sing back', k2b: '<b>B</b> · Sight-sing 5 notes', k2c: '<b>C(i)</b> · Describe a piece', k2d: '<b>C(ii)</b> · Clap + 2, 3 or 4 time', k2Price: '£15 · Grade 4 open now <em>· 6 months · one-time · no auto-renewal</em>',
-    jTitle: 'Start free. Progress at your pace.', j1: '1 · Try week 1', j1s: 'No sign-up, no payment screen. About 30 minutes over a few days.', j2: '2 · Get the card', j2s: 'What your child can hear now, and what still needs work.', j3: '3 · See the next 7 weeks', j3s: 'Exactly which stops come next and which test each one prepares.', j4: '4 · Continue if it helps', j4s: 'Grade 4 Aural Pack is open now: £15 founding price, 6 months access, no auto-renewal.',
-    inEyebrow: 'Inside the 8-week pack', inTitle: 'See what your child actually practises.', inLead: 'Real visual tools built around ABRSM Grade 4 aural — not dry multiple-choice quizzes.',
+    k2Label: 'Track 2 · Exam-style practice', k2Badge: 'In the 8-week plan', k2Title: 'Use it in the exam', k2p: 'Every Grade 3, 4 or 5 test, practised the way the examiner gives it, then full mock runs. A weekly card shows the teacher where things stand.',
+    k2a: '<b>A</b> · Play or sing back', k2b: '<b>B</b> · Sight-sing 5–6 notes', k2c: '<b>C(i)</b> · Describe a piece', k2d: '<b>C(ii)</b> · Clap + 2, 3 or 4 time', k2Price: '£15 per grade · Grades 3, 4 &amp; 5 live <em>· 6 months · one-time · no auto-renewal</em>',
+    jTitle: 'Start free. Progress at your pace.', j1: '1 · Try week 1', j1s: 'No sign-up, no payment screen. About 30 minutes over a few days.', j2: '2 · Get the card', j2s: 'What your child can hear now, and what still needs work.', j3: '3 · See the next 7 weeks', j3s: 'Exactly which stops come next and which test each one prepares.', j4: '4 · Continue if it helps', j4s: 'Grades 3, 4 &amp; 5 Aural Packs are live now: £15 per grade, 6 months access, no auto-renewal.',
+    inEyebrow: 'Inside the 8-week packs', inTitle: 'See what your child actually practises.', inLead: 'Real visual tools built around ABRSM Grades 3–5 aural — not dry multiple-choice quizzes.',
     sc1Tag: 'Test A · Spot the change', sc1T: 'Full-width piano reveal', sc1P: 'When a note changes, kids see the exact white or black key move — not just “wrong”.',
-    sc2Tag: 'Test B · Sight-singing', sc2T: 'Gentle live pitch guide', sc2P: 'Five-note melodies on treble or bass staff, with a live microphone bar that shows when you’re on the note.',
-    sc3Tag: 'Test C & Mock Exam', sc3T: '20 classical pieces & 3rd ladder', sc3P: 'Real Schumann, Bach and Clementi excerpts with Major/Minor 3rd visuals, BPM trends and a Week 8 mock.',
+    sc2Tag: 'Test B · Sight-singing', sc2T: 'Gentle live pitch guide', sc2P: 'Five- and six-note melodies on treble or bass staff across C, F, G, D and B♭ major, with a live microphone bar.',
+    sc3Tag: 'Test C & Mock Exam', sc3T: '38 real excerpts across 4 eras', sc3P: 'Real Bach, Mozart, Scarlatti, Schumann and Modern excerpts with Major/Minor 3rd visuals, BPM trends and a Week 8 mock.',
     mkEyebrow: 'Who built Dottino', mkTitle: 'Designed by a pianist & music education researcher',
     mkBio: 'Created by Tim after 15+ years of piano teaching and doctoral research in London on how children hear music. Instead of throwing random mock papers at students, Dottino breaks every aural skill into clear, visual 10-minute steps.',
     mkC1: 'Royal College of Music · MPerf', mkC2: 'Royal Holloway, Univ. of London · PhD', mkC3: 'Xinghai Conservatory · BA', mkC4: '15+ years teaching',
@@ -973,13 +975,13 @@ const T = {
     cTitle: '第 1 站 · 高还是低', cTag: '样例卡片', cBig: '大跳', cSmall: '相邻的音', cNext: '下一步', cNextP: '大跳已经很稳了。往下走一步的还容易混，所以第 2 站会多加一些。', cStar: 'Basso 获得了「方向小侦探」贴纸！',
     kEyebrow: '两条路线', kTitle: '先把耳朵练好，<br>再用到考试上。',
     k1Label: '路线 1 · 基础练习', k1Badge: '第 1 周免费', k1Title: '练好耳朵', k1p: '音高方向、旋律形状、拍子感、短时音乐记忆。每道听力题背后的能力，和 Basso 一起一小步一小步练。', k1a: '高还是低', k1b: '旋律往哪走', k1c: '一样还是不一样', k1d: '拍子 · 记忆', k1Btn: '免费开始第 1 周',
-    k2Label: '路线 2 · 考试题型练习', k2Badge: '包含在 8 周计划中', k2Title: '用到考试上', k2p: '四级的每道题都按考官出题的方式练，再完整模拟。每周一张进度卡，老师一看就知道练到哪了。',
-    k2a: '<b>A</b> · 唱回或弹回旋律', k2b: '<b>B</b> · 视唱 5 个音', k2c: '<b>C(i)</b> · 描述一段音乐', k2d: '<b>C(ii)</b> · 拍节奏 + 2/3/4 拍', k2Price: '四级现已开放 · £15 <em>· 创始价 · 可用 6 个月 · 一次付清不自动续费</em>',
-    jTitle: '免费开始，按自己的节奏进步。', j1: '1 · 试第 1 周', j1s: '不用注册，不弹付费窗口。分几天做完，大约 30 分钟。', j2: '2 · 拿到听力卡', j2s: '孩子现在听得出什么，还有哪里要练。', j3: '3 · 看看后面 7 周', j3s: '清楚列出接下来每一站，以及各自对应哪道考题。', j4: '4 · 觉得有用再继续', j4s: '四级听力训练包现已开放：创始价 £15，可用 6 个月，不自动续费。',
-    inEyebrow: '8 周训练包里有什么', inTitle: '看看孩子每天实际怎么练。', inLead: '围绕 ABRSM 四级听力打造的真实可视化听辨工具——不是枯燥的刷题网页。',
+    k2Label: '路线 2 · 考试题型练习', k2Badge: '包含在 8 周计划中', k2Title: '用到考试上', k2p: '三级、四级、五级每道考题都按考官方式训练，再完整模拟。每周一张进度卡，老师一看就知道练到哪了。',
+    k2a: '<b>A</b> · 唱回或弹回旋律', k2b: '<b>B</b> · 视唱 5–6 个音', k2c: '<b>C(i)</b> · 描述与四大时期', k2d: '<b>C(ii)</b> · 拍节奏 + 2/3/4 拍', k2Price: '三级 · 四级 · 五级均已开放 · 每级 £15 <em>· 可用 6 个月 · 一次付清不自动续费</em>',
+    jTitle: '免费开始，按自己的节奏进步。', j1: '1 · 试第 1 周', j1s: '不用注册，不弹付费窗口。分几天做完，大约 30 分钟。', j2: '2 · 拿到听力卡', j2s: '孩子现在听得出什么，还有哪里要练。', j3: '3 · 看看后面 7 周', j3s: '清楚列出接下来每一站，以及各自对应哪道考题。', j4: '4 · 觉得有用再继续', j4s: '三、四、五级 8 周听力包均已开放：每级 £15，可用 6 个月，不自动续费。',
+    inEyebrow: '8 周训练包里有什么', inTitle: '看看孩子每天实际怎么练。', inLead: '围绕 ABRSM 3–5 级听力打造的真实可视化听辨工具——不是枯燥的刷题网页。',
     sc1Tag: 'A 题 · 找不同', sc1T: '全宽迷你键盘解析', sc1P: '音高变了之后，孩子直接看见是哪个白键或黑键动了，而不只是看到一个叉。',
-    sc2Tag: 'B 题 · 视唱 5 个音', sc2T: '温和的实时音高条', sc2P: '真实高低音五线谱配麦克风音高追踪，唱准瞬间亮绿，不打击孩子信心。',
-    sc3Tag: 'C 题 & 模拟考', sc3T: '20 首古典真曲与三度阶梯', sc3P: '舒曼、巴赫、克莱门蒂真曲片段，配大小三度对比、拍速趋势与第 8 周模拟考。',
+    sc2Tag: 'B 题 · 视唱 5–6 个音', sc2T: '温和的实时音高条', sc2P: '覆盖 C/F/G/D/B♭ 大调高低音五线谱，配麦克风实时音高条，唱准瞬间亮绿。',
+    sc3Tag: 'C 题 & 模拟考', sc3T: '38 首四大时期真曲库', sc3P: '巴赫、莫扎特、斯卡拉蒂、舒曼与现代派片段，配大小三度对比、拍速趋势与第 8 周模拟考。',
     mkEyebrow: '谁设计了 Dottino', mkTitle: '由钢琴家与音乐教育研究者亲手打造',
     mkBio: '由 Tim 结合 15 年以上钢琴教学与伦敦音乐教育博士研究打造。不把整套模拟卷直接丢给孩子盲刷，而是把每项听力能力拆成每天 10 分钟、看得懂的清晰步骤。',
     mkC1: '英国皇家音乐学院 · 演奏硕士', mkC2: '伦敦大学皇家霍洛威学院 · 博士', mkC3: '星海音乐学院 · 学士', mkC4: '15 年以上教学经验',
@@ -1042,12 +1044,42 @@ const fullName = n => (S.naming === 'solfege' ? SOLF[n.l] + ' (' + n.l + n.o + '
 
 // ---------- audio: piano samples every 3 semitones, pitch-shifted to the nearest note ----------
 let ctx = null; const buf = {}; let unlocked = false;
-// samples start loading as soon as the page opens, so the very first note is already the piano
-const loads = {};
+// Salamander Grand (v9) + warm wood practice-room bus (same acoustic engine as Basso studio & aural lessons)
+const loads = {}, NM3 = ['C', 'Ds', 'Fs', 'A'];
+const salName = m => NM3[((m - 36) / 3) % 4] + (Math.floor(m / 12) - 1) + 'v9';
+let pBus = null, pRoom = null;
 function ensureCtx() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } return ctx; }
+function pianoBus() {
+  if (pBus && pBus.context === ctx) return pBus;
+  pBus = ctx.createGain();
+  let tail = pBus;
+  if (typeof ctx.createBiquadFilter === 'function') {
+    const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 210; low.gain.value = 1.6;
+    const hi = ctx.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 6500; hi.gain.value = -1.2;
+    tail.connect(low); low.connect(hi); tail = hi;
+  }
+  if (typeof ctx.createDynamicsCompressor === 'function') {
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.005; comp.release.value = 0.18;
+    tail.connect(comp); comp.connect(ctx.destination);
+  } else tail.connect(ctx.destination);
+  if (!pRoom || pRoom.sampleRate !== ctx.sampleRate) {
+    const sr = ctx.sampleRate, len = Math.floor(sr * 0.65);
+    pRoom = ctx.createBuffer(2, len, sr);
+    const taps = [[[0.021, 0.24], [0.039, 0.14], [0.061, 0.08], [0.089, 0.04]], [[0.025, 0.24], [0.044, 0.14], [0.067, 0.08], [0.095, 0.04]]];
+    for (let c = 0; c < 2; c++) {
+      const d = pRoom.getChannelData(c);
+      taps[c].forEach(([sec, amp]) => { const idx = Math.floor(sec * sr); for (let k = -3; k <= 3; k++) if (idx + k >= 0 && idx + k < len) d[idx + k] += amp * Math.exp(-(k * k) / 4); });
+      let lp = 0;
+      for (let i = Math.floor(0.03 * sr); i < len; i++) { lp = lp * 0.86 + (Math.random() * 2 - 1) * 0.14; d[i] += lp * Math.pow(1 - i / len, 3.6) * 0.065; }
+    }
+  }
+  const cv = ctx.createConvolver(); cv.buffer = pRoom; const wet = ctx.createGain(); wet.gain.value = 0.22; cv.connect(wet); wet.connect(pBus); pBus.verb = cv;
+  return pBus;
+}
 function loadSamples() {
   if (!ensureCtx()) return;
-  for (let m = 36; m <= 84; m += 3) if (!loads[m]) loads[m] = fetch('audio/p' + m + '.mp3').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buf[m] = b; return b; }).catch(() => null);
+  for (let m = 36; m <= 96; m += 3) if (!loads[m]) loads[m] = fetch('audio/sal/' + salName(m) + '.mp3').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buf[m] = b; return b; }).catch(() => null);
 }
 loadSamples();
 function audioInit() {
@@ -1062,18 +1094,27 @@ function audioInit() {
 function play(midi, vol, waited) {
   if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
-  const base = Math.max(36, Math.min(84, 36 + Math.round((midi - 36) / 3) * 3));
-  // sample still decoding: wait for it rather than falling back to a synth beep
-  if (!buf[base] && loads[base] && !waited) { let done = false; loads[base].then(() => { if (!done) { done = true; play(midi, vol, true); } }); setTimeout(() => { if (!done) { done = true; play(midi, vol, true); } }, 900); return; }
-  const g = ctx.createGain(); g.gain.value = vol || 0.8; g.connect(ctx.destination);
+  const base = Math.max(36, Math.min(96, 36 + Math.round((midi - 36) / 3) * 3));
+  // sample still decoding: wait for real Salamander Grand sample rather than falling back to a synth beep
+  if (!buf[base] && loads[base] && !waited) { let done = false; loads[base].then(() => { if (!done) { done = true; play(midi, vol, true); } }); setTimeout(() => { if (!done) { done = true; play(midi, vol, true); } }, 3500); return; }
+  const g = ctx.createGain(); g.gain.value = (vol || 0.78) * 0.92;
+  let outNode = g;
+  if (typeof ctx.createStereoPanner === 'function') {
+    const pan = ctx.createStereoPanner();
+    pan.pan.value = Math.max(-1, Math.min(1, (midi - 62) / 34)) * 0.22;
+    g.connect(pan); outNode = pan;
+  }
+  outNode.connect(pianoBus());
   if (buf[base]) {
     const s = ctx.createBufferSource(); s.buffer = buf[base]; s.playbackRate.value = Math.pow(2, (midi - base) / 12);
-    s.connect(g); s.start();
-    g.gain.setTargetAtTime(0, ctx.currentTime + 0.9, 0.25);
+    s.connect(g); outNode.connect(pianoBus().verb); s.start();
+    g.gain.setTargetAtTime(0, ctx.currentTime + 0.95, 0.26); s.stop(ctx.currentTime + 2.4);
   } else {
-    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
-    o.connect(g); g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    o.start(); o.stop(ctx.currentTime + 0.85);
+    const o = ctx.createOscillator(), f = ctx.createBiquadFilter();
+    o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+    f.type = 'lowpass'; f.frequency.value = 1400;
+    o.connect(f); f.connect(g); g.gain.setValueAtTime(0.24, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.75);
+    o.start(); o.stop(ctx.currentTime + 0.8);
   }
 }
 function buzz() {
@@ -1412,15 +1453,21 @@ function openBuyGrade(grade, stEl, src) {
   }
 }
 function syncFounding() {
-  const L = t(), owned4 = hasGrade(4);
+  const L = t(), zh = S.lang === 'zh';
   const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
   const ownedG = hasGrade(grade);
-  if ($('buy-g4-pricing')) $('buy-g4-pricing').textContent = owned4 ? L.buyOwned : L.fBuy4;
+  [3, 4, 5].forEach(g => {
+    const b = $('buy-g' + g + '-pricing');
+    if (b) b.textContent = hasGrade(g) ? (zh ? `已解锁${g}级 ✓` : `Grade ${g} ✓`) : (zh ? `${g}级 · £15` : `Grade ${g} · £15`);
+  });
   $('fd-email').hidden = true;
   $('fd-btn').textContent = ownedG ? (L.fOwnedG ? L.fOwnedG(grade) : L.buyOwned) : (L.fOpenG ? L.fOpenG(grade) : L.fBuy4);
   $('fd-status').textContent = '';
 }
-if ($('buy-g4-pricing')) $('buy-g4-pricing').addEventListener('click', () => openBuyGrade(4, $('buy-g4-status'), 'home-pricing'));
+[3, 4, 5].forEach(g => {
+  const b = $('buy-g' + g + '-pricing');
+  if (b) b.addEventListener('click', () => openBuyGrade(g, $('buy-g4-status'), 'home-pricing-g' + g));
+});
 document.querySelectorAll('input[name=fdgrade]').forEach(r => r.addEventListener('change', syncFounding));
 syncFounding();
 $('fd-form').addEventListener('submit', e => {

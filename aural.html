@@ -1630,7 +1630,16 @@ function playPiece(p, start) {
     const at = s0 + clk(e.t) + (Math.random() - 0.5) * 0.01, dur = clk(e.t + e.d) - clk(e.t);
     const arch = 1 + 0.08 * Math.sin(Math.PI * e.t / p.T), acc = Math.abs(e.t % p.k) < 0.01 ? 1.07 : 1;
     const vel = Math.min(1, dynAt(p, e.t) * arch * acc * (e.mel ? 1 : 0.62) * (e.v || 1) * (1 + (Math.random() - 0.5) * 0.08));
-    if (p.real) { const soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char), racc = isDownbeat(e.t, p) ? (soft ? 1 : 1.04) : 1; const rv = Math.min(1, Math.max(0.15, 0.2 + ((e.v || 1) * 80 - 40) / 70)) * (dynAt(p, e.t) / 0.6) * arch * racc * (e.mel ? 1 : soft ? 0.5 : 0.62); play(e.m, at, Math.min(1, rv), false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18)); end = Math.max(end, at + dur); return; }
+    if (p.real) {
+      const soft = ['calm', 'solemn', 'sad', 'flowing', 'dance'].includes(p.char), racc = isDownbeat(e.t, p) ? (soft ? 1 : 1.04) : 1;
+      const baseV = Math.min(0.84, Math.max(0.20, 0.22 + ((e.v || 1) * 70 - 38) / 76));
+      const dynScale = p.dyn && p.dyn !== 'mf' ? (dynAt(p, e.t) / 0.6) : 1;
+      const maxV = (p.dyn && p.dyn !== 'mf') ? 0.94 : 0.87;
+      const rv = Math.min(maxV, Math.max(0.14, baseV * dynScale * arch * racc * (e.mel ? 1 : soft ? 0.5 : 0.62)));
+      play(e.m, at, rv, false, p.art === 'staccato' ? Math.min(0.2, dur * 0.55) : dur + (e.mel ? 0.06 : 0.18));
+      end = Math.max(end, at + dur);
+      return;
+    }
     if (!pedal) play(e.m, at, vel, false, Math.min(0.16, dur * 0.45));
     else if (e.mel || p.lh === 'held') play(e.m, at, vel, false, dur + 0.05);
     else { const barEnd = s0 + clk((Math.floor(e.t / p.k + 0.001) + 1) * p.k); play(e.m, at, vel, false, dur, Math.max(at + dur, barEnd + 0.03)); } // left hand held by the pedal to the end of the bar
@@ -1765,12 +1774,23 @@ function makeQ(type, level, force) {
   if (type === 'singmatch') return { type, target: pick([60, 62, 64, 65, 67, 69, 71]), missed: false, level: 0 };
   if (type === 'feat') {
     const a = force || pick(['dyn', 'art', 'tempo', 'ton']);
-    const base = { minor: Math.random() < 0.4, k: pick([2, 3, 4]), tempo: 'mid', art: pick(['legato', 'staccato']), lh: pick(['broken', 'oompah']) };
     let opts, ans;
-    if (a === 'dyn') { opts = level >= 1 ? ['cresc', 'dim', 'fp', 'pf'] : ['cresc', 'dim']; ans = pick(opts); base.dyn = ans; }
-    else if (a === 'art') { opts = ['legato', 'staccato']; ans = pick(opts); base.art = ans; base.lh = ans === 'legato' ? pick(['broken', 'held']) : 'oompah'; }
-    else if (a === 'tempo') { opts = level >= 1 ? ['steady', 'slower', 'faster'] : ['steady', 'slower']; ans = pick(opts); base.tch = ans; }
-    else { opts = ['major', 'minor']; ans = pick(opts); base.minor = ans === 'minor'; }
+    if (a === 'dyn') { opts = level >= 1 ? ['cresc', 'dim', 'fp', 'pf'] : ['cresc', 'dim']; ans = pick(opts); }
+    else if (a === 'art') { opts = ['legato', 'staccato']; ans = pick(opts); }
+    else if (a === 'tempo') { opts = level >= 1 ? ['steady', 'slower', 'faster'] : ['steady', 'slower']; ans = pick(opts); }
+    else { opts = ['major', 'minor']; ans = pick(opts); }
+    if (window.PIECES && PIECES.length) {
+      const pool = a === 'art' ? PIECES.filter(x => x.art === ans) : a === 'ton' ? PIECES.filter(x => x.minor === (ans === 'minor')) : PIECES;
+      if (pool.length) {
+        const pc = realPiece(freshPiece(pool));
+        if (a === 'dyn') pc.dyn = ans;
+        if (a === 'tempo') pc.tch = ans;
+        return { type, aspect: a, opts, ans, piece: pc, level };
+      }
+    }
+    const base = { minor: a === 'ton' ? ans === 'minor' : Math.random() < 0.4, k: pick([2, 3, 4]), tempo: 'mid', art: a === 'art' ? ans : pick(['legato', 'staccato']), lh: a === 'art' ? (ans === 'legato' ? pick(['broken', 'held']) : 'oompah') : pick(['broken', 'oompah']) };
+    if (a === 'dyn') base.dyn = ans;
+    if (a === 'tempo') base.tch = ans;
     return { type, aspect: a, opts, ans, piece: makePiece(base), level };
   }
   if (type === 'char' && window.PIECES && PIECES.length) {
@@ -2753,15 +2773,18 @@ function animateMiniKb(notes, durs, beat, startSec) {
 // 4 the next question is a fresh tune with the same kind of change, no hints · 5 mistakes are logged by kind (summary at the end)
 function feedbackSame(q, info) {
   const T_ = t(), fb = $('fb');
+  const markIdx = (!q.same && q.kind === 'rhythm' && q.changed + 1 < q.durs.length) ? [q.changed, q.changed + 1] : [q.changed];
   const rows = q.same ? [{ notes: q.notes, durs: q.durs, color: 'var(--good)' }]
-    : [{ notes: q.notes, durs: q.durs, color: 'var(--good)', mark: [q.changed] }, { notes: q.notes2, durs: q.durs2, color: 'var(--coral)', dx: 6, mark: [q.changed] }];
+    : [{ notes: q.notes, durs: q.durs, color: 'var(--good)', mark: markIdx }, { notes: q.notes2, durs: q.durs2, color: 'var(--coral)', dx: 6, mark: markIdx }];
   const useKb = !q.same && q.kind !== 'rhythm';
   let lines = [];
   if (q.same) lines.push(T_.fbSame);
   else {
     if (info.where) lines.push(T_.wrongWhere(q.changed < 2));
     if (info.kindPick) lines.push(T_.fbKindWrong(q.kind));
-    lines.push(useKb ? (S.lang === 'zh' ? `第 ${q.changed + 1} 个音变了（下方橙色琴键）。` : `Note ${q.changed + 1} changed (shown in orange below).`) : T_.fbWhich(q.changed + 1));
+    lines.push(useKb
+      ? (S.lang === 'zh' ? `第 ${q.changed + 1} 个音变了（下方橙色琴键）。` : `Note ${q.changed + 1} changed (shown in orange below).`)
+      : (markIdx.length === 2 ? (S.lang === 'zh' ? `第 ${q.changed + 1} 和第 ${q.changed + 2} 个音的长短互换了（高亮标注）。` : `Notes ${q.changed + 1} & ${q.changed + 2} swapped durations (highlighted).`) : T_.fbWhich(q.changed + 1)));
     lines.push(q.kind === 'rhythm' ? T_.fbRhythm(q.changed + 1, q.how) : T_.fbPitch(q.changed + 1, nameOf(q.notes[q.changed]), nameOf(q.notes2[q.changed]), q.how));
   }
   const g = L.seg;
@@ -2899,7 +2922,7 @@ function renderGradeBar() {
 function renderPay(locked) {
   const on = payOn(), P = PT(), has = !!(window.DottinoPay && window.DottinoPay.hasAccess(GRADE)), owned = on && has;
   $('pay-box').hidden = !on;
-  $('wl-form').hidden = on || has || GRADE !== 4; // Grades 3 & 5 are open to try across all 8 weeks until Paddle g3/g5 prices are linked
+  $('wl-form').hidden = on || has || GRADE !== 4; // Fallback only if Paddle checkout is inactive
   if (!on) return;
   $('pb-title').textContent = locked ? P.lockTitle : P.title;
   $('pb-sub').textContent = locked ? P.title + ' — ' + P.sub : P.sub;

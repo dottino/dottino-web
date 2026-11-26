@@ -466,7 +466,7 @@
   }
   function stopAudio() {
     audioGen++; timers.forEach(clearTimeout); timers = [];
-    if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) {} setTimeout(() => { try { b.disconnect(); if (b.comp) b.comp.disconnect(); } catch (e) {} }, 150); }
+    if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) {} setTimeout(() => { try { b.disconnect(); if (b.eq) b.eq.forEach(n => n.disconnect()); if (b.comp) b.comp.disconnect(); } catch (e) {} }, 150); }
     bus = null;
   }
   function later(fn, ms) { const g = audioGen; const t = setTimeout(() => { if (g === audioGen) fn(); }, ms); timers.push(t); }
@@ -476,25 +476,34 @@
     return loads[base];
   }
   function preloadMidis(midis) { return Promise.all([...new Set(midis.map(baseOf))].map(loadSample)); }
-  function playNote(m, at = 0, vel = 0.72, len = 0.75) {
+  function playNote(m, at = 0, vel = 0.72, len = 0.75, waited = false) {
     if (!ensureCtx()) return;
+    const gen = audioGen;
     if (ctx.state === 'suspended') ctx.resume();
     const base = baseOf(m), b = buf[base];
+    if (!b && !waited) {
+      const p = loadSample(base), startMs = performance.now();
+      let done = false;
+      const go = () => { if (done || gen !== audioGen) return; done = true; playNote(m, Math.max(0, at - (performance.now() - startMs) / 1000), vel, len, true); };
+      p.then(go); setTimeout(go, 3500);
+      return;
+    }
     const t0 = ctx.currentTime + at;
-    const g = ctx.createGain(); g.gain.value = (0.48 + 0.58 * vel) * 0.9;
+    const g = ctx.createGain(); g.gain.value = (0.48 + 0.56 * vel) * 0.9;
     let outNode = g;
     if (typeof ctx.createStereoPanner === 'function') {
       const pan = ctx.createStereoPanner(); pan.pan.value = Math.max(-1, Math.min(1, (m - 62) / 34)) * 0.22;
       g.connect(pan); outNode = pan;
     }
-    outNode.connect(outBus()); outNode.connect(outBus().verb);
+    outNode.connect(outBus());
     if (b) {
       const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = Math.pow(2, (m - base) / 12);
-      s.connect(g); s.start(t0); g.gain.setTargetAtTime(0, t0 + len, 0.16); s.stop(t0 + len + 1.3);
+      s.connect(g); outNode.connect(outBus().verb); s.start(t0); g.gain.setTargetAtTime(0, t0 + len, len < 0.28 ? 0.09 : 0.24); s.stop(t0 + len + 1.6);
     } else {
-      loadSample(base);
-      const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
-      o.connect(g); g.gain.setValueAtTime(0.28, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + len); o.start(t0); o.stop(t0 + len + 0.05);
+      const o = ctx.createOscillator(), f = ctx.createBiquadFilter();
+      o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
+      f.type = 'lowpass'; f.frequency.value = 1400;
+      o.connect(f); f.connect(g); g.gain.setValueAtTime(0.24, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + len); o.start(t0); o.stop(t0 + len + 0.05);
     }
   }
   function wood(at, strong) {
@@ -507,9 +516,17 @@
   }
   function playEvents(evList, beatSec, startSec = 0.08) {
     let maxEnd = startSec;
-    evList.forEach(([b, d, m, v]) => {
-      const t = startSec + b * beatSec, dur = Math.max(0.14, d * beatSec);
-      playNote(m, t, v || 0.75, dur + 0.05);
+    const byBeat = {};
+    evList.forEach(ev => { const k = Math.round(ev[0] * 100); (byBeat[k] = byBeat[k] || []).push(ev); });
+    Object.values(byBeat).forEach(grp => grp.sort((a, b) => a[2] - b[2]));
+    evList.forEach(ev => {
+      const [b, d, m, v] = ev;
+      const grp = byBeat[Math.round(b * 100)] || [ev];
+      const roll = grp.length > 1 ? grp.indexOf(ev) * 0.008 : 0;
+      const arch = 1 + 0.07 * Math.sin(Math.PI * ((b % 4) / 4));
+      const t = startSec + b * beatSec + roll + (Math.random() - 0.5) * 0.006;
+      const dur = Math.max(0.14, d * beatSec);
+      playNote(m, t, Math.min(0.86, (v || 0.72) * arch * (0.97 + Math.random() * 0.06)), dur + 0.08);
       maxEnd = Math.max(maxEnd, t + dur);
     });
     return (maxEnd - startSec) * 1000;
@@ -1061,6 +1078,11 @@
   function renderStep4() {
     const p = S.piece, zh = lang === 'zh', st = $('stage');
     const checks = zh ? p.checksZh : p.checksEn;
+    const g = /Grade 3/.test(p.abrsm) ? 3 : 4;
+    const gZh = g === 3 ? '三级' : '四级';
+    const owned = !!(window.DottinoPay && window.DottinoPay.hasAccess(g));
+    const destW1 = g === 4 ? '/aural?w=1&ref=pieces-' + p.id : `/aural?g=${g}&w=1&ref=pieces-${p.id}`;
+    const destW2 = g === 4 ? '/aural?w=2' : `/aural?g=${g}&w=2`;
     st.innerHTML = `
       <div>
         <div class="eyebrow">${zh ? '准备就绪 · 可以上琴了！' : 'Cleared for takeoff · Ready to play!'}</div>
@@ -1073,11 +1095,12 @@
         <span id="pf-copied" style="font-size:13.5px;font-weight:700;color:var(--good)"></span>
       </div>
       <div class="upsell">
-        <h3>${zh ? '也在准备英皇四级听力考试吗？' : 'Preparing for ABRSM Grade 4 Aural too?'}</h3>
-        <p>${zh ? '用同样的可视化方法系统练透 A/B/C(i)/C(ii) 四道听力考题 + 第 8 周完整模拟考。第 1 周完全免费，或一次性 £15 解锁全部 8 周。' : 'Train Tests A, B, C(i) and C(ii) with the exact same visual tools, live sight-singing and Week 8 full mocks. Try Week 1 free, or unlock all 8 weeks for £15.'}</p>
+        <h3>${zh ? `也在准备英皇${gZh}听力考试吗？` : `Preparing for ABRSM Grade ${g} Aural too?`}</h3>
+        <p>${zh ? `用同样的可视化方法系统练透${gZh}全部听力题型 + 第 8 周完整模拟考（3/4/5 级均已上线）。第 1 周完全免费，或一次性 £15 解锁全部 8 周。` : `Train every Grade ${g} aural test with the exact same visual tools and Week 8 full mocks (Grades 3, 4 & 5 all live). Try Week 1 free, or unlock all 8 weeks for £15.`}</p>
         <div class="acts">
+          <a class="btn ghost sm" href="${destW1}">${zh ? `免费试学${gZh}第 1 周` : `Try Grade ${g} Week 1 Free`}</a>
           <a class="btn ghost sm" href="/ear-check/?ref=pieces-${p.id}">${zh ? '3 分钟免费听力自测' : 'Free 3-Min Ear Check'}</a>
-          <button class="btn coral sm" id="pf-buy4" type="button">${zh ? '解锁四级 8 周听力包 · £15' : 'Unlock Grade 4 Aural Pack · £15'}</button>
+          <button class="btn coral sm" id="pf-buyg" type="button">${owned ? (zh ? `已解锁${gZh} ✓ · 进入第 2 周 →` : `Grade ${g} unlocked ✓ · Open Week 2 →`) : (zh ? `解锁${gZh} 8 周听力包 · £15` : `Unlock Grade ${g} Aural Pack · £15`)}</button>
         </div>
       </div>`;
     $('pf-hear').onclick = () => { stopAudio(); unlock(); playRealPieceIfAvailable(p); };
@@ -1086,11 +1109,11 @@
       try { await navigator.clipboard.writeText(u); $('pf-copied').textContent = zh ? '已复制 ✓' : 'Copied ✓'; }
       catch (e) { $('pf-copied').textContent = u; }
     };
-    $('pf-buy4').onclick = () => {
-      track('buy-g4-from-' + p.id);
-      if (window.DottinoPay && window.DottinoPay.active() && !window.DottinoPay.hasAccess(4)) {
-        window.DottinoPay.buy(4, { lang, ref: 'pieces-' + p.id, onDone: () => { location.href = '/aural?w=2'; } }).catch(() => { location.href = '/aural?w=2'; });
-      } else location.href = '/aural?w=2';
+    $('pf-buyg').onclick = () => {
+      track(`buy-g${g}-from-${p.id}`);
+      if (window.DottinoPay && window.DottinoPay.active() && !window.DottinoPay.hasAccess(g)) {
+        window.DottinoPay.buy(g, { lang, ref: 'pieces-' + p.id, onDone: () => { location.href = destW2; } }).catch(() => { location.href = destW2; });
+      } else location.href = destW2;
     };
   }
 

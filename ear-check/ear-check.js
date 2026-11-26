@@ -35,20 +35,36 @@
   function out() {
     if (bus && bus.context === ctx) return bus;
     bus = ctx.createGain();
+    let tail = bus;
+    if (typeof ctx.createBiquadFilter === 'function') {
+      const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 210; low.gain.value = 1.6;
+      const hi = ctx.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 6500; hi.gain.value = -1.2;
+      tail.connect(low); low.connect(hi); tail = hi; bus.eq = [low, hi];
+    }
     if (typeof ctx.createDynamicsCompressor === 'function') {
       const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.16;
-      bus.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
-    } else bus.connect(ctx.destination);
-    if (!room || room.sampleRate !== ctx.sampleRate) { const len = Math.floor(ctx.sampleRate * 1.8); room = ctx.createBuffer(2, len, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = room.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.4) * (i < 240 ? i / 240 : 1); } }
+      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.005; comp.release.value = 0.18;
+      tail.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
+    } else tail.connect(ctx.destination);
+    if (!room || room.sampleRate !== ctx.sampleRate) {
+      const sr = ctx.sampleRate, len = Math.floor(sr * 0.65);
+      room = ctx.createBuffer(2, len, sr);
+      const taps = [[[0.021, 0.24], [0.039, 0.14], [0.061, 0.08], [0.089, 0.04]], [[0.025, 0.24], [0.044, 0.14], [0.067, 0.08], [0.095, 0.04]]];
+      for (let c = 0; c < 2; c++) {
+        const d = room.getChannelData(c);
+        taps[c].forEach(([sec, amp]) => { const idx = Math.floor(sec * sr); for (let k = -3; k <= 3; k++) if (idx + k >= 0 && idx + k < len) d[idx + k] += amp * Math.exp(-(k * k) / 4); });
+        let lp = 0;
+        for (let i = Math.floor(0.03 * sr); i < len; i++) { lp = lp * 0.86 + (Math.random() * 2 - 1) * 0.14; d[i] += lp * Math.pow(1 - i / len, 3.6) * 0.065; }
+      }
+    }
     const cv = ctx.createConvolver(); cv.buffer = room; const wet = ctx.createGain(); wet.gain.value = 0.22; cv.connect(wet); wet.connect(bus); bus.verb = cv;
     return bus;
   }
-  function stopAudio() { gen++; timers.forEach(clearTimeout); timers = []; if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 160); } bus = null; }
+  function stopAudio() { gen++; timers.forEach(clearTimeout); timers = []; if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.015); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.eq) b.eq.forEach(n => n.disconnect()); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 160); } bus = null; }
   const later = (fn, ms) => { const g = gen, t = setTimeout(() => { if (g === gen) fn(); }, ms); timers.push(t); };
   function note(m, at, vel, len, boost) {
     const base = baseOf(m), b = buf[base]; if (!b) return;
-    const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * vel) * 0.92 * (boost || 1);
+    const g = ctx.createGain(); g.gain.value = (0.48 + 0.58 * vel) * 0.90 * (boost || 1);
     let outNode = g;
     if (typeof ctx.createStereoPanner === 'function') {
       const pan = ctx.createStereoPanner();
@@ -57,7 +73,7 @@
     }
     outNode.connect(out()); outNode.connect(out().verb);
     const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = Math.pow(2, (m - base) / 12); s.connect(g);
-    const t0 = ctx.currentTime + at; s.start(t0); g.gain.setTargetAtTime(0, t0 + len, 0.18); s.stop(t0 + len + 1.4);
+    const t0 = ctx.currentTime + at; s.start(t0); g.gain.setTargetAtTime(0, t0 + len, len < 0.28 ? 0.09 : 0.24); s.stop(t0 + len + 1.6);
   }
   function tick(at, strong) {
     const t0 = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
@@ -423,8 +439,8 @@
     }
     $('share').onclick = () => share(`I got ${total}/6 on the Dottino Ear Check (${lv ? 'around Grade ' + lv : 'building up to Grade 3'}). How far can your ear go?`, 'share');
     $('send').onclick = () => share(`My ear check result: ${total}/6, ${lv ? 'around Grade ' + lv : 'building up to Grade 3'} ${plays ? '(I’m working at ' + GRADES.find(g => g.v === S.plays).t + ')' : ''}. Here’s the check:`, 'send-adult');
-    $('goWeek').onclick = () => track('go/week1');
-    if ($('goPack')) $('goPack').onclick = () => track('go/grade4-pack');
+    $('goWeek').onclick = () => track('go/week1-g' + target);
+    if ($('goPack')) $('goPack').onclick = () => track('go/grade' + target + '-pack');
     $('again').onclick = () => { track('again'); build(); S.stage = 'q'; newQ(); };
     $('mail').onsubmit = e => {
       e.preventDefault(); const v = $('mailIn').value.trim(), msg = $('mailMsg');
