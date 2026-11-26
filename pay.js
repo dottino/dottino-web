@@ -7,22 +7,32 @@
     env: 'production',
     token: 'live_479830012ec48cd95f2ec833528',       // live client-side token (public by design)
     prices: {
-      g3: '',                                        // Grade 3 Aural Pack (£15) — paste Paddle pri_... when ready
+      g3: 'pri_01m8bg0tj57y48h8kyngp5wdvg',          // Grade 3 Aural Pack, £15 one-time (live)
       g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5',          // Grade 4 Aural Pack, £15 one-time (live)
-      g5: ''                                         // Grade 5 Aural Pack (£15) — paste Paddle pri_... when ready
+      g5: 'pri_01m8bfzmqphjj50jy12eykbgkx'           // Grade 5 Aural Pack, £15 one-time (live)
     }
   };
   // sandbox values, kept for reference: token test_71993bc3ba8caec8a5d63f51608, price pri_01m5y173swe9wpr5538rp338ee
-  // live account (switch over once Paddle verification passes): set env 'production', the live client token, and these prices
-  const LIVE = { prices: { g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5' }, product: 'pro_01m65fe6fwa0yxvcv4ym9qq5wv' };
+  const LIVE = {
+    prices: { g3: 'pri_01m8bg0tj57y48h8kyngp5wdvg', g4: 'pri_01m65ffd1mtr2r0fgsz558c3f5', g5: 'pri_01m8bfzmqphjj50jy12eykbgkx' },
+    products: { g3: 'pro_01m8bfv4np85bspsgkjb4jfxvk', g4: 'pro_01m65fe6fwa0yxvcv4ym9qq5wv', g5: 'pro_01m8bfvp20s6fvn98sd6gy1g75' }
+  };
   const LKEY = 'dottino:license';
-  let testMode = false;
+  let testMode = false, pendingGrade = 4;
   try { const sp = new URLSearchParams(location.search); if (sp.get('paytest') === '1') sessionStorage.setItem('dottino:paytest', '1'); testMode = sessionStorage.getItem('dottino:paytest') === '1'; } catch (e) { /* ignore */ }
   const active = () => CFG.SELLING || testMode;
 
   function readLicense() { try { const l = JSON.parse(localStorage.getItem(LKEY) || 'null'); return l && l.exp > Date.now() ? l : null; } catch (e) { return null; } }
   function saveLicense(l) { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) { /* private window */ } }
-  function hasAccess(grade) { const l = readLicense(); return !!(l && (l.grades || []).indexOf(grade) >= 0); }
+  function mergeLicense(lic) {
+    const prev = readLicense();
+    if (prev && Array.isArray(prev.grades)) {
+      lic.grades = [...new Set(prev.grades.concat(lic.grades || []))].sort((a, b) => a - b);
+      lic.exp = Math.max(lic.exp || 0, prev.exp || 0);
+    }
+    saveLicense(lic);
+  }
+  function hasAccess(grade) { const l = readLicense(); return !!(l && (l.grades || []).indexOf(+grade) >= 0); }
 
   let ready = null, onDone = null;
   function load() {
@@ -53,24 +63,25 @@
     let lic = null;
     try { const r = await post('paddle-verify', { transactionId: txn }); if (r.ok) lic = r.license; } catch (e) { /* server not available yet */ }
     if (!lic && CFG.env === 'sandbox' && txn) { // sandbox only: unlock on this device so the flow can be tested before the server is live
-      lic = { grades: [4], exp: Date.now() + 183 * 864e5, email: (data.customer && data.customer.email) || '', txn, verified: false };
+      lic = { grades: [pendingGrade], exp: Date.now() + 183 * 864e5, email: (data.customer && data.customer.email) || '', txn, verified: false };
     }
-    if (lic) saveLicense(lic);
-    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/purchase-g4', title: 'purchase', event: true }); } catch (e) { /* ignore */ }
+    if (lic) mergeLicense(lic);
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/purchase-g' + pendingGrade, title: 'purchase', event: true }); } catch (e) { /* ignore */ }
     if (onDone) onDone(!!lic);
   }
   async function buy(grade, opts) {
+    pendingGrade = +grade || 4;
     onDone = opts && opts.onDone;
     const P = await load();
     P.Checkout.open({
-      items: [{ priceId: CFG.prices['g' + grade], quantity: 1 }],
-      customData: { grade: String(grade), ref: (opts && opts.ref) || '' },
+      items: [{ priceId: CFG.prices['g' + pendingGrade], quantity: 1 }],
+      customData: { grade: String(pendingGrade), ref: (opts && opts.ref) || '' },
       settings: { displayMode: 'overlay', theme: 'light', locale: (opts && opts.lang === 'zh') ? 'zh-Hans' : 'en' }
     });
   }
   async function restore(email) {
     const r = await post('paddle-restore', { email });
-    if (r.ok && r.license) { saveLicense(r.license); return true; }
+    if (r.ok && r.license) { mergeLicense(r.license); return true; }
     return false;
   }
   window.DottinoPay = { CFG, active, hasAccess, readLicense, buy, restore, testMode: () => testMode };

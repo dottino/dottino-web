@@ -1,8 +1,17 @@
-// shared helpers for the Paddle functions (env: PADDLE_API_KEY, PADDLE_ENV=sandbox|live|production, UNLOCK_SECRET, PRICE_G4)
+// shared helpers for the Paddle functions (env: PADDLE_API_KEY, PADDLE_ENV=sandbox|live|production, UNLOCK_SECRET, PRICE_G3/G4/G5)
 const crypto = require('crypto');
 const LIVE = () => ['live', 'production'].includes((process.env.PADDLE_ENV || '').trim().toLowerCase());
 const API = () => (LIVE() ? 'https://api.paddle.com' : 'https://sandbox-api.paddle.com');
-const PRICE_GRADE = () => ({ [process.env.PRICE_G4 || (LIVE() ? 'pri_01m65ffd1mtr2r0fgsz558c3f5' : 'pri_01m5y173swe9wpr5538rp338ee')]: 4 });
+const PRICE_GRADE = () => ({
+  [process.env.PRICE_G3 || 'pri_01m8bg0tj57y48h8kyngp5wdvg']: 3,
+  [process.env.PRICE_G4 || (LIVE() ? 'pri_01m65ffd1mtr2r0fgsz558c3f5' : 'pri_01m5y173swe9wpr5538rp338ee')]: 4,
+  [process.env.PRICE_G5 || 'pri_01m8bfzmqphjj50jy12eykbgkx']: 5
+});
+const PROD_GRADE = {
+  pro_01m8bfv4np85bspsgkjb4jfxvk: 3,
+  pro_01m65fe6fwa0yxvcv4ym9qq5wv: 4,
+  pro_01m8bfvp20s6fvn98sd6gy1g75: 5
+};
 async function paddle(path) {
   const r = await fetch(API() + path, { headers: { Authorization: 'Bearer ' + process.env.PADDLE_API_KEY } });
   if (!process.env.PADDLE_API_KEY) throw new Error('no api key set');
@@ -16,10 +25,13 @@ function licenseFrom(txns, email) {
   txns.forEach(t => {
     if (['completed', 'paid'].indexOf(t.status) < 0) return;
     const when = Date.parse(t.billed_at || t.created_at) || Date.now();
-    (t.items || []).forEach(it => { const g = map[it.price && it.price.id]; if (g) { grades.add(g); exp = Math.max(exp, when + DAYS_ACCESS * 864e5); } });
+    (t.items || []).forEach(it => {
+      const g = map[it.price && it.price.id] || PROD_GRADE[it.price && it.price.product_id];
+      if (g) { grades.add(g); exp = Math.max(exp, when + DAYS_ACCESS * 864e5); }
+    });
   });
   if (!grades.size || exp < Date.now()) return null;
-  const lic = { grades: [...grades], exp, email: email || '', verified: true };
+  const lic = { grades: [...grades].sort((a, b) => a - b), exp, email: email || '', verified: true };
   lic.sig = crypto.createHmac('sha256', process.env.UNLOCK_SECRET || 'dev').update(JSON.stringify([lic.grades, lic.exp, lic.email])).digest('hex').slice(0, 32);
   return lic;
 }
