@@ -400,6 +400,16 @@ p { margin: 0; }
 .trust-row { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; font-weight: 600; color: var(--muted); }
 .track.paid .trust-row { color: #CFC9D8; }
 .trust-row span { display: inline-flex; align-items: center; gap: 5px; }
+.gcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.gcard { background: var(--card); border: 1.5px solid var(--line); border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: var(--ink); transition: border-color .15s, transform .12s; box-shadow: 0 8px 0 rgba(30,27,46,.04); }
+.gcard:hover { border-color: var(--ink); transform: translateY(-2px); }
+.gcard.pop { border-color: var(--coral); }
+.gcard .gc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.gcard .gc-num { font: 800 12px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--coral); background: var(--coral-soft); padding: 5px 10px; border-radius: 999px; }
+.gcard .gc-price { font: 700 12.5px/1 var(--f-display); color: var(--muted); }
+.gcard h3 { font-family: var(--f-display); font-weight: 800; font-size: 21px; line-height: 1.15; margin: 0; }
+.gcard p { font-size: 14px; color: var(--muted); margin: 0; }
+.gcard .gc-go { margin-top: auto; padding-top: 6px; font: 800 14px/1 var(--f-display); color: var(--coral); }
 </style>
 
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0}</style>
@@ -471,6 +481,33 @@ p { margin: 0; }
           </div>
           <p class="g-grow" id="g-grow"></p>
         </div>
+      </div>
+    </section>
+
+    <section class="sec" id="grades">
+      <div class="sec-head">
+        <div><div class="h-eyebrow" data-t="grEyebrow">ABRSM Grades 3, 4 &amp; 5 · 8-week paths</div><h2 class="h2" data-t="grTitle">Pick your grade. Start Week 1 free.</h2></div>
+        <p class="lead" data-t="grLead">Every grade follows the exact ABRSM aural format — Practice Mode with visual explanations first, then Exam Mode mocks.</p>
+      </div>
+      <div class="gcards reveal">
+        <a class="gcard" href="/aural?g=3">
+          <div class="gc-top"><span class="gc-num">Grade 3</span><span class="gc-price" data-t="gcPrice">Week 1 free · £15 pack</span></div>
+          <h3 data-t="g3T">Build your listening skills</h3>
+          <p data-t="g3P">Pulse &amp; 2/3/4 time (3A) · 3 echo phrases (3B) · Pitch or rhythm change (3C) · Features &amp; major/minor (3D).</p>
+          <span class="gc-go" data-t="g3Go">Start Grade 3 free →</span>
+        </a>
+        <a class="gcard pop" href="/aural">
+          <div class="gc-top"><span class="gc-num">Grade 4</span><span class="gc-price" data-t="gcPrice">Week 1 free · £15 pack</span></div>
+          <h3 data-t="g4T">Develop your inner hearing</h3>
+          <p data-t="g4P">Melody playback (4A) · 5-note sight-singing (4B) · Character &amp; features (4C(i)) · Rhythm &amp; 2/3/4 time (4C(ii)).</p>
+          <span class="gc-go" data-t="g4Go">Start Grade 4 free →</span>
+        </a>
+        <a class="gcard" href="/aural?g=5">
+          <div class="gc-top"><span class="gc-num">Grade 5</span><span class="gc-price" data-t="gcPrice">Week 1 free · £15 pack</span></div>
+          <h3 data-t="g5T">Listen with understanding</h3>
+          <p data-t="g5P">Extended playback (5A) · 6-note sight-singing in 5 keys (5B) · 4-era style &amp; period (5C(i)) · Rhythm &amp; metre (5C(ii)).</p>
+          <span class="gc-go" data-t="g5Go">Start Grade 5 free →</span>
+        </a>
       </div>
     </section>
 
@@ -845,7 +882,12 @@ const T = {
     card1T: 'Your first listening star!', card1P: 'Great start! Ready for your next listening adventure?', cardNT: n => n + ' listening stars!', cardNP: 'Look how far you’ve come! Week 1 has three more stops.',
     gParent: 'For parents: this game practises <b>pitch direction</b>, hearing whether a tune goes up or down. It’s one of the building blocks of musical listening, and the first step towards ABRSM aural Test A.',
     gGo: 'Let’s go →', gMore: 'One more round', hTry: 'Try it: tap two keys and listen.', kFirst: n => 'That’s ' + n + '. Now tap another key!', kUp: n => n + ': higher! Your ear heard it go up.', kDown: n => n + ': lower! That one went down.', kSame: n => 'Same note, ' + n + '. Exactly the same height.', kBig: ' A big jump!', hCombo: '5 in a row',
-    pEyebrow: 'Grade 4 · the 8-week path', pTitle: 'From “which note is higher?”<br>to exam day.', pLead: 'Foundations build the ear. Exam Skills put it to work on the real Grade 4 tests. Every stop says which test it prepares for.',
+    grEyebrow: 'ABRSM Grades 3, 4 & 5 · 8-week paths', grTitle: 'Pick your grade. Start Week 1 free.', grLead: 'Every grade follows the exact ABRSM aural format — Practice Mode with visual explanations first, then Exam Mode mocks.',
+    gcPrice: 'Week 1 free · £15 pack',
+    g3T: 'Build your listening skills', g3P: 'Pulse & 2/3/4 time (3A) · 3 echo phrases (3B) · Pitch or rhythm change (3C) · Features & major/minor (3D).', g3Go: 'Start Grade 3 free →',
+    g4T: 'Develop your inner hearing', g4P: 'Melody playback (4A) · 5-note sight-singing (4B) · Character & features (4C(i)) · Rhythm & 2/3/4 time (4C(ii)).', g4Go: 'Start Grade 4 free →',
+    g5T: 'Listen with understanding', g5P: 'Extended playback (5A) · 6-note sight-singing in 5 keys (5B) · 4-era style & period (5C(i)) · Rhythm & metre (5C(ii)).', g5Go: 'Start Grade 5 free →',
+    pEyebrow: 'Grades 3–5 · the 8-week path', pTitle: 'From “which note is higher?”<br>to exam day.', pLead: 'Foundations build the ear. Exam Skills put it to work on every real ABRSM test. Every stop says which test it prepares for.',
     s1Tag: 'FREE · START HERE', s1Week: 'Week 1 · Foundations', s1Title: 'Hear which way the notes go', s1a: 'Stop 1 · Higher or lower', s1b: 'Stop 2 · Which way the tune goes', s1c: 'Stop 3 · Same or different',
     s2Week: 'Weeks 2–3 · Foundations', s2Title: 'Pulse and short tunes in your head', s2p: 'Feel the strong beat, hold a four-note tune in memory, find a sung note on the keys.',
     s3Week: 'Weeks 4–6 · Exam Skills', s3Title: 'The four Grade 4 tests, one by one', tA: 'A · play back', tB: 'B · sing 5 notes', tC: 'C · describe', tD: 'D · clap + time',
@@ -916,7 +958,12 @@ const T = {
     card1T: '你的第一颗听力星星！', card1P: '开了个好头！准备好开始下一段听力冒险了吗？', cardNT: n => n + ' 颗听力星星！', cardNP: '看看你进步了多少！第 1 周还有三站等着你。',
     gParent: '给家长：这个小游戏练的是<b>音高方向</b>，也就是听出旋律往上还是往下走。这是音乐听力的基础能力之一，也是 ABRSM 听力 A 题的第一步。',
     gGo: '出发 →', gMore: '再玩一轮', hTry: '试试看：按两个键，听一听。', kFirst: n => '这是 ' + n + '。再按另一个键！', kUp: n => n + '：更高了！你听出它往上走了。', kDown: n => n + '：更低了！这个往下走了。', kSame: n => '还是 ' + n + '，一模一样高。', kBig: '一个大跳！', hCombo: '连对 5 个',
-    pEyebrow: '四级 · 8 周学习路线', pTitle: '从「哪个音更高？」<br>到考试那天。', pLead: '基础练习（Foundations）先把耳朵练好，考试技能（Exam Skills）再用到四级真题上。每一站都写明它在为哪道题做准备。',
+    grEyebrow: 'ABRSM 三级 · 四级 · 五级全套 8 周课程', grTitle: '选好级别，第 1 周免费开练。', grLead: '每级均严格按官方考纲编排——先用「练习模式」看懂错因，再用「考试模式」全真盲测模拟。',
+    gcPrice: '第 1 周免费 · 完整包 £15',
+    g3T: '建立敏锐的听觉感知', g3P: '稳拍与 2/3/4 拍（3A）· 三句回声（3B）· 音高或节奏变化（3C）· 特征与大小调（3D）。', g3Go: '免费试学三级 →',
+    g4T: '打通内在听觉与视唱', g4P: '旋律听音回弹（4A）· 五音视唱（4B）· 音乐性格与特征（4C(i)）· 节奏与 2/3/4 拍（4C(ii)）。', g4Go: '免费试学四级 →',
+    g5T: '进阶音乐理解与四大时期', g5P: '八度内长旋律回弹（5A）· 五大调六音视唱（5B）· 巴洛克至现代四大时期（5C(i)）· 节奏与拍号（5C(ii)）。', g5Go: '免费试学五级 →',
+    pEyebrow: '3–5 级 · 8 周学习路线', pTitle: '从「哪个音更高？」<br>到考试那天。', pLead: '基础练习（Foundations）先把耳朵练好，考试技能（Exam Skills）再用到每一道真实考题上。每一站都写明它在为哪道题做准备。',
     s1Tag: '免费 · 从这里开始', s1Week: '第 1 周 · 基础练习', s1Title: '听出音往哪里走', s1a: '第 1 站 · 高还是低', s1b: '第 2 站 · 旋律往哪走', s1c: '第 3 站 · 一样还是不一样',
     s2Week: '第 2–3 周 · 基础练习', s2Title: '拍子感和脑中的短旋律', s2p: '感受强拍，记住四个音的旋律，在琴键上找到唱出的音。',
     s3Week: '第 4–6 周 · 考试技能', s3Title: '四级的四道题，逐个击破', tA: 'A · 弹回旋律', tB: 'B · 视唱 5 个音', tC: 'C · 描述音乐', tD: 'D · 拍节奏 + 拍子',

@@ -19,20 +19,25 @@ async function paddle(path) {
   return r.json();
 }
 const DAYS_ACCESS = 183; // 6 months
-// turn paid transactions into a license: which grades, until when
+// turn paid transactions into a license: per-grade expiry dates (6 months from each grade's own purchase)
 function licenseFrom(txns, email) {
-  const grades = new Set(); let exp = 0; const map = PRICE_GRADE();
+  const expByGrade = {}; const map = PRICE_GRADE(); const now = Date.now();
   txns.forEach(t => {
     if (['completed', 'paid'].indexOf(t.status) < 0) return;
-    const when = Date.parse(t.billed_at || t.created_at) || Date.now();
+    const when = Date.parse(t.billed_at || t.created_at) || now;
     (t.items || []).forEach(it => {
       const g = map[it.price && it.price.id] || PROD_GRADE[it.price && it.price.product_id];
-      if (g) { grades.add(g); exp = Math.max(exp, when + DAYS_ACCESS * 864e5); }
+      if (g) {
+        const until = when + DAYS_ACCESS * 864e5;
+        if (until > now) expByGrade[g] = Math.max(expByGrade[g] || 0, until);
+      }
     });
   });
-  if (!grades.size || exp < Date.now()) return null;
-  const lic = { grades: [...grades].sort((a, b) => a - b), exp, email: email || '', verified: true };
-  lic.sig = crypto.createHmac('sha256', process.env.UNLOCK_SECRET || 'dev').update(JSON.stringify([lic.grades, lic.exp, lic.email])).digest('hex').slice(0, 32);
+  const grades = Object.keys(expByGrade).map(Number).sort((a, b) => a - b);
+  if (!grades.length) return null;
+  const exp = Math.max(...Object.values(expByGrade));
+  const lic = { grades, exp, expByGrade, email: email || '', verified: true };
+  lic.sig = crypto.createHmac('sha256', process.env.UNLOCK_SECRET || 'dev').update(JSON.stringify([lic.grades, lic.exp, lic.expByGrade, lic.email])).digest('hex').slice(0, 32);
   return lic;
 }
 const json = (code, body) => ({ statusCode: code, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(body) });

@@ -22,17 +22,43 @@
   try { const sp = new URLSearchParams(location.search); if (sp.get('paytest') === '1') sessionStorage.setItem('dottino:paytest', '1'); testMode = sessionStorage.getItem('dottino:paytest') === '1'; } catch (e) { /* ignore */ }
   const active = () => CFG.SELLING || testMode;
 
-  function readLicense() { try { const l = JSON.parse(localStorage.getItem(LKEY) || 'null'); return l && l.exp > Date.now() ? l : null; } catch (e) { return null; } }
+  function readLicense() {
+    try {
+      const l = JSON.parse(localStorage.getItem(LKEY) || 'null');
+      if (!l) return null;
+      const now = Date.now();
+      if (l.expByGrade) {
+        const activeGrades = Object.keys(l.expByGrade).map(Number).filter(g => l.expByGrade[g] > now).sort((a, b) => a - b);
+        return activeGrades.length ? Object.assign({}, l, { grades: activeGrades }) : null;
+      }
+      return l.exp > now ? l : null;
+    } catch (e) { return null; }
+  }
   function saveLicense(l) { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) { /* private window */ } }
   function mergeLicense(lic) {
     const prev = readLicense();
-    if (prev && Array.isArray(prev.grades)) {
-      lic.grades = [...new Set(prev.grades.concat(lic.grades || []))].sort((a, b) => a - b);
-      lic.exp = Math.max(lic.exp || 0, prev.exp || 0);
+    const expByGrade = {};
+    if (prev) {
+      if (prev.expByGrade) Object.assign(expByGrade, prev.expByGrade);
+      else (prev.grades || []).forEach(g => { expByGrade[g] = prev.exp || 0; });
     }
+    if (lic.expByGrade) {
+      Object.keys(lic.expByGrade).forEach(g => { expByGrade[g] = Math.max(expByGrade[g] || 0, lic.expByGrade[g] || 0); });
+    } else {
+      (lic.grades || []).forEach(g => { expByGrade[g] = Math.max(expByGrade[g] || 0, lic.exp || 0); });
+    }
+    const now = Date.now();
+    lic.expByGrade = expByGrade;
+    lic.grades = Object.keys(expByGrade).map(Number).filter(g => expByGrade[g] > now).sort((a, b) => a - b);
+    lic.exp = Math.max(0, ...Object.values(expByGrade));
     saveLicense(lic);
   }
-  function hasAccess(grade) { const l = readLicense(); return !!(l && (l.grades || []).indexOf(+grade) >= 0); }
+  function hasAccess(grade) {
+    const l = readLicense(), g = +grade;
+    if (!l) return false;
+    if (l.expByGrade) return (l.expByGrade[g] || 0) > Date.now();
+    return (l.grades || []).indexOf(g) >= 0;
+  }
 
   let ready = null, onDone = null;
   function load() {

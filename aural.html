@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Free ABRSM Grade 4 aural practice, week 1: four 10-minute lessons that teach a child to hear which way the notes go, then play them back. By Tim, pianist and music education researcher.">
-<title>Free ABRSM Grade 4 Aural Practice | Dottino</title>
+<meta name="description" content="Free ABRSM Grades 3–5 aural practice: structured 8-week listening paths with sight-singing, melody playback, rhythm clap-back, style &amp; period, and mock exams. By Tim, pianist and music education researcher.">
+<title>ABRSM Grades 3–5 Aural Practice | Dottino</title>
 <link rel="canonical" href="https://dottino.app/aural">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dottino">
-<meta property="og:title" content="Dottino · Grade 4 Aural">
-<meta property="og:description" content="Grade 4 aural ear training with Basso, built around the ABRSM aural test format. Week 1 is free.">
+<meta property="og:title" content="Dottino · ABRSM Grades 3–5 Aural">
+<meta property="og:description" content="Structured 8-week ear training for ABRSM Grades 3, 4 &amp; 5 with Basso. Week 1 free in any browser.">
 <meta property="og:url" content="https://dottino.app/aural">
 <meta property="og:image" content="https://dottino.app/img/og/home.png">
 <meta property="og:image:width" content="1200">
@@ -410,7 +410,7 @@ a { color: inherit; }
     </form>
     <p class="foot"><a href="/" id="t-home">Dottino home</a> · <a href="privacy.html" id="t-privacy">Privacy</a> · <a href="refunds.html">Refunds</a> · <a href="terms.html">Terms</a> · <span class="credit">Piano sound: <a href="https://sfzinstruments.github.io/pianos/salamander" rel="noopener">Salamander Grand Piano</a> by Alexander Holm, CC-BY 3.0 · Music excerpts from <a href="https://www.mutopiaproject.org" rel="noopener">Mutopia Project</a> editions (Schumann: CC BY-SA)</span> · <span id="t-keep">Progress stays in this browser.</span></p>
   </main>
-  <form name="feedback" data-netlify="true" netlify-honeypot="bot-field" hidden><textarea name="message"></textarea><input name="name"><input name="email"><input name="week"><input name="where"><input name="lang"><input name="settings"><input name="ua"><input name="ref"><input name="bot-field"></form>
+  <form name="feedback" data-netlify="true" netlify-honeypot="bot-field" hidden><textarea name="message"></textarea><input name="name"><input name="email"><input name="grade"><input name="week"><input name="where"><input name="lang"><input name="settings"><input name="ua"><input name="ref"><input name="bot-field"></form>
 
   <!-- LESSON -->
   <main id="v-lesson" hidden>
@@ -1051,7 +1051,7 @@ const t = () => {
 };
 const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
-const flatCtx = () => !!(typeof L !== 'undefined' && L && L.q && (L.q.flats || L.q.key === 'F'));
+const flatCtx = () => !!(typeof L !== 'undefined' && L && L.q && (L.q.flats || L.q.key === 'F' || L.q.key === 'Bb'));
 const letterOf = m => LET[((m % 12) + 12) % 12] || (flatCtx() ? LET[(m + 1) % 12] + '♭' : LET[(m - 1) % 12] + '♯');
 const nameOf = m => { const l = letterOf(m); return S.naming === 'solfege' ? (SOLF[l[0]] || l) + (l[1] || '') : l; };
 const saveShared = () => { shared.lang = S.lang; shared.naming = S.naming; shared.sing = S.sing; shared.clef = S.clef; try { localStorage.setItem('dottino:v1', JSON.stringify(shared)); } catch (e) { /* ignore */ } };
@@ -1254,8 +1254,8 @@ function weakPlan() {
     A: [{ type: 'echo', level: 6, fixed: true, count: 3 }, { type: 'echo', level: 7, fixed: true, count: 4 }],
     B: [{ type: 'sight', level: 3, fixed: true, count: 3 }, { type: 'sight', level: 4, fixed: true, count: 4 }],
     Bk: [{ type: 'sight', level: 3, fixed: true, count: 3 }, { type: 'sight', level: 4, fixed: true, count: 4 }],
-    Ci: [{ type: 'texture', level: 1, fixed: true, count: 3 }, { type: 'style', level: 1, fixed: true, count: 3 }, { type: 'cadence', level: 1, fixed: true, count: 2 }],
-    Cii: [{ type: 'meter', level: 3, fixed: true, count: 4 }, { type: 'taprhythm', level: 2, fixed: true, count: 4 }]
+    Ci: [{ type: 'feat', level: 1, fixed: true, count: 3 }, { type: 'style', level: 1, fixed: true, count: 4 }],
+    Cii: [{ type: 'taprhythm', level: 2, fixed: true, count: 4 }, { type: 'meter', level: 2, fixed: true, count: 4 }]
   } : {
     A: [{ type: 'echo', level: 5, fixed: true, count: 3 }, { type: 'echo', level: 6, fixed: true, count: 4 }],
     B: [{ type: 'sight', level: 1, fixed: true, count: 2 }, { type: 'sight', level: 2, fixed: true, count: 5 }],
@@ -1360,8 +1360,8 @@ function judgeTapBeat(q) {
   const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
   const sd = Math.sqrt(gaps.reduce((a, b) => a + (b - mean) * (b - mean), 0) / gaps.length);
   const ratio = med / beat;
-  // tapping every other beat (half speed) is fine too: that is still the pulse
-  const okSpeed = Math.abs(ratio - 1) < 0.15 || Math.abs(ratio - 2) < 0.25;
+  // require matching the real beat speed (no half-speed loophole) while keeping Bluetooth-safe interval stability
+  const okSpeed = Math.abs(ratio - 1) < 0.22;
   const okEven = sd / mean < 0.2;
   if (!okSpeed || !okEven) return judge(false, { tap: !okEven ? 'uneven' : ratio < 1 ? 'fast' : 'slow', gaps, beat });
   // part 2: which time?
@@ -1372,9 +1372,11 @@ function judgeTapBeat(q) {
 function judgeTapRhythm(q) {
   const want = onsetsOf(q.pattern), tp = q.taps;
   if (tp.length !== want.length) return judge(false, { count: tp.length });
-  const span = want[want.length - 1] || 1, got = tp.map(x => (x - tp[0]) / ((tp[tp.length - 1] - tp[0]) || 1) * span);
+  const span = want[want.length - 1] || 1, actualMs = (tp[tp.length - 1] - tp[0]) || 1;
+  const got = tp.map(x => (x - tp[0]) / actualMs * span);
   const worst = Math.max(...want.map((w, i) => Math.abs(w - got[i])));
-  judge(worst <= 0.3, { got, worst }); // within about a third of a beat at every tap
+  const tempoRatio = actualMs / (span * 600); // playRhythm uses 0.6s per beat
+  judge(worst <= 0.3, { got, worst, tempoRatio }); // within about a third of a beat at every tap
 }
 function tapsToPattern(got, pattern) { // turn the child's taps back into blocks, to draw next to the right rhythm
   const want = pattern.split(',').filter(x => x !== '|'); const last = +want[want.length - 1];
@@ -1387,21 +1389,40 @@ function tick(when, strong) {
   o.connect(g); g.connect(outBus()); o.start(t); o.stop(t + 0.06);
 }
 // ---------- week 7: reading and singing (Test B) ----------
-// keys C, F, G or D major; Grade 4 (lv 0-2): 5 notes within a 3rd; Grade 5 (lv 3-4): 6 notes within a 5th (+ D major)
-const KEYS7 = { C: { l: 0, acc: {} }, F: { l: 3, acc: { 6: -1 } }, G: { l: 4, acc: { 3: 1 } }, D: { l: 1, acc: { 3: 1, 0: 1 } } };
+// keys C, F, G, D or Bb major; Grade 4 (lv 0-2): 5 notes within a 3rd; Grade 5 (lv 3-4): 6 notes within 4th below to 5th above tonic, steps/3rds + rising 4th (5->1) only
+const KEYS7 = { C: { l: 0, acc: {} }, F: { l: 3, acc: { 6: -1 } }, G: { l: 4, acc: { 3: 1 } }, D: { l: 1, acc: { 3: 1, 0: 1 } }, Bb: { l: 6, acc: { 6: -1, 2: -1 } } };
 const STEPS = [0, 2, 4, 5, 7, 9, 11];
 function midiOfStep(ds, key) { const l = ((ds % 7) + 7) % 7, o = Math.floor(ds / 7); return 12 * (o + 1) + STEPS[l] + (KEYS7[key].acc[l] || 0); }
+function validSightInterval(prevOff, nextOff, is6) {
+  if (prevOff === nextOff) return false;
+  if (Math.abs(nextOff - prevOff) <= 2) return true;
+  return !!(is6 && prevOff === -3 && nextOff === 0); // ABRSM Grade 5 5B: rising 4th from dominant below tonic to tonic ONLY
+}
 function makeSight(level) {
   const is6 = level >= 3;
-  const key = level >= 4 ? pick(['C', 'F', 'G', 'D']) : level >= 2 ? pick(['C', 'F', 'G']) : 'C', clef = S.clef;
-  const home = KEYS7[key].l + 7 * (clef === 'bass' ? 3 : 4);
-  const midCount = is6 ? 4 : 3, minOff = is6 ? -2 : (level >= 1 ? -2 : 0), maxOff = is6 ? 4 : 2, maxLeap = is6 ? 3 : 2;
-  let offs, tries = 0;
-  do {
-    offs = [0]; let d = 0;
-    for (let i = 0; i < midCount; i++) { d += is6 ? pick([-2, -1, -1, 1, 1, 2, 3, -3]) : level >= 1 ? pick([-2, -1, -1, 1, 1, 2]) : pick([-1, 1, 1]); offs.push(d); }
-    offs.push(0); tries++;
-  } while ((offs.some(x => x < minOff || x > maxOff) || offs.some((x, i) => i && Math.abs(x - offs[i - 1]) > maxLeap) || offs.slice(1).every((x, i) => x === offs[i]) || offs[1] === 0) && tries < 300);
+  const key = level >= 4 ? pick(['C', 'F', 'G', 'D', 'Bb']) : level >= 2 ? pick(['C', 'F', 'G']) : 'C', clef = S.clef;
+  const oct = clef === 'bass' ? (key === 'Bb' ? 2 : 3) : 4;
+  const home = KEYS7[key].l + 7 * oct;
+  const midCount = is6 ? 4 : 3, minOff = is6 ? -3 : (level >= 1 ? -2 : 0), maxOff = is6 ? 4 : 2;
+  const allowedPool = []; for (let o = minOff; o <= maxOff; o++) allowedPool.push(o);
+  let offs = null, tries = 0;
+  while (tries < 400) {
+    tries++;
+    const cand = [0]; let ok = true;
+    for (let i = 0; i < midCount; i++) {
+      const prev = cand[cand.length - 1];
+      let nexts = allowedPool.filter(o => validSightInterval(prev, o, is6));
+      if (i === midCount - 1) nexts = nexts.filter(o => validSightInterval(o, 0, is6));
+      if (!nexts.length) { ok = false; break; }
+      // Slightly encourage testing the signature rising 4th (-3 -> 0) in Grade 5
+      cand.push(pick(nexts));
+    }
+    if (!ok) continue;
+    cand.push(0);
+    if (cand[1] === 0 || new Set(cand).size < 3) continue;
+    if (cand.every((o, i) => i === 0 || validSightInterval(cand[i - 1], o, is6))) { offs = cand; break; }
+  }
+  if (!offs) offs = is6 ? [0, -1, -3, 0, 2, 0] : [0, 1, 2, 1, 0];
   const steps = offs.map(o => home + o);
   return { type: 'sight', key, clef, steps, notes: steps.map(ds => midiOfStep(ds, key)), home, idx: 0, missed: [], done: [], level };
 }
@@ -1410,11 +1431,13 @@ function staffSvg(q, names) {
   const W = q.steps.length > 5 ? 400 : 360, yB = 104, sp = 6, bass = q.clef === 'bass', bot = bass ? 18 : 30;
   const y = ds => yB - (ds - bot) * sp;
   const sharpGlyph = (sx, sy) => `<g stroke="var(--ink)" stroke-linecap="butt"><line x1="${sx + 3}" y1="${sy - 15}" x2="${sx + 3}" y2="${sy + 17}" stroke-width="1.6"/><line x1="${sx + 10}" y1="${sy - 17}" x2="${sx + 10}" y2="${sy + 15}" stroke-width="1.6"/><line x1="${sx}" y1="${sy - 3}" x2="${sx + 13}" y2="${sy - 7}" stroke-width="3.6"/><line x1="${sx}" y1="${sy + 7}" x2="${sx + 13}" y2="${sy + 3}" stroke-width="3.6"/></g>`;
+  const flatGlyph = (fx, fy) => `<g fill="none" stroke="var(--ink)" stroke-linecap="round"><line x1="${fx}" y1="${fy - 22}" x2="${fx}" y2="${fy + 6}" stroke-width="2"/><path d="M${fx} ${fy + 6} C ${fx + 13} ${fy - 1}, ${fx + 12} ${fy - 9}, ${fx + 5} ${fy - 6} C ${fx + 2} ${fy - 5}, ${fx} ${fy - 3}, ${fx} ${fy - 2}" stroke-width="2.6"/></g>`;
   let h = `<svg viewBox="0 0 ${W} 150" role="img" aria-label="${q.notes.map(m => letterOf(m)).join(' ')}">`;
   for (let i = 0; i < 5; i++) h += `<line x1="8" x2="${W - 8}" y1="${yB - i * 12}" y2="${yB - i * 12}" stroke="var(--ink)" stroke-width="1.3"/>`;
   h += bass ? `<text x="14" y="${yB - 21}" font-size="44" font-family="'Noto Music',serif" fill="var(--ink)">𝄢</text>` : `<text x="10" y="${yB + 4}" font-size="66" font-family="'Noto Music',serif" fill="var(--ink)">𝄞</text>`;
   let x0 = 66;
-  if (q.key === 'F') { const fy = y(bass ? 20 : 34), fx = x0 + 4; h += `<g fill="none" stroke="var(--ink)" stroke-linecap="round"><line x1="${fx}" y1="${fy - 22}" x2="${fx}" y2="${fy + 6}" stroke-width="2"/><path d="M${fx} ${fy + 6} C ${fx + 13} ${fy - 1}, ${fx + 12} ${fy - 9}, ${fx + 5} ${fy - 6} C ${fx + 2} ${fy - 5}, ${fx} ${fy - 3}, ${fx} ${fy - 2}" stroke-width="2.6"/></g>`; x0 += 20; }
+  if (q.key === 'F' || q.key === 'Bb') { h += flatGlyph(x0 + 4, y(bass ? 20 : 34)); x0 += 18; }
+  if (q.key === 'Bb') { h += flatGlyph(x0 + 4, y(bass ? 23 : 37)); x0 += 18; }
   if (q.key === 'G' || q.key === 'D') { h += sharpGlyph(x0 + 3, y(bass ? 24 : 38)); x0 += 18; }
   if (q.key === 'D') { h += sharpGlyph(x0 + 3, y(bass ? 21 : 35)); x0 += 18; }
   const gap = (W - x0 - 30) / q.steps.length;
@@ -1592,37 +1615,43 @@ const KEYS_A = {
 function makeEchoR(level) {
   const key = pick(level >= 6 ? Object.keys(KEYS_A) : ['C', 'G', 'F', 'am', 'em', 'dm']), K = KEYS_A[key];
   const steps = K.min ? [0, 2, 3, 5, 7, 8, 10] : [0, 2, 4, 5, 7, 9, 11];
-  const k = pick([2, 3, 4]), bars = level >= 7 ? 4 : level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 7 ? -3 : level >= 6 ? -3 : -2, hi = level >= 7 ? 8 : level >= 6 ? 7 : 5;
-  let degs, durs, parts, tries = 0;
+  const k = pick([2, 3, 4]), bars = level >= 7 ? 4 : level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 6 ? -2 : -2, hi = level >= 6 ? 7 : 5;
+  const toMidis = ds => ds.map((x, i) => {
+    const o = Math.floor(x / 7), st = ((x % 7) + 7) % 7;
+    let m = K.t + 12 * o + steps[st];
+    if (K.min && st === 6 && ds[i + 1] != null && ((ds[i + 1] % 7) + 7) % 7 === 0) m += 1; // leading note rises to home in minor
+    return m;
+  });
+  let degs, durs, parts, notes, tries = 0;
   do {
     degs = []; durs = []; parts = []; let d = pick([0, 2, 4]);
     for (let b = 0; b < bars; b++) {
       const rh = b === bars - 1 ? pick(RH_END[k]) : pick(RH[k].filter(r => r.length <= 4));
       if (b) parts.push('|');
       rh.forEach((du, i) => {
-        if (b === bars - 1 && i === rh.length - 1) d = Math.abs(d - 7) < Math.abs(d) ? 7 : 0;
-        else if (degs.length) d += pick(level >= 7 ? [-1, 1, -2, 2, -3, 3, -4, 4] : level >= 6 ? [-1, 1, -1, 1, -2, 2, 3, -3] : [-1, 1, -1, 1, -2, 2]);
+        if (b === bars - 1 && i === rh.length - 1) d = Math.abs(d - 7) < Math.abs(d) && Math.min(...degs) >= 0 ? 7 : 0;
+        else if (degs.length) d += pick(level >= 7 ? [-1, 1, -2, 2, -3, 3] : level >= 6 ? [-1, 1, -1, 1, -2, 2, 3, -3] : [-1, 1, -1, 1, -2, 2]);
         degs.push(d); durs.push(du); parts.push(String(du));
       });
     }
+    notes = toMidis(degs);
     tries++;
-  } while ((degs.some(x => x < lo || x > hi) || new Set(degs).size < 3 || degs.length > (level >= 7 ? 14 : 13) || degs.length < (level >= 7 ? 8 : level >= 6 ? 7 : 5)) && tries < 350);
-  const notes = degs.map((x, i) => {
-    const o = Math.floor(x / 7), st = ((x % 7) + 7) % 7;
-    let m = K.t + 12 * o + steps[st];
-    if (K.min && st === 6 && degs[i + 1] != null && ((degs[i + 1] % 7) + 7) % 7 === 0) m += 1; // leading note rises to home in minor
-    return m;
-  });
+  } while ((degs.some(x => x < lo || x > hi) || (Math.max(...notes) - Math.min(...notes) > 12) || new Set(degs).size < 3 || degs.length > (level >= 7 ? 14 : 13) || degs.length < (level >= 7 ? 8 : level >= 6 ? 7 : 5)) && tries < 500);
+  if (Math.max(...notes) - Math.min(...notes) > 12) {
+    degs = [0, 2, 4, 2, 1, 0]; durs = [1, 1, 1, 1, 1, 1]; parts = ['1', '1', '|', '1', '1', '|', '1', '1']; notes = toMidis(degs);
+  }
   const third = K.min ? 3 : 4, wl = m => LET[((m % 12) + 12) % 12] ? m : m - 1;
   return { type: 'echo', exam: true, rhythm: true, key, keyLabel: key, flats: K.fl, minor: K.min, notes, durs, pattern: parts.join(','), k, bars, given: notes[0], got: [], tapT: [], chord: [K.t, K.t + third, K.t + 7], lo: wl(Math.min(...notes) - 2), hi: wl(Math.max(...notes) + 2) + (LET[(Math.max(...notes) + 2) % 12] ? 0 : 0), level };
 }
 function judgeEchoR(q) {
   const pitchOk = q.got.every((x, i) => x === q.notes[i]);
   const want = onsetsOf(q.pattern), tp = q.tapT, span = want[want.length - 1] || 1;
-  const got = tp.map(x => (x - tp[0]) / ((tp[tp.length - 1] - tp[0]) || 1) * span);
+  const actualMs = (tp[tp.length - 1] - tp[0]) || 1;
+  const got = tp.map(x => (x - tp[0]) / actualMs * span);
   const worst = Math.max(...want.map((w, i) => Math.abs(w - got[i])));
   const rhythmOk = worst < 0.25; // a quarter of a beat: enough to tell even notes from long-short
-  judge(pitchOk && rhythmOk, { pitchOk, rhythmOk, got });
+  const tempoRatio = actualMs / (span * 620); // playExam uses 0.62s per beat
+  judge(pitchOk && rhythmOk, { pitchOk, rhythmOk, got, tempoRatio });
 }
 // Basso's tools: what the feature looked like, shown after the answer
 function featViz(q) {
@@ -1799,10 +1828,17 @@ function makeQ(type, level, force) {
     do { cells = bar().concat([null]).concat(bar()); g++; } while (!cells.some(x => x && x[0] !== 2) && g < 20); // need at least one beat that can change
     const flat = c => c.flatMap(x => x === null ? ['|'] : x);
     const right = flat(cells).join(',');
-    const swap = x => x.length === 1 ? [0.5, 0.5] : x[0] === 1.5 ? [1, 1] : [1]; // one beat ↔ two quick notes; dotted pair ↔ two even beats
-    const variant = () => { const c = cells.map(x => x && x.slice()); const idx = c.map((x, i) => x && !(x.length === 1 && x[0] === 2) ? i : -1).filter(i => i >= 0); const i = pick(idx); c[i] = swap(c[i]); return flat(c).join(','); };
+    const swap = x => x.length === 1 ? (x[0] === 2 ? [1, 1] : [0.5, 0.5]) : x[0] === 1.5 ? [1, 1] : [1];
+    const variant = () => { const c = cells.map(x => x && x.slice()); const idx = c.map((x, i) => x ? i : -1).filter(i => i >= 0); const i = pick(idx); c[i] = swap(c[i]); return flat(c).join(','); };
     const opts = [right]; let tries = 0;
-    while (opts.length < 3 && tries < 40) { const v = variant(); if (opts.indexOf(v) < 0) opts.push(v); tries++; }
+    while (opts.length < 3 && tries < 60) { const v = variant(); if (opts.indexOf(v) < 0) opts.push(v); tries++; }
+    // Fallback: mutate two cells or swap bar 1 & bar 2 so 3 distinct valid-bar options are 100% guaranteed
+    let fb = 0;
+    while (opts.length < 3 && fb < 40) {
+      const c = bar().concat([null]).concat(bar()), v = flat(c).join(',');
+      if (opts.indexOf(v) < 0) opts.push(v);
+      fb++;
+    }
     return { type, k, pattern: right, options: opts.sort(() => Math.random() - 0.5), level, cells };
   }
   if (type === 'tapbeat') { // tap along with the beat while the tune plays, then say 2, 3 or 4 time (foundation for Test C(ii))
@@ -1828,24 +1864,37 @@ function makeQ(type, level, force) {
     return { type, k, bars, ev, level, accent: level >= 2 ? 0.75 : 1 };
   }
   if (type === 'same') {
-    // level 0: pitch changes only (foundations). level 1: pitch OR rhythm changes (exam style). level 2: five notes, pitch or rhythm.
-    // force: 'pitch' | 'rhythm' | 'same' (used for the no-hint retry after a mistake)
+    // level 0: pitch changes only (foundations). level 1: pitch OR duration-conserving rhythm change. level 2: five notes.
+    // force: 'pitch' | 'rhythm' | 'same' | 'change' (guaranteed change for official Grade 3C mock)
     const len = level >= 2 ? 5 : 4;
     let d, n, tries = 0;
     do { d = rnd(8); n = [d]; for (let k = 0; k < len - 1; k++) { d += pick([-2, -1, 1, 2]); n.push(d); } tries++; } while (n.some(x => x < 0 || x > 7) && tries < 80);
     const a = n.map(x => SCALE[x]); let b = a.slice(), changed = null, kind = null, how = 0;
-    const RH = len === 5 ? [[1, 1, 1, 1, 2], [1, 0.5, 0.5, 1, 2], [0.5, 0.5, 1, 1, 2], [1, 1, 0.5, 0.5, 2]] : [[1, 1, 1, 2], [1, 0.5, 0.5, 2], [0.5, 0.5, 1, 2], [1, 1, 1, 1]];
+    const RH = len === 5
+      ? [[1, 1, 1, 1, 2], [1, 0.5, 0.5, 1, 2], [0.5, 0.5, 1, 1, 2], [1, 1, 0.5, 0.5, 2], [1.5, 0.5, 1, 1, 2]]
+      : [[1, 1, 1, 2], [1, 0.5, 0.5, 2], [0.5, 0.5, 1, 2], [1.5, 0.5, 1, 2], [1, 1, 1, 1]];
     const durs = level >= 1 ? pick(RH).slice() : null;
     const durs2 = durs ? durs.slice() : null;
-    const same = force ? force === 'same' : Math.random() < (level >= 1 ? 0.3 : 0.45);
+    const same = force === 'change' ? false : force ? force === 'same' : Math.random() < (level >= 1 ? 0.3 : 0.45);
     if (!same) {
-      kind = force && force !== 'same' ? force : (level >= 1 && Math.random() < 0.5 ? 'rhythm' : 'pitch');
-      changed = 1 + rnd(len - 2); // never the first or the last note
+      kind = (force && force !== 'same' && force !== 'change') ? force : (level >= 1 && Math.random() < 0.5 ? 'rhythm' : 'pitch');
       if (kind === 'pitch') {
+        changed = 1 + rnd(len - 2); // never the first or the last note
         const opts = [-1, 1].map(x => n[changed] + x).filter(x => x >= 0 && x <= 7);
         const to = pick(opts); how = to > n[changed] ? 1 : -1; b[changed] = SCALE[to];
       } else {
-        const was = durs2[changed]; durs2[changed] = was >= 1 ? was / 2 : was * 2; how = durs2[changed] > was ? 1 : -1;
+        // Duration-conserving pair redistribution: total phrase duration stays 100% identical!
+        const pairs = [];
+        for (let i = 0; i < len - 1; i++) {
+          const x = durs2[i], y = durs2[i + 1];
+          if (x === 1 && y === 1) pairs.push([i, 1.5, 0.5, 1], [i, 0.5, 1.5, -1]);
+          else if (x === 1.5 && y === 0.5) pairs.push([i, 1, 1, -1]);
+          else if (x === 1 && y === 0.5) pairs.push([i, 0.5, 1, -1]);
+          else if (x === 0.5 && y === 1) pairs.push([i, 1, 0.5, 1]);
+          else if (x === 0.5 && y === 0.5) pairs.push([i, 0.75, 0.25, 1]);
+        }
+        const mv = pick(pairs);
+        changed = mv[0]; durs2[changed] = mv[1]; durs2[changed + 1] = mv[2]; how = mv[3];
       }
     }
     return { type, notes: a, notes2: b, durs, durs2, same, changed, kind, how, level, stage: 'same' };
@@ -2002,13 +2051,21 @@ function nextSeg() {
       if (typeof k === 'string') { L.quizQs.push(makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0)); return; }
       if (k.t === 'cpair') { const c = makeQ('char', 1, 'cii'); if (c.piece.real) { const r0 = Math.random(); if (r0 < 0.3) c.piece.dyn = pick(['cresc', 'dim']); else if (r0 < 0.5) c.piece.tch = 'slower'; } const f = featFrom(c.piece); f.sec = c.sec = 'Ci'; L.quizQs.push(f, c); lastPiece = c.piece; return; }
       if (k.t === 'cii') { const pc = (lastPiece && (!lastPiece.real || lastPiece.cii)) ? lastPiece : (window.PIECES ? realPiece(freshPiece(PIECES.filter(x => x.cii))) : makePiece({ k: pick([2, 3, 4]) })), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
-      if (k.t === 'cii5') {
-        const use68 = window.PIECES && Math.random() < 0.45;
-        const pool = window.PIECES ? PIECES.filter(x => use68 ? x.compound : x.cii) : [];
-        const pc = pool.length ? realPiece(freshPiece(pool)) : makePiece({ k: pick([2, 3, 4]) });
-        const r = use68 ? makeQ('taprhythm', 2) : rhythmFrom(pc);
-        const m = meterFrom(pc, true);
-        r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return;
+      if (k.t === 'g3d') {
+        const pc = makePiece({ minor: Math.random() < 0.5, k: pick([2, 3, 4]), tempo: 'mid', art: pick(['legato', 'staccato']), dyn: pick(['cresc', 'dim', 'fp', 'pf']), tch: pick(['steady', 'slower', 'faster']), lh: pick(['broken', 'oompah']) });
+        const a1 = pick(['dyn', 'art', 'tempo']);
+        const q1 = { type: 'feat', aspect: a1, opts: { dyn: ['cresc', 'dim', 'fp', 'pf'], art: ['legato', 'staccato'], tempo: ['steady', 'slower', 'faster'] }[a1], ans: a1 === 'dyn' ? pc.dyn : a1 === 'art' ? pc.art : pc.tch, piece: pc, level: 1, sec: 'D3' };
+        const q2 = { type: 'feat', aspect: 'ton', opts: ['major', 'minor'], ans: pc.minor ? 'minor' : 'major', piece: pc, level: 1, sec: 'D3' };
+        L.quizQs.push(q1, q2); lastPiece = pc; return;
+      }
+      if (k.t === 'g5c' && AG.makeExamPiece5) {
+        const pc = AG.makeExamPiece5();
+        const a1 = ['cresc', 'dim', 'fp', 'pf'].includes(pc.dyn) ? pick(['dyn', 'art', 'ton']) : pick(['art', 'ton']);
+        const qFeat = { type: 'feat', aspect: a1, opts: { dyn: ['cresc', 'dim', 'fp', 'pf'], art: ['legato', 'staccato'], ton: ['major', 'minor'] }[a1], ans: a1 === 'dyn' ? pc.dyn : a1 === 'art' ? pc.art : (pc.minor ? 'minor' : 'major'), piece: pc, level: 1, sec: 'Ci' };
+        const qStyle = { type: 'style', ans: pc.period, opts: ['baroque', 'classical', 'romantic', 'modern'], piece: pc, level: 1, sec: 'Ci' };
+        const qRh = { type: 'taprhythm', k: pc.k, pattern: pc.rPat, notes: pc.rNotes, level: 2, taps: [], twice: true, piece: pc, sec: 'Cii' };
+        const qMet = { type: 'meter', k: pc.k, bars: 4, ev: [], piece: pc, level: 2, accent: 1, sec: 'Cii' };
+        L.quizQs.push(qFeat, qStyle, qRh, qMet); lastPiece = pc; return;
       }
       const q2 = makeQ(k.t, k.lv, k.a); if (k.sec) q2.sec = k.sec; if (q2.piece) lastPiece = q2.piece; L.quizQs.push(q2);
     }); }
@@ -2317,7 +2374,7 @@ function playQ(slow) {
   if (q.type === 'feat' || q.type === 'char') { playPiece(q.piece); return; }
   if (q.type === 'singmatch') { stopListen(); play(q.target, 0.1); play(q.target, 1.0); setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 1900); return; }
   if (q.type === 'sight') {
-    stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (['C', 'F', 'G', 'D'].includes(q.key) ? 4 : 3), h + 7];
+    stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (['C', 'F', 'G', 'D', 'Bb'].includes(q.key) ? 4 : 3), h + 7];
     ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach((m, i) => play(m, 1.1 + i * 0.007, 0.55)); play(h, 2.2, 0.85);
     setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
   }
@@ -2468,6 +2525,7 @@ function judge(ok, info) {
     if (q.type === 'style' && AG.styleSayIt) { feedback(true, T_.styRight(T_.styName[q.ans]), AG.styleSayIt(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
+    if (info && info.tempoRatio && T_.tempoTip) { const tip = T_.tempoTip(info.tempoRatio); if (tip) toast(tip.trim()); }
     setTimeout(() => { if (L && L.q === q) ask(); }, q.type === 'echo' || q.type === 'find' ? 1100 : 750);
     return;
   }
@@ -2782,7 +2840,7 @@ const PAYT = {
 const PT = () => PAYT[S.lang] || PAYT.en;
 const gradePrice = () => !!(window.DottinoPay && window.DottinoPay.CFG && window.DottinoPay.CFG.prices && window.DottinoPay.CFG.prices['g' + GRADE]);
 const payOn = () => !!(window.DottinoPay && window.DottinoPay.active() && gradePrice());
-function payLocked() { return WEEK >= 2 && payOn() && !window.DottinoPay.hasAccess(GRADE); }
+function payLocked() { return !PREVIEW && WEEK >= 2 && payOn() && !window.DottinoPay.hasAccess(GRADE); }
 function renderGradeBar() {
   const gb = $('gradebar'); if (!gb) return;
   const zh = S.lang === 'zh';
@@ -2942,7 +3000,7 @@ if (PREVIEW) {
       const msg = $('fbs-msg').value.trim(), st = $('fbs-status');
       if (msg.length < 3) { st.style.color = 'var(--bad)'; st.textContent = f.bad; return; }
       const where = L ? 'stop ' + (L.n + 1) + (L.q ? ' · ' + L.q.type + (L.q.aspect ? '/' + L.q.aspect : '') + (L.q.key ? '/' + L.q.key : '') + (L.q.sec ? '/' + L.q.sec : '') : '') : ($('v-done').hidden ? 'week page' : 'stop done screen');
-      const body = new URLSearchParams({ 'form-name': 'feedback', message: msg, name: $('fbs-name').value.trim(), email: $('fbs-email').value.trim(), week: String(WEEK), where, lang: S.lang, settings: 'naming=' + S.naming + ' sing=' + S.sing + ' clef=' + S.clef, ua: navigator.userAgent.slice(0, 180), ref: shared.ref || '' });
+      const body = new URLSearchParams({ 'form-name': 'feedback', message: msg, name: $('fbs-name').value.trim(), email: $('fbs-email').value.trim(), grade: String(GRADE), week: String(WEEK), where, lang: S.lang, settings: 'naming=' + S.naming + ' sing=' + S.sing + ' clef=' + S.clef, ua: navigator.userAgent.slice(0, 180), ref: shared.ref || '' });
       $('fbs-send').disabled = true;
       fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
         .then(r => { if (!r.ok) throw new Error(r.status); track('teacher-feedback'); st.style.color = 'var(--good)'; st.textContent = f.ok; $('fbs-msg').value = ''; setTimeout(() => { sheet.hidden = true; st.textContent = ''; }, 1600); })
