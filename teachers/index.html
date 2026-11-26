@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dottino for Piano Teachers · Free Aural Homework Links (ABRSM Grades 3–5)</title>
+<meta name="description" content="Save lesson time for repertoire. Send students a 3-minute free ABRSM aural check or Week 1 listening homework with zero downloads or student logins. Built by a piano teacher and music education PhD.">
+<link rel="canonical" href="https://dottino.app/teachers/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dottino">
+<meta property="og:title" content="Dottino for Piano Teachers · Save lesson time for repertoire">
+<meta property="og:description" content="Send students a 3-minute ABRSM ear check or 10-minute weekly listening homework in any browser — no app downloads, no accounts.">
+<meta property="og:url" content="https://dottino.app/teachers/">
+<meta property="og:image" content="https://dottino.app/img/og/home.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4EFE6">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="/guides/guide.css">
+<style>
+.tool-box { background: var(--card); border: 2px solid var(--ink); border-radius: 20px; padding: 20px; margin: 20px 0 28px; display: grid; gap: 14px; }
+.tool-box label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.tool-box input, .tool-box select, .tool-box textarea { width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.tool-box textarea { min-height: 112px; resize: vertical; line-height: 1.5; }
+.trow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .trow { grid-template-columns: 1fr; } }
+.tbtns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.tbtn { border: 0; border-radius: 999px; padding: 10px 18px; font: 700 15px var(--f-body); cursor: pointer; background: var(--coral); color: #fff; text-decoration: none; display: inline-block; }
+.tbtn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+.tstat { font-size: 14px; font-weight: 700; color: var(--coral); }
+.fbox { background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 22px; margin: 28px 0 12px; display: grid; gap: 12px; }
+.fbox h2 { margin: 0; font-size: 23px; }
+.fbox input { width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 10px 16px; }
+</style>
+</head>
+<body>
+<header class="top"><a class="brand" href="/">dottino<i>.</i></a><a class="cta" href="/ear-check/?ref=teacher">Try Ear Check</a></header>
+<article>
+  <p class="eyebrow">For Piano &amp; Instrumental Teachers</p>
+  <h1>Keep lesson time for music. Let Basso handle aural between lessons.</h1>
+  <p class="lede">With 30-minute lessons, aural often gets squeezed into the final three weeks before an exam. Dottino lets your students build real listening habits at home in 10 minutes a day — straight in any browser, with no app downloads and no accounts to manage.</p>
+  <div class="byline"><img src="/img/wave.png" alt=""><span>Built by Tim · pianist, Royal College of Music (MPerf), PhD in music education (Royal Holloway, University of London), 15+ years teaching</span></div>
+
+  <h2>Why teachers send Dottino home</h2>
+  <div class="tests">
+    <div class="test">
+      <h3><b class="tag">1</b>Zero setup friction for parents</h3>
+      <p>Works on any phone, iPad or laptop browser. No App Store install, no password resets, no child accounts or data stored on servers.</p>
+    </div>
+    <div class="test">
+      <h3><b class="tag">2</b>Teaches <em>how</em> to listen, not blind guessing</h3>
+      <p>Every wrong answer shows the visual tool behind the sound — full-width piano pitch shifts, Major/Minor 3rd ladders, beat spacing, and gentle microphone sight-singing feedback.</p>
+    </div>
+    <div class="test">
+      <h3><b class="tag">3</b>A teacher-readable card after each week</h3>
+      <p>At the end of every week, parents can copy a one-paragraph summary of what their child hears securely and which test still needs attention.</p>
+    </div>
+  </div>
+
+  <h2>Send a student link in 10 seconds</h2>
+  <p>Pick a free starter link below and copy a ready-made note for WhatsApp or email. Adding your name is optional (it simply helps us see which studio sent a student).</p>
+  <div class="tool-box">
+    <div class="trow">
+      <div>
+        <label for="t-name">Your name or studio (optional)</label>
+        <input id="t-name" type="text" placeholder="e.g. Sarah" maxlength="32">
+      </div>
+      <div>
+        <label for="t-dest">What to send</label>
+        <select id="t-dest">
+          <option value="ear">Free 3-Minute Ear Check (Grades 3–5)</option>
+          <option value="w1">Free Week 1 · Foundations (4 × 10 min)</option>
+          <option value="mock">Grade 4 Full Mock &amp; 8-Week Pack (£15)</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label for="t-msg">Ready-to-send message for parents</label>
+      <textarea id="t-msg" readonly></textarea>
+    </div>
+    <div class="tbtns">
+      <button class="tbtn" id="t-copy-msg" type="button">Copy parent message</button>
+      <button class="tbtn ghost" id="t-copy-url" type="button">Copy link only</button>
+      <span class="tstat" id="t-stat" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <form class="fbox" id="tp-form" name="teacher-preview" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+    <input type="hidden" name="form-name" value="teacher-preview">
+    <p hidden><label>Leave blank: <input name="bot-field"></label></p>
+    <p class="eyebrow" style="margin:0">Free teacher preview</p>
+    <h2>Want to test all 8 weeks of Grade 4 before recommending it?</h2>
+    <p style="margin:0;font-size:16px;color:var(--muted)">Leave your teaching email and I’ll personally send you complimentary preview access to the full Grade 4 Aural Pack (including sight-singing and Week 8 mocks). I read every reply — feedback from fellow teachers shapes Grades 3 &amp; 5 next.</p>
+    <div class="trow">
+      <input id="tp-name" name="name" type="text" placeholder="Your name" required>
+      <input id="tp-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@studio.co.uk" required>
+    </div>
+    <div class="tbtns">
+      <button class="tbtn" type="submit">Request free teacher preview</button>
+      <span class="tstat" id="tp-stat" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <p class="note">Explore: <a href="/ear-check/?ref=teacher">3-Minute Ear Check</a> · <a href="/aural?w=1&amp;ref=teacher">Week 1 Free</a> · <a href="/guides/abrsm-grade-4-aural/">Parent’s Guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock Test Guide</a> · <a href="/">dottino.app</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
+</article>
+<script>
+const gc = (p, t) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: t, event: true }); } catch (e) {} };
+const nameIn = document.getElementById('t-name'), destIn = document.getElementById('t-dest'), msgOut = document.getElementById('t-msg'), stat = document.getElementById('t-stat');
+const slug = s => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+function currentUrl() {
+  const tag = slug(nameIn.value);
+  const ref = tag ? 'teacher-' + tag : 'teacher';
+  const v = destIn.value;
+  if (v === 'w1') return 'https://dottino.app/aural?w=1&ref=' + ref;
+  if (v === 'mock') return 'https://dottino.app/aural?w=8&ref=' + ref;
+  return 'https://dottino.app/ear-check/?ref=' + ref;
+}
+function syncMsg() {
+  const url = currentUrl(), v = destIn.value;
+  const body = v === 'w1'
+    ? 'Hi! For aural practice between lessons this week, here is Week 1 of Dottino (free, 4 short 10-minute listening games in the browser, no download or sign-up needed):\n' + url
+    : v === 'mock'
+    ? 'Hi! Ahead of the Grade 4 exam, Dottino has an 8-week aural pack with full exam-order mocks and sight-singing (£15 one-time, Week 1 free to try first):\n' + url
+    : 'Hi! Here is a quick free 3-minute ABRSM listening check (Grades 3–5) we can use to see which aural skills to focus on next — works in any browser, no download:\n' + url;
+  msgOut.value = body;
+}
+nameIn.addEventListener('input', syncMsg);
+destIn.addEventListener('change', syncMsg);
+syncMsg();
+async function copyText(txt, label, ev) {
+  gc('event/teachers/' + ev, ev);
+  try { await navigator.clipboard.writeText(txt); stat.textContent = label + ' copied ✓'; }
+  catch (e) { msgOut.select(); stat.textContent = 'Select and copy above.'; }
+  setTimeout(() => { stat.textContent = ''; }, 2400);
+}
+document.getElementById('t-copy-msg').onclick = () => copyText(msgOut.value, 'Message', 'copy-msg-' + destIn.value);
+document.getElementById('t-copy-url').onclick = () => copyText(currentUrl(), 'Link', 'copy-url-' + destIn.value);
+
+const form = document.getElementById('tp-form'), tpStat = document.getElementById('tp-stat');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const em = document.getElementById('tp-email').value.trim(), nm = document.getElementById('tp-name').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { tpStat.textContent = 'Please enter a valid email address.'; return; }
+  const body = new URLSearchParams({ 'form-name': 'teacher-preview', name: nm, email: em });
+  fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
+    .then(r => { if (!r.ok) throw new Error(r.status); gc('event/teachers/request-preview', 'teacher preview request'); tpStat.style.color = '#1B7A45'; tpStat.textContent = 'Request received ✓ I will email your preview access shortly.'; form.reset(); })
+    .catch(() => { tpStat.textContent = 'Could not send right now — please email hello@dottino.app directly.'; });
+});
+</script>
+<script data-goatcounter="https://dottino.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

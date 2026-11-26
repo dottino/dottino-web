@@ -335,6 +335,16 @@ a { color: inherit; }
 .choices { margin: 16px 0 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .choice-q { grid-column: 1 / -1; margin: 0 0 2px; font-weight: 700; }
 .choice { font: inherit; font-weight: 700; display: flex; align-items: center; gap: 8px; text-align: left; border: 1.5px solid var(--ink); background: var(--card); color: var(--ink); border-radius: 16px; padding: 12px 14px; cursor: pointer; transition: transform .1s; } .choice:active { transform: scale(.97); } .choice span { font-size: 20px; }
 .ans.guess { box-shadow: 0 0 0 3px rgba(242,162,58,.35); } .guess-tag { font-style: normal; font-size: 12px; font-weight: 700; color: #B86E12; }
+/* Exam-soon quick modes strip */
+.qmodes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 560px) { .qmodes { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.qmode { display: flex; flex-direction: column; gap: 2px; text-decoration: none; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; transition: border-color .15s, transform .1s; }
+.qmode:hover { border-color: var(--ink); }
+.qmode:active { transform: scale(.98); }
+.qmode.hi { border-color: var(--coral); background: var(--coral-soft); }
+.qmode b { font-family: var(--f-display); font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.qmode span { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.pb-trust { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 </style>
 <script src="pay.js"></script>
 <script src="pieces.js"></script>
@@ -358,6 +368,7 @@ a { color: inherit; }
       <p id="t-intro"></p>
     </section>
     <p class="weeknav" id="weeknav"></p>
+    <div class="qmodes" id="qmodes" aria-label="Quick study modes"></div>
     <p class="sound"><span aria-hidden="true">🔊</span><span id="t-sound"></span></p>
     <section class="card">
       <h2 id="t-lessons">Three stops, about 10 minutes each</h2>
@@ -376,6 +387,7 @@ a { color: inherit; }
       <h3 id="pb-title"></h3>
       <p id="pb-sub" class="small"></p>
       <div class="actions"><button class="btn coral" id="pb-buy" type="button"></button><span class="status" id="pb-status" aria-live="polite"></span></div>
+      <div class="pb-trust" id="pb-trust"></div>
       <details class="small" id="pb-restore"><summary id="pb-rs-sum"></summary>
         <div class="wl-row"><input type="email" id="pb-email" placeholder="you@example.com" aria-label="Email" autocomplete="email"><button class="btn ghost sm" id="pb-rs-btn" type="button"></button></div>
       </details>
@@ -2686,10 +2698,23 @@ function renderPay(locked) {
   $('pb-title').textContent = locked ? P.lockTitle : P.title;
   $('pb-sub').textContent = locked ? P.title + ' — ' + P.sub : P.sub;
   $('pb-buy').textContent = owned ? P.owned : P.buy; $('pb-buy').disabled = owned;
+  $('pb-trust').textContent = S.lang === 'zh' ? '🔒 Apple Pay / 银行卡 · 📱 凭邮箱任意设备找回 · ✓ 14 天全额退款' : '🔒 Apple Pay & Card · 📱 Restore on any device by email · ✓ 14-day refund';
   $('pb-rs-sum').textContent = P.rsSum; $('pb-rs-btn').textContent = P.rsBtn;
   $('pb-restore').hidden = owned;
   $('pb-test').hidden = !(window.DottinoPay.CFG.env === 'sandbox');
-  if (locked) $('pay-box').classList.add('lock'); else $('pay-box').classList.remove('lock');
+  if (locked) { $('pay-box').classList.add('lock'); const lc = $('lessons').closest('.card'); if (lc && lc.parentNode) lc.parentNode.insertBefore($('pay-box'), lc); }
+  else $('pay-box').classList.remove('lock');
+}
+function renderQuickModes() {
+  const box = $('qmodes'); if (!box) return;
+  const zh = S.lang === 'zh';
+  const items = [
+    { href: '/ear-check/?ref=aural-quick', hi: false, t: zh ? '🎯 3 分钟自测' : '🎯 3-Min Check', s: zh ? '先找出薄弱题型' : 'Find weak spots' },
+    { href: '?w=4', hi: WEEK === 4, t: zh ? '🎹 A 题 · 弹回/调性' : '🎹 Test A · Mode', s: zh ? '第 4 周专项' : 'Week 4 focus' },
+    { href: '?w=7', hi: WEEK === 7, t: zh ? '🎤 B 题 · 视唱' : '🎤 Test B · Sing', s: zh ? '第 7 周五线谱' : 'Week 7 staff' },
+    { href: '?w=8', hi: WEEK !== 8, t: zh ? '⏱ 完整模拟考' : '⏱ Mock Exam', s: zh ? '临考冲刺 · 第 8 周' : 'Exam soon · Wk 8' }
+  ];
+  box.innerHTML = items.map(x => `<a class="qmode${x.hi ? ' hi' : ''}" href="${x.href}"><b>${x.t}</b><span>${x.s}</span></a>`).join('');
 }
 $('pb-buy').onclick = () => {
   track('buy-click-g4');
@@ -2706,6 +2731,7 @@ $('pb-rs-btn').onclick = () => {
 // ---------- week page ----------
 function renderWeek() {
   const T_ = t(), locked = payLocked();
+  renderQuickModes();
   renderPay(locked);
   $('lessons').innerHTML = T_.L.map((x, i) => {
     const d = saved.lessons[i], open = !locked && (PREVIEW || i === 0 || saved.lessons[i - 1]);
