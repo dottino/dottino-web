@@ -403,13 +403,15 @@
         <div class="actions"><button class="btn primary" id="share">Share my result</button><button class="btn ghost" id="send">Send to a parent or teacher</button></div>
         <p class="share-note" id="shareNote" hidden></p>
         <div class="next">
-          <a class="go" id="goWeek" href="/aural?w=1&ref=ear-${encodeURIComponent(REF)}"><b>Start listening practice free</b><span>Week 1 of the Grade 4 plan: four 10-minute lessons with Basso, the same tools you just saw. No sign-up.</span></a>
-          ${target === 4 ? `<a class="go pack" id="goPack" href="/aural?w=2&ref=ear-pack-${encodeURIComponent(REF)}"><b>Unlock the full 8-week Grade 4 pack · £15</b><span>All 8 weeks plus mock exam, 6 months access. One payment, no auto-renewal.</span></a>` : ''}
+          <a class="go" id="goWeek" href="/aural?g=${target}&w=1&ref=ear-${encodeURIComponent(REF)}"><b>Start Grade ${target} listening practice free</b><span>Week 1 of the Grade ${target} plan: four 10-minute lessons with Basso, the same tools you just saw. No sign-up.</span></a>
+          ${target === 4
+            ? `<a class="go pack" id="goPack" href="/aural?w=2&ref=ear-pack-${encodeURIComponent(REF)}"><b>Unlock the full 8-week Grade 4 pack · £15</b><span>All 8 weeks plus mock exam, 6 months access. One payment, no auto-renewal.</span></a>`
+            : `<a class="go pack" id="goPack" href="/aural?g=${target}&w=8&ref=ear-mock-${encodeURIComponent(REF)}"><b>Jump straight to the Grade ${target} Mock Exam</b><span>Full exam-order run (all 8 weeks of Grade ${target} are open now to try).</span></a>`}
           <button class="go linkish" id="again"><b>Try a new set of questions</b><span>Every check is different.</span></button>
         </div>
         ${INAPP ? '<p class="tip">Tip: the full lessons work best in Safari or Chrome. Tap ••• and choose “Open in browser”.</p>' : ''}
         <form class="mail" id="mail" novalidate>
-          <label for="mailIn"><b>Get Grade ${target} listening tips by email</b><span>${target === 4 ? 'Free Grade 4 practice tips for parents and students (the full Grade 4 pack is already open above). Under 13? Ask a parent to enter their email. No spam.' : `Tips for your level, and one email when the Grade ${target} pack opens (founding price £15). Under 13? Ask a parent to put in their email. No spam.`}</span></label>
+          <label for="mailIn"><b>Get Grade ${target} listening tips by email</b><span>Free Grade ${target} practice notes for parents and students (all 8 weeks of Grade ${target} are already open above). Under 13? Ask a parent to enter their email. No spam.</span></label>
           <div class="row"><input id="mailIn" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required><button class="btn primary" type="submit">Send it</button></div>
           <p class="mail-msg" id="mailMsg" role="status"></p>
         </form>

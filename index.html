@@ -683,7 +683,7 @@ p { margin: 0; }
 
     <footer class="foot">
       <div class="me"><img src="img/wave.png" alt=""><span data-t="fMe"></span></div>
-      <div><a href="/pieces/">Piece Pre-Flight</a> · <a href="/guides/abrsm-grade-4-aural/">Grade 4 aural guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock test plan</a> · <a href="/teachers/">For teachers</a> · <a href="/play/">Basso Challenges</a></div>
+      <div><a href="/pieces/">Piece Pre-Flight</a> · <a href="/guides/abrsm-grade-3-aural/">Grade 3 guide</a> · <a href="/guides/abrsm-grade-4-aural/">Grade 4 guide</a> · <a href="/guides/abrsm-grade-5-aural/">Grade 5 guide</a> · <a href="/teachers/">For teachers</a> · <a href="/play/">Basso Challenges</a></div>
       <div><a href="privacy.html" data-t="fPrivacy">Privacy</a> · <a href="terms.html" data-t="fTerms">Terms</a> · <a href="refunds.html">Refunds</a> · dottino.app</div>
       <div class="disc-note" data-t="fDisc">Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.</div>
     </footer>
@@ -893,12 +893,12 @@ const T = {
     obsPerfect: 'You cleared every level. Come back tomorrow for a new set.', clefName: { treble: 'treble clef', bass: 'bass clef' },
     line: k => 'line ' + k, space: k => 'space ' + k, ledgerBelow: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' below', ledgerAbove: n => n + ' ledger line' + (n > 1 ? 's' : '') + ' above',
     spaceBelow: 'the space below the staff', spaceAbove: 'the space above the staff', tomorrow: 'New notes tomorrow.', lowZone: 'Low range · bass clef', highZone: 'High range · treble clef', fullZone: 'G2 – F5 · the orange dot is middle C', turn: 'Turn your phone sideways to see the whole keyboard',
-    pack: 'ABRSM aural plans · Grade 4 open now (Grades 3 & 5 coming soon)', packs: 'Week-by-week practice for playing and singing back, sight-singing, spotting changes and pulse. Designed by Tim. Pieces end, skills stay. Week 1 of Grade 4 is free now at dottino.app/aural.',
-    founding: '£15 per grade, founding price', later: '',
+    pack: 'ABRSM aural plans · Grades 3, 4 & 5 live now', packs: 'Week-by-week practice for Grades 3, 4 and 5: pulse & 2/3/4/6-8 time, playing and singing back, sight-singing, texture, style and mock exams. Designed by Tim. Pieces end, skills stay.',
+    founding: '£15 per grade, 6 months access', later: '',
     fDisc: 'Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.',
-    fEyebrow: 'Founding members', fTitle: 'Aural Pack · £15 per grade', fP: 'Grade 4’s full 8-week aural plan is open now (£15, 6 months access, one payment, no auto-renewal). Grades 3 & 5 are coming soon.',
-    fL1: 'Grade 4: available now — full 8-week plan unlocked on purchase', fL2: 'Grades 3 & 5: leave your email to keep the £15 founding price', fL3: 'Not for you after all? Full refund within 14 days',
-    fGrade: 'Which grade?', fBtn: 'Lock the founding price', fBuy4: 'Get Grade 4 Aural Pack · £15', fBad: 'Please enter a valid email address.', fOk: 'Done. Your founding price is saved. One email when that grade opens, nothing else.', fFail: 'Couldn’t save just now. Please try again in a moment.', fTerms: 'Terms and refunds',
+    fEyebrow: 'Grades 3, 4 & 5 · Full 8-week plans', fTitle: 'Choose your grade · 8 weeks each', fP: 'Complete 8-week ABRSM aural paths with real exam-order mock tests and teacher reports — pick Grade 3, Grade 4 or Grade 5 below.',
+    fL1: 'Grade 3: pulse & 2/3/4 time (3A), echoes (3B), pitch/rhythm change (3C), features & major/minor (3D)', fL2: 'Grade 4: play/sing back (4A), 5-note sight-singing (4B), character & rhythm (4C) · £15 one-time', fL3: 'Grade 5: extended melodies (5A), 6-note sight-singing (5B), texture, cadences, period & 6/8 time (5C)',
+    fGrade: 'Which grade?', fBtn: 'Open 8-week plan →', fBuy4: 'Get Grade 4 Aural Pack · £15', fOpenG: g => 'Open Grade ' + g + ' (8-week plan) →', fBad: 'Please enter a valid email address.', fOk: 'Done. Your email is saved.', fFail: 'Couldn’t save just now. Please try again in a moment.', fTerms: 'Terms and refunds',
  who: 'Who would use it?', who1: 'My child', who2: 'Myself', who3: 'My students', join: 'Tell me when it opens',
     wlBad: 'Please enter a valid email address.', wlOk: 'Thank you. One email when the plans open, nothing else.', wlPreview: 'This preview can\u2019t send emails. On dottino.app this will save your place.'
   },
@@ -964,12 +964,12 @@ const T = {
     obsPerfect: '六个级别全部通过。明天会有新的一套题。', clefName: { treble: '高音谱号', bass: '低音谱号' },
     line: k => '第' + k + '线', space: k => '第' + k + '间', ledgerBelow: n => '下加' + n + '线', ledgerAbove: n => '上加' + n + '线',
     spaceBelow: '下加一间', spaceAbove: '上加一间', tomorrow: '明天有新的一套题。', lowZone: '低音区 · 低音谱号', highZone: '高音区 · 高音谱号', fullZone: 'G2 – F5 · 橙色小点是中央 C', turn: '把手机横过来，可以看到完整的键盘',
-    pack: 'ABRSM 考级听力计划 · 四级现已开放（3 级、5 级即将上线）', packs: '按周练习：唱回或弹回旋律、视唱、找出变化、拍子。由 Tim 设计。曲子会弹完，能力会留下。四级第 1 周现在就能免费试：dottino.app/aural。',
-    founding: '每个级别创始价 £15', later: '',
+    pack: 'ABRSM 考级听力计划 · 3、4、5 级现已全部上线', packs: '覆盖 3–5 级完整考纲：拍子与 2/3/4/6-8 拍、旋律回弹、五音/六音视唱、织体/终止式/时期风格与全真模拟考。由 Tim 设计。曲子会弹完，能力会留下。',
+    founding: '每个级别 £15 · 6 个月使用权', later: '',
     fDisc: 'Dottino 是独立开发的听力训练软件，与 ABRSM 没有隶属关系，也未获得其认可。',
-    fEyebrow: '创始会员', fTitle: '听力训练包 · 每个级别 £15', fP: '四级完整的 8 周听力计划现已开放（£15，可用 6 个月，一次付清不自动续费）；3 级与 5 级即将上线。',
-    fL1: '四级：现已开售，购买后立即解锁全部 8 周计划', fL2: '3 级与 5 级：留下邮箱锁定 £15 创始价，上线时通知你', fL3: '用了觉得不合适，14 天内全额退款',
-    fGrade: '哪个级别？', fBtn: '锁定创始价', fBuy4: '前往购买四级训练包 · £15', fBad: '请输入正确的邮箱地址。', fOk: '已登记，你的创始价已经保留。该级别上线时只发一封邮件。', fFail: '暂时没保存成功，请稍后再试。', fTerms: '条款与退款',
+    fEyebrow: '三级 · 四级 · 五级全套 8 周课程', fTitle: '选择你的级别 · 每级完整 8 周', fP: '严格对标 ABRSM 3–5 级考纲，含真实考场顺序模拟考与老师进度报告——在下方直接选择级别开始。',
+    fL1: '三级：稳拍与 2/3/4 拍（3A）、旋律回声（3B）、音高/节奏变化（3C）、特征与大小调（3D）', fL2: '四级：旋律回弹（4A）、五音视唱（4B）、性格特征与节奏拍号（4C）· £15 一次买断', fL3: '五级：长旋律回弹（5A）、六音视唱（5B）、织体/终止式/巴洛克至浪漫时期与 6/8 拍（5C）',
+    fGrade: '选择级别', fBtn: '进入 8 周课程 →', fBuy4: '购买四级训练包 · £15', fOpenG: g => '进入' + (g === '3' ? '三级' : '五级') + '完整 8 周课程 →', fBad: '请输入正确的邮箱地址。', fOk: '已登记。', fFail: '暂时没保存成功，请稍后再试。', fTerms: '条款与退款',
  who: '给谁用？', who1: '我的孩子', who2: '我自己', who3: '我的学生', join: '上线时通知我',
     wlBad: '请输入正确的邮箱地址。', wlOk: '预约成功。上线时只会发一封邮件通知你。', wlPreview: '预览版不能发送邮件。在 dottino.app 上这里会帮你保留名额。'
   }
@@ -1341,50 +1341,44 @@ $('wl-form').addEventListener('submit', e => {
 });
 
 // founding members & direct Paddle checkout on homepage (Grade 4 open now; Grades 3 & 5 register interest)
-function hasG4() { return !!(window.DottinoPay && window.DottinoPay.hasAccess(4)); }
-function openBuyG4(stEl, src) {
-  const L = t();
-  if (hasG4()) { location.href = '/aural?w=2'; return; }
-  try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/buy-click-g4-' + src, title: 'buy-g4-' + src, event: true }); } catch (e) {}
+function hasGrade(g) { return !!(window.DottinoPay && window.DottinoPay.hasAccess(+g)); }
+function hasPrice(g) { return !!(window.DottinoPay && window.DottinoPay.CFG && window.DottinoPay.CFG.prices && window.DottinoPay.CFG.prices['g' + g]); }
+function openBuyGrade(grade, stEl, src) {
+  const L = t(), g = +grade, dest = g === 4 ? '/aural?w=2' : '/aural?g=' + g;
+  if (hasGrade(g) || !hasPrice(g)) { location.href = dest; return; }
+  try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/buy-click-g' + g + '-' + src, title: 'buy-g' + g + '-' + src, event: true }); } catch (e) {}
   if (window.DottinoPay && window.DottinoPay.active()) {
-    window.DottinoPay.buy(4, {
+    window.DottinoPay.buy(g, {
       lang: S.lang,
       ref: saved.ref || src,
       onDone: ok => {
         if (stEl) { stEl.style.color = ok ? 'var(--good)' : '#CFC9D8'; stEl.textContent = ok ? L.buyPaid : L.buyFail; }
         syncFounding();
-        setTimeout(() => { location.href = '/aural?w=2'; }, 900);
+        setTimeout(() => { location.href = dest; }, 900);
       }
     }).catch(() => {
       if (stEl) { stEl.style.color = 'var(--bad)'; stEl.textContent = L.buyFail; }
-      setTimeout(() => { location.href = '/aural?w=2'; }, 900);
+      setTimeout(() => { location.href = dest; }, 900);
     });
   } else {
-    location.href = '/aural?w=2';
+    location.href = dest;
   }
 }
 function syncFounding() {
-  const L = t(), owned = hasG4();
+  const L = t(), owned4 = hasGrade(4);
   const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
-  const open4 = grade === '4';
-  if ($('buy-g4-pricing')) $('buy-g4-pricing').textContent = owned ? L.buyOwned : L.fBuy4;
-  $('fd-email').hidden = open4;
-  $('fd-btn').textContent = open4 ? (owned ? L.buyOwned : L.fBuy4) : L.fBtn;
-  if (open4) $('fd-status').textContent = '';
+  if ($('buy-g4-pricing')) $('buy-g4-pricing').textContent = owned4 ? L.buyOwned : L.fBuy4;
+  $('fd-email').hidden = true;
+  $('fd-btn').textContent = grade === '4' ? (owned4 ? L.buyOwned : L.fBuy4) : (L.fOpenG ? L.fOpenG(grade) : L.fBtn);
+  $('fd-status').textContent = '';
 }
-if ($('buy-g4-pricing')) $('buy-g4-pricing').addEventListener('click', () => openBuyG4($('buy-g4-status'), 'home-pricing'));
+if ($('buy-g4-pricing')) $('buy-g4-pricing').addEventListener('click', () => openBuyGrade(4, $('buy-g4-status'), 'home-pricing'));
 document.querySelectorAll('input[name=fdgrade]').forEach(r => r.addEventListener('change', syncFounding));
 syncFounding();
 $('fd-form').addEventListener('submit', e => {
   e.preventDefault();
-  const L = t(), grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '';
-  if (grade === '4') { openBuyG4($('fd-status'), 'home-founding'); return; }
-  const email = $('fd-email').value.trim(), st = $('fd-status');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.style.color = 'var(--bad)'; st.textContent = L.fBad; return; }
-  const body = new URLSearchParams({ 'form-name': 'founding', email, grade, ref: saved.ref || '', lang: S.lang, src: 'home-founding' });
-  fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
-    .then(r => { if (!r.ok) throw new Error(r.status); try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/founding-g' + grade, title: 'founding', event: true }); } catch (x) { /* ignore */ } st.style.color = 'var(--good)'; st.textContent = L.fOk; })
-    .catch(() => { st.style.color = 'var(--muted)'; st.textContent = L.fFail; });
+  const grade = (document.querySelector('input[name=fdgrade]:checked') || {}).value || '4';
+  openBuyGrade(grade, $('fd-status'), 'home-founding');
 });
 
 setText();

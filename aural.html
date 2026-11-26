@@ -345,9 +345,15 @@ a { color: inherit; }
 .qmode b { font-family: var(--f-display); font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.2; }
 .qmode span { font-size: 12px; color: var(--muted); line-height: 1.25; }
 .pb-trust { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.gradebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.gradebar a { text-decoration: none; font-family: var(--f-display); font-weight: 800; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); transition: border-color .15s, background .15s; }
+.gradebar a:hover { border-color: var(--ink); }
+.gradebar a.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.gradebar .gb-tag { font-size: 11px; font-weight: 700; opacity: .78; margin-left: 4px; }
 </style>
 <script src="pay.js"></script>
 <script src="pieces.js"></script>
+<script src="aural-grades.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -362,6 +368,7 @@ a { color: inherit; }
   <!-- WEEK OVERVIEW -->
   <main id="v-week">
     <a class="backlink" href="/" id="t-back">← Dottino home</a>
+    <nav class="gradebar" id="gradebar" aria-label="Choose ABRSM grade"></nav>
     <section class="intro">
       <div class="eyebrow" id="t-eyebrow">ABRSM Grade 4 aural · Week 1 · Free</div>
       <h1 id="t-h1">Hear which way the notes go.</h1>
@@ -460,9 +467,11 @@ a { color: inherit; }
 
 <script>
 (() => {
-// which week of the Grade 4 plan this page shows (?w=2 for week 2)
+// which grade & week this page shows (?g=3|4|5, ?w=1..8; defaults to Grade 4 Week 1)
 const PREVIEW = (() => { try { if (new URLSearchParams(location.search).get('preview') === '1') sessionStorage.setItem('dottino:preview', '1'); return sessionStorage.getItem('dottino:preview') === '1'; } catch (e) { return /[?&]preview=1/.test(location.search); } })();
+const GRADE = (() => { try { const g = +new URLSearchParams(location.search).get('g'); return g === 3 || g === 5 ? g : 4; } catch (e) { return 4; } })();
 const WEEK = (() => { try { const w = +new URLSearchParams(location.search).get('w'); return w >= 2 && w <= 8 ? w : 1; } catch (e) { return 1; } })();
+const AG = window.AURAL_GRADES || {};
 // ---------- text ----------
 const T = {
   en: {
@@ -1013,7 +1022,7 @@ const T = {
 };
 
 // ---------- storage (convenience only) ----------
-const KEY = 'dottino:aural:g4w' + WEEK;
+const KEY = 'dottino:aural:g' + GRADE + 'w' + WEEK;
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
 let shared = {};
@@ -1028,7 +1037,18 @@ const S = {
   sing: shared.sing !== false && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia), clef: shared.clef || 'treble'
 };
 const $ = id => document.getElementById(id);
-const t = () => { const b = T[S.lang], w = WEEK === 8 ? b.w8 : WEEK === 7 ? b.w7 : WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null; if (!w) return b; const x = WEEK >= 7 ? b.w6 : {}, y = WEEK >= 8 ? b.w7 : {}; const o = Object.assign({}, b, x, y, w); o.seg = Object.assign({}, b.seg, x.seg, y.seg, w.seg); return o; };
+const t = () => {
+  const b = T[S.lang], ex = (AG.EXTRA_T && AG.EXTRA_T[S.lang]) || {};
+  const w = WEEK === 8 ? b.w8 : WEEK === 7 ? b.w7 : WEEK === 6 ? b.w6 : WEEK === 5 ? b.w5 : WEEK === 4 ? b.w4 : WEEK === 3 ? b.w3 : WEEK === 2 ? b.w2 : null;
+  const x = (WEEK >= 7 || GRADE === 5) ? b.w6 : {}, y = (WEEK >= 8 || (GRADE === 5 && WEEK >= 4) || (GRADE === 3 && WEEK >= 5)) ? b.w7 : {};
+  const gOv = GRADE === 3 ? (AG.G3_COPY && AG.G3_COPY[S.lang] && AG.G3_COPY[S.lang][WEEK]) : GRADE === 5 ? (AG.G5_COPY && AG.G5_COPY[S.lang] && AG.G5_COPY[S.lang][WEEK]) : null;
+  const o = Object.assign({}, b, ex, x, y, w || {}, gOv || {});
+  o.seg = Object.assign({}, b.seg, x.seg, y.seg, w && w.seg, gOv && gOv.seg);
+  if (o.keyName && ex.keyNameD) o.keyName = Object.assign({}, o.keyName, ex.keyNameD);
+  if (GRADE === 3 && ex.secLongG3) o.secLong = ex.secLongG3;
+  if (GRADE === 5 && ex.secLongG5) o.secLong = ex.secLongG5;
+  return o;
+};
 const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const SOLF = { C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si' };
 const flatCtx = () => !!(typeof L !== 'undefined' && L && L.q && (L.q.flats || L.q.key === 'F'));
@@ -1211,18 +1231,32 @@ const LESSONS_W7 = [
 // week 8: mock exams in the real order (A, B, C(i), C(ii)); stop 2 practises the weakest part of mock 1
 const MOCK = [{ t: 'echo', lv: 5, sec: 'A' }, { t: 'echo', lv: 6, sec: 'A' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'sight', lv: 2, sec: 'B' }, { t: 'cpair' }, { t: 'cii' }];
 const LESSONS_W8 = [ [ { type: 'quiz', items: MOCK, exam: true } ], [ { type: 'weak' } ], [ { type: 'quiz', items: MOCK, exam: true } ], [ { type: 'quiz', items: MOCK, exam: true } ] ];
-const SEC_OF = { echo: 'A', sight: 'B', sightkeys: 'Bk', singmatch: 'B', feat: 'Ci', char: 'Ci', taprhythm: 'Cii', meter: 'Cii', tapbeat: 'Cii' };
+const SEC_OF = GRADE === 3
+  ? { tapbeat: 'A3', meter: 'A3', echo: 'B3', singmatch: 'B3', same: 'C3', feat: 'D3', mode: 'D3' }
+  : { echo: 'A', sight: 'B', sightkeys: 'Bk', singmatch: 'B', feat: 'Ci', char: 'Ci', texture: 'Ci', style: 'Ci', cadence: 'Ci', taprhythm: 'Cii', meter: 'Cii', tapbeat: 'Cii' };
+const SEC_KEYS = GRADE === 3 ? ['A3', 'B3', 'C3', 'D3'] : ['A', 'B', 'Bk', 'Ci', 'Cii'];
 function readyOf(a) { const r = a.asked ? a.right / a.asked : 0; return r >= 0.85 ? 2 : r >= 0.5 ? 1 : 0; }
 function secStats(stats) {
-  const r = { A: { asked: 0, right: 0 }, B: { asked: 0, right: 0 }, Bk: { asked: 0, right: 0 }, Ci: { asked: 0, right: 0 }, Cii: { asked: 0, right: 0 } };
-  Object.keys(stats || {}).forEach(k => { const sc = SEC_OF[k]; if (sc) { r[sc].asked += stats[k].asked; r[sc].right += stats[k].right; } });
+  const r = {}; SEC_KEYS.forEach(k => { r[k] = { asked: 0, right: 0 }; });
+  Object.keys(stats || {}).forEach(k => { const sc = SEC_OF[k]; if (sc && r[sc]) { r[sc].asked += stats[k].asked; r[sc].right += stats[k].right; } });
   return r;
 }
 function weakPlan() {
   const src = (saved.lessons[0] || {}).stats, ss = secStats(src);
-  let w = 'B', worst = 2;
-  ['A', 'B', 'Bk', 'Ci', 'Cii'].forEach(k => { const a = ss[k]; if (!a.asked) return; const rt = a.right / a.asked; if (rt < worst) { worst = rt; w = k; } });
-  const plans = {
+  let w = GRADE === 3 ? 'C3' : 'B', worst = 2;
+  SEC_KEYS.forEach(k => { const a = ss[k]; if (!a || !a.asked) return; const rt = a.right / a.asked; if (rt < worst) { worst = rt; w = k; } });
+  const plans = GRADE === 3 ? {
+    A3: [{ type: 'tapbeat', level: 1, fixed: true, count: 4 }, { type: 'meter', level: 2, fixed: true, count: 4 }],
+    B3: [{ type: 'echo', level: 2, fixed: true, count: 3 }, { type: 'echo', level: 3, fixed: true, count: 4 }],
+    C3: [{ type: 'same', level: 1, fixed: true, count: 3 }, { type: 'same', level: 2, fixed: true, count: 5 }],
+    D3: [{ type: 'feat', level: 1, fixed: true, count: 4 }, { type: 'mode', level: 1, fixed: true, count: 4 }]
+  } : GRADE === 5 ? {
+    A: [{ type: 'echo', level: 6, fixed: true, count: 3 }, { type: 'echo', level: 7, fixed: true, count: 4 }],
+    B: [{ type: 'sight', level: 3, fixed: true, count: 3 }, { type: 'sight', level: 4, fixed: true, count: 4 }],
+    Bk: [{ type: 'sight', level: 3, fixed: true, count: 3 }, { type: 'sight', level: 4, fixed: true, count: 4 }],
+    Ci: [{ type: 'texture', level: 1, fixed: true, count: 3 }, { type: 'style', level: 1, fixed: true, count: 3 }, { type: 'cadence', level: 1, fixed: true, count: 2 }],
+    Cii: [{ type: 'meter', level: 3, fixed: true, count: 4 }, { type: 'taprhythm', level: 2, fixed: true, count: 4 }]
+  } : {
     A: [{ type: 'echo', level: 5, fixed: true, count: 3 }, { type: 'echo', level: 6, fixed: true, count: 4 }],
     B: [{ type: 'sight', level: 1, fixed: true, count: 2 }, { type: 'sight', level: 2, fixed: true, count: 5 }],
     Bk: [{ type: 'sight', level: 1, fixed: true, count: 2 }, { type: 'sight', level: 2, fixed: true, count: 5 }],
@@ -1246,7 +1280,9 @@ const LESSONS_W1 = [
     { type: 'same', level: 1, fixed: true, count: 10 },
     { type: 'same', level: 2, fixed: true, count: 5 } ]
 ];
-const LESSONS = WEEK === 8 ? LESSONS_W8 : WEEK === 7 ? LESSONS_W7 : WEEK === 6 ? LESSONS_W6 : WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1;
+const LESSONS = (GRADE === 3 && AG.G3_WEEKS) ? AG.G3_WEEKS[WEEK]
+  : (GRADE === 5 && AG.G5_WEEKS) ? AG.G5_WEEKS[WEEK]
+  : (WEEK === 8 ? LESSONS_W8 : WEEK === 7 ? LESSONS_W7 : WEEK === 6 ? LESSONS_W6 : WEEK === 5 ? LESSONS_W5 : WEEK === 4 ? LESSONS_W4 : WEEK === 3 ? LESSONS_W3 : WEEK === 2 ? LESSONS_W2 : LESSONS_W1);
 
 let L = null; // running lesson state
 // play a 'meter' tune; count = add a click on every beat (higher click on beat 1) so the strong beat is easy to hear
@@ -1351,33 +1387,37 @@ function tick(when, strong) {
   o.connect(g); g.connect(outBus()); o.start(t); o.stop(t + 0.06);
 }
 // ---------- week 7: reading and singing (Test B) ----------
-// keys C, F or G major; five notes start and end on home, within a third either side, steps and thirds only
-const KEYS7 = { C: { l: 0, acc: {} }, F: { l: 3, acc: { 6: -1 } }, G: { l: 4, acc: { 3: 1 } } };
+// keys C, F, G or D major; Grade 4 (lv 0-2): 5 notes within a 3rd; Grade 5 (lv 3-4): 6 notes within a 5th (+ D major)
+const KEYS7 = { C: { l: 0, acc: {} }, F: { l: 3, acc: { 6: -1 } }, G: { l: 4, acc: { 3: 1 } }, D: { l: 1, acc: { 3: 1, 0: 1 } } };
 const STEPS = [0, 2, 4, 5, 7, 9, 11];
 function midiOfStep(ds, key) { const l = ((ds % 7) + 7) % 7, o = Math.floor(ds / 7); return 12 * (o + 1) + STEPS[l] + (KEYS7[key].acc[l] || 0); }
 function makeSight(level) {
-  const key = level >= 2 ? pick(['C', 'F', 'G']) : 'C', clef = S.clef;
+  const is6 = level >= 3;
+  const key = level >= 4 ? pick(['C', 'F', 'G', 'D']) : level >= 2 ? pick(['C', 'F', 'G']) : 'C', clef = S.clef;
   const home = KEYS7[key].l + 7 * (clef === 'bass' ? 3 : 4);
+  const midCount = is6 ? 4 : 3, minOff = is6 ? -2 : (level >= 1 ? -2 : 0), maxOff = is6 ? 4 : 2, maxLeap = is6 ? 3 : 2;
   let offs, tries = 0;
   do {
     offs = [0]; let d = 0;
-    for (let i = 0; i < 3; i++) { d += level >= 1 ? pick([-2, -1, -1, 1, 1, 2]) : pick([-1, 1, 1]); offs.push(d); }
+    for (let i = 0; i < midCount; i++) { d += is6 ? pick([-2, -1, -1, 1, 1, 2, 3, -3]) : level >= 1 ? pick([-2, -1, -1, 1, 1, 2]) : pick([-1, 1, 1]); offs.push(d); }
     offs.push(0); tries++;
-  } while ((offs.some(x => level >= 1 ? x < -2 || x > 2 : x < 0 || x > 2) || offs.some((x, i) => i && Math.abs(x - offs[i - 1]) > 2) || offs.slice(1).every((x, i) => x === offs[i]) || offs[1] === 0) && tries < 200);
+  } while ((offs.some(x => x < minOff || x > maxOff) || offs.some((x, i) => i && Math.abs(x - offs[i - 1]) > maxLeap) || offs.slice(1).every((x, i) => x === offs[i]) || offs[1] === 0) && tries < 300);
   const steps = offs.map(o => home + o);
   return { type: 'sight', key, clef, steps, notes: steps.map(ds => midiOfStep(ds, key)), home, idx: 0, missed: [], done: [], level };
 }
 // a five-line staff with clef, key signature and note heads; st: per-note 'ok' | 'miss' | 'now'
 function staffSvg(q, names) {
-  const W = 360, yB = 104, sp = 6, bass = q.clef === 'bass', bot = bass ? 18 : 30;
+  const W = q.steps.length > 5 ? 400 : 360, yB = 104, sp = 6, bass = q.clef === 'bass', bot = bass ? 18 : 30;
   const y = ds => yB - (ds - bot) * sp;
+  const sharpGlyph = (sx, sy) => `<g stroke="var(--ink)" stroke-linecap="butt"><line x1="${sx + 3}" y1="${sy - 15}" x2="${sx + 3}" y2="${sy + 17}" stroke-width="1.6"/><line x1="${sx + 10}" y1="${sy - 17}" x2="${sx + 10}" y2="${sy + 15}" stroke-width="1.6"/><line x1="${sx}" y1="${sy - 3}" x2="${sx + 13}" y2="${sy - 7}" stroke-width="3.6"/><line x1="${sx}" y1="${sy + 7}" x2="${sx + 13}" y2="${sy + 3}" stroke-width="3.6"/></g>`;
   let h = `<svg viewBox="0 0 ${W} 150" role="img" aria-label="${q.notes.map(m => letterOf(m)).join(' ')}">`;
   for (let i = 0; i < 5; i++) h += `<line x1="8" x2="${W - 8}" y1="${yB - i * 12}" y2="${yB - i * 12}" stroke="var(--ink)" stroke-width="1.3"/>`;
   h += bass ? `<text x="14" y="${yB - 21}" font-size="44" font-family="'Noto Music',serif" fill="var(--ink)">𝄢</text>` : `<text x="10" y="${yB + 4}" font-size="66" font-family="'Noto Music',serif" fill="var(--ink)">𝄞</text>`;
   let x0 = 66;
   if (q.key === 'F') { const fy = y(bass ? 20 : 34), fx = x0 + 4; h += `<g fill="none" stroke="var(--ink)" stroke-linecap="round"><line x1="${fx}" y1="${fy - 22}" x2="${fx}" y2="${fy + 6}" stroke-width="2"/><path d="M${fx} ${fy + 6} C ${fx + 13} ${fy - 1}, ${fx + 12} ${fy - 9}, ${fx + 5} ${fy - 6} C ${fx + 2} ${fy - 5}, ${fx} ${fy - 3}, ${fx} ${fy - 2}" stroke-width="2.6"/></g>`; x0 += 20; }
-  if (q.key === 'G') { const sy = y(bass ? 24 : 38), sx = x0 + 3; h += `<g stroke="var(--ink)" stroke-linecap="butt"><line x1="${sx + 3}" y1="${sy - 15}" x2="${sx + 3}" y2="${sy + 17}" stroke-width="1.6"/><line x1="${sx + 10}" y1="${sy - 17}" x2="${sx + 10}" y2="${sy + 15}" stroke-width="1.6"/><line x1="${sx}" y1="${sy - 3}" x2="${sx + 13}" y2="${sy - 7}" stroke-width="3.6"/><line x1="${sx}" y1="${sy + 7}" x2="${sx + 13}" y2="${sy + 3}" stroke-width="3.6"/></g>`; x0 += 20; }
-  const gap = (W - x0 - 30) / 5;
+  if (q.key === 'G' || q.key === 'D') { h += sharpGlyph(x0 + 3, y(bass ? 24 : 38)); x0 += 18; }
+  if (q.key === 'D') { h += sharpGlyph(x0 + 3, y(bass ? 21 : 35)); x0 += 18; }
+  const gap = (W - x0 - 30) / q.steps.length;
   q.steps.forEach((ds, i) => {
     const x = x0 + 16 + gap * (i + 0.5), yy = y(ds);
     for (let s2 = bot - 2; s2 >= ds; s2 -= 2) h += `<line x1="${x - 15}" x2="${x + 15}" y1="${y(s2)}" y2="${y(s2)}" stroke="var(--ink)" stroke-width="1.3"/>`;
@@ -1552,7 +1592,7 @@ const KEYS_A = {
 function makeEchoR(level) {
   const key = pick(level >= 6 ? Object.keys(KEYS_A) : ['C', 'G', 'F', 'am', 'em', 'dm']), K = KEYS_A[key];
   const steps = K.min ? [0, 2, 3, 5, 7, 8, 10] : [0, 2, 4, 5, 7, 9, 11];
-  const k = pick([2, 3, 4]), bars = level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 6 ? -3 : -2, hi = level >= 6 ? 7 : 5;
+  const k = pick([2, 3, 4]), bars = level >= 7 ? 4 : level >= 6 ? (k === 4 ? 3 : 4) : 2, lo = level >= 7 ? -3 : level >= 6 ? -3 : -2, hi = level >= 7 ? 8 : level >= 6 ? 7 : 5;
   let degs, durs, parts, tries = 0;
   do {
     degs = []; durs = []; parts = []; let d = pick([0, 2, 4]);
@@ -1561,12 +1601,12 @@ function makeEchoR(level) {
       if (b) parts.push('|');
       rh.forEach((du, i) => {
         if (b === bars - 1 && i === rh.length - 1) d = Math.abs(d - 7) < Math.abs(d) ? 7 : 0;
-        else if (degs.length) d += pick(level >= 6 ? [-1, 1, -1, 1, -2, 2, 3, -3] : [-1, 1, -1, 1, -2, 2]);
+        else if (degs.length) d += pick(level >= 7 ? [-1, 1, -2, 2, -3, 3, -4, 4] : level >= 6 ? [-1, 1, -1, 1, -2, 2, 3, -3] : [-1, 1, -1, 1, -2, 2]);
         degs.push(d); durs.push(du); parts.push(String(du));
       });
     }
     tries++;
-  } while ((degs.some(x => x < lo || x > hi) || new Set(degs).size < 3 || degs.length > 13 || degs.length < (level >= 6 ? 7 : 5)) && tries < 300);
+  } while ((degs.some(x => x < lo || x > hi) || new Set(degs).size < 3 || degs.length > (level >= 7 ? 14 : 13) || degs.length < (level >= 7 ? 8 : level >= 6 ? 7 : 5)) && tries < 350);
   const notes = degs.map((x, i) => {
     const o = Math.floor(x / 7), st = ((x % 7) + 7) % 7;
     let m = K.t + 12 * o + steps[st];
@@ -1626,7 +1666,10 @@ function rhythmFrom(pc) {
   mel.forEach((e, i) => { if (i && Math.floor(e.t / pc.k + 1e-6) !== Math.floor(mel[i - 1].t / pc.k + 1e-6)) parts.push('|'); const nx = mel[i + 1]; parts.push(String(+((nx ? nx.t : Math.max(e.t + e.d, 2 * pc.k)) - e.t).toFixed(3))); notes.push(e.m); });
   return { type: 'taprhythm', k: pc.k, pattern: parts.join(','), notes, level: 1, taps: [], twice: true, piece: pc };
 }
-function meterFrom(pc) { return { type: 'meter', k: pc.k, bars: 4, ev: [], piece: pc, level: 2, accent: 1 }; }
+function meterFrom(pc, allow68) {
+  const is68 = !!(allow68 && pc.compound);
+  return { type: 'meter', k: is68 ? 6 : pc.k, bars: 4, ev: [], piece: pc, level: allow68 ? 3 : 2, accent: 1, compound: is68 };
+}
 function playPieceCount(pc) { const d = playPiece(pc), clk = pieceClock(pc); beatTimes(pc, pc.T).forEach(bt => tick(0.1 + clk(bt.t), bt.strong)); return d; }
 // ---------- real repertoire (pieces.js) ----------
 // the next piece is one the child hasn't heard lately (all 20 come round before any repeats)
@@ -1637,9 +1680,13 @@ function freshPiece(pool) {
   try { localStorage.setItem('dottino:recentPieces', JSON.stringify(recent)); } catch (e) { /* ignore */ }
   return pc;
 }
-function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, up: pc.up || 0, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii }; }
+function realPiece(pc) { return { real: true, id: pc.id, composer: pc.composer, title: pc.title, char: pc.char, why: pc.why, ev: pc.ev, k: pc.k, up: pc.up || 0, B: pc.B, T: pc.T, minor: pc.minor, art: pc.art, dyn: 'mf', tch: 'steady', lh: 'real', cii: pc.cii, compound: !!pc.compound }; }
 function pieceLine(q) { const pc = q.piece; return pc && pc.real ? `<div class="small muted" style="margin-top:6px">♪ ${t().pieceWas(pc.composer, pc.title)}</div>` : ''; }
 function makeQ(type, level, force) {
+  if (type === 'cadence' && AG.makeCadence) return AG.makeCadence(level || 0);
+  if (type === 'texture' && AG.makeTexture) return AG.makeTexture(level || 0);
+  if (type === 'style' && AG.makeStyle) return AG.makeStyle(level || 0);
+  if (type === 'meter' && level >= 3 && AG.makeMeter68) return AG.makeMeter68();
   if (type === 'sight') return makeSight(level);
   if (type === 'singmatch') return { type, target: pick([60, 62, 64, 65, 67, 69, 71]), missed: false, level: 0 };
   if (type === 'feat') {
@@ -1955,6 +2002,14 @@ function nextSeg() {
       if (typeof k === 'string') { L.quizQs.push(makeQ(k, k === 'hl' ? 2 : k === 'contour' ? 2 : 0)); return; }
       if (k.t === 'cpair') { const c = makeQ('char', 1, 'cii'); if (c.piece.real) { const r0 = Math.random(); if (r0 < 0.3) c.piece.dyn = pick(['cresc', 'dim']); else if (r0 < 0.5) c.piece.tch = 'slower'; } const f = featFrom(c.piece); f.sec = c.sec = 'Ci'; L.quizQs.push(f, c); lastPiece = c.piece; return; }
       if (k.t === 'cii') { const pc = (lastPiece && (!lastPiece.real || lastPiece.cii)) ? lastPiece : (window.PIECES ? realPiece(freshPiece(PIECES.filter(x => x.cii))) : makePiece({ k: pick([2, 3, 4]) })), r = rhythmFrom(pc), m = meterFrom(pc); r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return; }
+      if (k.t === 'cii5') {
+        const use68 = window.PIECES && Math.random() < 0.45;
+        const pool = window.PIECES ? PIECES.filter(x => use68 ? x.compound : x.cii) : [];
+        const pc = pool.length ? realPiece(freshPiece(pool)) : makePiece({ k: pick([2, 3, 4]) });
+        const r = use68 ? makeQ('taprhythm', 2) : rhythmFrom(pc);
+        const m = meterFrom(pc, true);
+        r.sec = m.sec = 'Cii'; L.quizQs.push(r, m); return;
+      }
       const q2 = makeQ(k.t, k.lv, k.a); if (k.sec) q2.sec = k.sec; if (q2.piece) lastPiece = q2.piece; L.quizQs.push(q2);
     }); }
   if (g.type === 'intro') return showIntro();
@@ -2038,12 +2093,12 @@ function showReview() {
   say(right === L.review.length ? 'party' : 'wave', T_.revSay, true);
 }
 function helpGuess(q) {
-  const vals = q.type === 'feat' ? q.opts : q.type === 'char' ? q.options.map(o => o.id) : q.type === 'meter' ? (q.level === 0 ? [2, 3] : [2, 3, 4]).map(String) : q.type === 'mode' ? ['major', 'minor'] : q.type === 'contour' ? q.shapes : null;
-  if (!vals) return; const right = String(q.type === 'feat' ? q.ans : q.type === 'char' ? q.c : q.type === 'meter' ? q.k : q.type === 'mode' ? (q.minor ? 'minor' : 'major') : q.shape);
+  const vals = q.type === 'feat' || q.type === 'cadence' || q.type === 'texture' || q.type === 'style' ? q.opts : q.type === 'char' ? q.options.map(o => o.id) : q.type === 'meter' ? (q.level >= 3 ? [2, 3, 4, 6] : q.level === 0 ? [2, 3] : [2, 3, 4]).map(String) : q.type === 'mode' ? ['major', 'minor'] : q.type === 'contour' ? q.shapes : null;
+  if (!vals) return; const right = String(q.type === 'feat' || q.type === 'cadence' || q.type === 'texture' || q.type === 'style' ? q.ans : q.type === 'char' ? q.c : q.type === 'meter' ? q.k : q.type === 'mode' ? (q.minor ? 'minor' : 'major') : q.shape);
   q.help = Math.random() < 0.5 ? right : pick(vals.filter(v => String(v) !== right).map(String));
   q.helpRight = q.help === right;
 }
-function helpLabel(q) { const T_ = t(), v = q.help; return q.type === 'feat' ? T_.featName[v] : q.type === 'char' ? T_.charName[(q.options.find(o => o.id === v) || {}).c] : q.type === 'meter' ? T_.timeOf(+v) : q.type === 'mode' ? T_[v] : T_.thisShape; }
+function helpLabel(q) { const T_ = t(), v = q.help; return q.type === 'feat' ? T_.featName[v] : q.type === 'cadence' ? T_.cadName[v] : q.type === 'texture' ? T_.texName[v] : q.type === 'style' ? T_.styName[v] : q.type === 'char' ? T_.charName[(q.options.find(o => o.id === v) || {}).c] : q.type === 'meter' ? (q.level >= 3 ? T_.timeOf68(+v) : T_.timeOf(+v)) : q.type === 'mode' ? T_[v] : T_.thisShape; }
 function freshCopy(q) { return Object.assign({}, q, { got: [], tapT: q.tapT ? [] : undefined, taps: [], idx: 0, missed: [], done: [], over: false, ready: false, tricky: false }); }
 function practise(nq) { L.practice = true; L.q = nq; L.answered = false; L.lastPick = null; renderQ(); cueThen(nq, () => { playQ(); watchTurn(nq); }); }
 // just the part that went wrong: one bar of rhythm, three notes of a tune, or one step of the sight-singing
@@ -2118,7 +2173,8 @@ function renderQ() {
     $('l-prompt').textContent = T_.pMatch; $('l-sub').textContent = T_.sMatch;
     singbar(q); if (q.ready) beginListen(q);
   } else if (type === 'sight') {
-    $('l-prompt').textContent = S.sing ? T_.pSight : T_.pSightKeys; $('l-sub').textContent = (S.sing ? T_.sSight : T_.sSightKeys)(T_.keyName[q.key]);
+    const is6 = q.steps && q.steps.length > 5;
+    $('l-prompt').textContent = S.sing ? (is6 ? T_.pSight6 : T_.pSight) : (is6 ? T_.pSightKeys6 : T_.pSightKeys); $('l-sub').textContent = (S.sing ? T_.sSight : T_.sSightKeys)(T_.keyName[q.key] || q.key);
     { const oc = $('clefsw'); if (oc) oc.remove(); }
     drawStaff(q);
     if (S.sing) { singbar(q); if (q.ready) beginListen(q); }
@@ -2158,9 +2214,23 @@ function renderQ() {
   } else if (type === 'taprhythm') {
     $('l-prompt').textContent = T_.pTapRh; $('l-sub').textContent = T_.sTapRh;
     tapPad(ts => { const q2 = L.q; if (q2.busyUntil && ts < q2.busyUntil) return; q2.taps.push(ts); drawTaps(q2); clearTimeout(L.tapTimer); if (q2.taps.length >= onsetsOf(q2.pattern).length) L.tapTimer = setTimeout(() => { if (L.q === q2 && !L.answered) judgeTapRhythm(q2); }, 450); else L.tapTimer = setTimeout(() => { if (L.q === q2 && !L.answered && q2.taps.length) judgeTapRhythm(q2); }, 2500); });
+  } else if (type === 'cadence') {
+    $('l-prompt').textContent = T_.pCadence; $('l-sub').textContent = T_.sCadence;
+    answers(q.opts.map(v => [v, T_.cadIcon[v], T_.cadName[v]]), v => judge(v === q.ans, { chose: v }));
+  } else if (type === 'texture') {
+    $('l-prompt').textContent = T_.pTexture; $('l-sub').textContent = T_.sTexture;
+    answers(q.opts.map(v => [v, T_.texIcon[v], T_.texName[v]]), v => judge(v === q.ans, { chose: v }));
+  } else if (type === 'style') {
+    $('l-prompt').textContent = T_.pStyle; $('l-sub').textContent = T_.sStyle;
+    answers(q.opts.map(v => [v, T_.styIcon[v], T_.styName[v]]), v => judge(v === q.ans, { chose: v }));
   } else if (type === 'meter') {
-    $('l-prompt').textContent = q.level === 0 ? T_.pMeter2 : T_.pMeter; $('l-sub').textContent = T_.sMeter;
-    answers((q.level === 0 ? [2, 3] : [2, 3, 4]).map(k => [String(k), String(k), T_.timeOf(k)]), v => judge(+v === q.k, { chose: +v }));
+    if (q.level >= 3) {
+      $('l-prompt').textContent = T_.pMeter68; $('l-sub').textContent = T_.sMeter68;
+      answers([2, 3, 4, 6].map(k => [String(k), k === 6 ? '6/8' : String(k), T_.timeOf68(k)]), v => judge(+v === q.k, { chose: +v }));
+    } else {
+      $('l-prompt').textContent = q.level === 0 ? T_.pMeter2 : T_.pMeter; $('l-sub').textContent = T_.sMeter;
+      answers((q.level === 0 ? [2, 3] : [2, 3, 4]).map(k => [String(k), String(k), T_.timeOf(k)]), v => judge(+v === q.k, { chose: +v }));
+    }
   } else if (type === 'same') {
     $('l-prompt').textContent = T_.pSame; $('l-sub').textContent = q.retry ? T_.sRetry : q.level >= 1 ? T_.sSame2 : T_.sSame;
     answers([['same', '=', T_.same], ['diff', '≠', T_.diff]], v => {
@@ -2186,7 +2256,7 @@ function renderQ() {
   }
 }
 // "3 2 1" before longer audio, then "listening…" while it plays and "your turn" when it ends
-const CUE_TYPES = ['tapbeat', 'taprhythm', 'echo', 'sight', 'singmatch', 'feat', 'char', 'meter'];
+const CUE_TYPES = ['tapbeat', 'taprhythm', 'echo', 'sight', 'singmatch', 'feat', 'char', 'meter', 'cadence', 'texture', 'style'];
 let cueT = [];
 function cueThen(q, go) {
   cueT.forEach(clearTimeout); cueT = [];
@@ -2241,14 +2311,17 @@ function playQ(slow) {
   stopAudio();
   const q = L.q; if (!q) return;
   const gap = slow ? 0.95 : 0.62;
+  if (q.type === 'cadence' && AG.playCadence) { AG.playCadence(q, play, slow); return; }
+  if (q.type === 'texture' && AG.playTexture) { AG.playTexture(q, play, slow); return; }
+  if (q.type === 'style' && AG.playStyle) { AG.playStyle(q, play, slow); return; }
   if (q.type === 'feat' || q.type === 'char') { playPiece(q.piece); return; }
   if (q.type === 'singmatch') { stopListen(); play(q.target, 0.1); play(q.target, 1.0); setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 1900); return; }
   if (q.type === 'sight') {
-    stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (q.key === 'C' || q.key === 'F' || q.key === 'G' ? 4 : 3), h + 7];
+    stopListen(); const h = q.homeMidi || q.notes[0], ch = [h, h + (['C', 'F', 'G', 'D'].includes(q.key) ? 4 : 3), h + 7];
     ch.forEach((m, i) => play(m, 0.08 + i * 0.32, 0.65)); ch.forEach((m, i) => play(m, 1.1 + i * 0.007, 0.55)); play(h, 2.2, 0.85);
     setTimeout(() => { if (L && L.q === q) { q.ready = true; beginListen(q); } }, 3300); return;
   }
-  if (q.type === 'meter') { if (q.piece) playPiece(q.piece); else playMeter(q, slow, false); return; }
+  if (q.type === 'meter') { if (q.piece) playPiece(q.piece); else if (q.compound && AG.playMeter68) AG.playMeter68(q, play, tick, slow, false); else playMeter(q, slow, false); return; }
   if (q.type === 'mode') { const g2 = slow ? 0.6 : 0.42; q.chord.forEach((m, i) => play(m, 0.08 + i * g2, 0.7)); q.chord.forEach((m, i) => play(m, 0.2 + 3 * g2 + i * 0.007, 0.55)); if (q.tune) seq(q.tune, slow ? 0.78 : (q.step || 0.55), 0.3 + 3 * g2 + 1.1); return; }
   if (q.type === 'echo' && q.exam) { playExam(q, slow); return; }
   if (q.type === 'tonic') { [60, 64, 67].forEach((m, i) => play(m, 0.08 + i * 0.22, 0.6)); play(60, 0.8, 0.8); play(q.target, slow ? 2.2 : 1.8); return; }
@@ -2390,6 +2463,9 @@ function judge(ok, info) {
     }
     if (q.type === 'feat') { feedback(true, T_.featRight(T_.featName[q.ans]), featViz(q) + pieceLine(q)); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'cadence' && AG.cadenceSvg) { feedback(true, T_.cadRight(T_.cadName[q.ans]), AG.cadenceSvg(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'texture' && AG.textureSvg) { feedback(true, T_.texRight(T_.texName[q.ans]), AG.textureSvg(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'style' && AG.styleSayIt) { feedback(true, T_.styRight(T_.styName[q.ans]), AG.styleSayIt(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
     setTimeout(() => { if (L && L.q === q) ask(); }, q.type === 'echo' || q.type === 'find' ? 1100 : 750);
@@ -2399,7 +2475,7 @@ function judge(ok, info) {
   say('think', pick(T_.oops), true, 'think', true);
   explain(q, info || {});
   offerSimilar(q);
-  if (!['feat', 'char', 'sight', 'singmatch'].includes(q.type)) setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
+  if (!['feat', 'char', 'sight', 'singmatch', 'cadence', 'texture', 'style'].includes(q.type)) setTimeout(() => { if (L && L.q === q) playQ(true); }, 500);
 }
 function explain(q, info) {
   const T_ = t();
@@ -2440,7 +2516,22 @@ function explain(q, info) {
     html = `<div class="rh-fb">${mine ? `<div><b>${T_.rhYourTaps}</b>${rhythmSvg(mine)}</div>` : ''}<div><b>${T_.rhRight}</b>${rhythmSvg(q.pattern)}</div></div>`;
     feedback(false, info.got ? T_.wrongTapRh : T_.wrongTapCount(info.count, onsetsOf(q.pattern).length), html, () => playRhythm(q.pattern, 0.7, 0.1, q.notes), false, T_.hearAgain);
   }
-  else if (q.type === 'meter') { html = meterSvg(q); feedback(false, T_.wrongMeter(q.k, info && info.chose), html, () => q.piece ? playPieceCount(q.piece) : playMeter(q, true, true), false, T_.hearCount); }
+  else if (q.type === 'cadence' && AG.cadenceSvg) {
+    feedback(false, T_.wrongCad(q.ans), AG.cadenceSvg(q.ans, S.lang === 'zh'), () => AG.playCadence(q, play, true), false, T_.hearAgain);
+  }
+  else if (q.type === 'texture' && AG.textureSvg) {
+    feedback(false, T_.wrongTex(q.ans), AG.textureSvg(q.ans, S.lang === 'zh'), () => AG.playTexture(q, play, true), false, T_.hearAgain);
+  }
+  else if (q.type === 'style' && AG.styleSayIt) {
+    feedback(false, T_.wrongSty(q.ans), AG.styleSayIt(q.ans, S.lang === 'zh'), () => AG.playStyle(q, play, true), false, T_.hearAgain);
+  }
+  else if (q.type === 'meter') {
+    if (q.level >= 3) {
+      feedback(false, T_.wrongMeter68(q.k), q.compound ? '' : meterSvg(q), () => q.piece ? playPieceCount(q.piece) : (q.compound && AG.playMeter68 ? AG.playMeter68(q, play, tick, true, true) : playMeter(q, true, true)), false, T_.hearCount);
+    } else {
+      html = meterSvg(q); feedback(false, T_.wrongMeter(q.k, info && info.chose), html, () => q.piece ? playPieceCount(q.piece) : playMeter(q, true, true), false, T_.hearCount);
+    }
+  }
   else if (q.type === 'echo' && q.rhythm && info.pitchOk) {
     const mine = info.got ? tapsToPattern(info.got, q.pattern) : null;
     html = `<div class="rh-fb">${mine ? `<div><b>${T_.rhYourTaps}</b>${rhythmSvg(mine)}</div>` : ''}<div><b>${T_.rhRight}</b>${rhythmSvg(q.pattern)}</div></div>`;
@@ -2682,18 +2773,30 @@ function ceremony(n, stars) {
 }
 $('c-go').onclick = () => { cereTimers.forEach(clearTimeout); $('cere').hidden = true; try { $('c-vid').pause(); } catch (e) { /* ignore */ } };
 
-// ---------- payment (Paddle; off for the public until DottinoPay.CFG.SELLING) ----------
+// ---------- payment (Paddle; multi-grade ready — Grades 3 & 5 stay open to test until their Paddle price IDs are added in pay.js) ----------
+const gLabelEn = 'Grade ' + GRADE, gLabelZh = GRADE === 3 ? '三级' : GRADE === 5 ? '五级' : '四级';
 const PAYT = {
-  en: { title: 'Grade 4 Aural Pack · £15', sub: 'All 8 weeks of Grade 4 aural practice, for 6 months. One payment, no auto-renewal. 14-day refund.', buy: 'Buy the Grade 4 pack', owned: 'You have the Grade 4 pack ✓', lockTitle: 'Week ' + WEEK + ' is part of the Grade 4 Aural Pack', lockBtn: 'In the Aural Pack', rsSum: 'Already bought? Restore on this device', rsBtn: 'Restore', rsOk: 'Restored ✓', rsNo: 'No purchase found for this email.', fail: 'Something went wrong. Please try again.', paid: 'Thank you! Week 2 onwards is open.', paidNo: 'Payment received. Unlock is taking a moment — please use Restore with your email.' },
-  zh: { title: '四级听力训练包 · £15', sub: '完整 8 周四级听力练习，可用 6 个月。一次付费，不自动续费，14 天内可退款。', buy: '购买四级训练包', owned: '你已拥有四级训练包 ✓', lockTitle: '第 ' + WEEK + ' 周属于四级听力训练包', lockBtn: '训练包内容', rsSum: '已经买过？在这台设备上恢复', rsBtn: '恢复', rsOk: '已恢复 ✓', rsNo: '没有找到这个邮箱的购买记录。', fail: '出了点问题，请再试一次。', paid: '谢谢！第 2 周起已解锁。', paidNo: '已收到付款，解锁稍慢——请用邮箱点「恢复」。' }
+  en: { title: gLabelEn + ' Aural Pack · £15', sub: 'All 8 weeks of ' + gLabelEn + ' aural practice, for 6 months. One payment, no auto-renewal. 14-day refund.', buy: 'Buy the ' + gLabelEn + ' pack', owned: 'You have the ' + gLabelEn + ' pack ✓', lockTitle: 'Week ' + WEEK + ' is part of the ' + gLabelEn + ' Aural Pack', lockBtn: 'In the Aural Pack', rsSum: 'Already bought? Restore on this device', rsBtn: 'Restore', rsOk: 'Restored ✓', rsNo: 'No purchase found for this email.', fail: 'Something went wrong. Please try again.', paid: 'Thank you! Week 2 onwards is open.', paidNo: 'Payment received. Unlock is taking a moment — please use Restore with your email.' },
+  zh: { title: gLabelZh + '听力训练包 · £15', sub: '完整 8 周' + gLabelZh + '听力练习，可用 6 个月。一次付费，不自动续费，14 天内可退款。', buy: '购买' + gLabelZh + '训练包', owned: '你已拥有' + gLabelZh + '训练包 ✓', lockTitle: '第 ' + WEEK + ' 周属于' + gLabelZh + '听力训练包', lockBtn: '训练包内容', rsSum: '已经买过？在这台设备上恢复', rsBtn: '恢复', rsOk: '已恢复 ✓', rsNo: '没有找到这个邮箱的购买记录。', fail: '出了点问题，请再试一次。', paid: '谢谢！第 2 周起已解锁。', paidNo: '已收到付款，解锁稍慢——请用邮箱点「恢复」。' }
 };
 const PT = () => PAYT[S.lang] || PAYT.en;
-const payOn = () => !!(window.DottinoPay && window.DottinoPay.active());
-function payLocked() { return WEEK >= 2 && payOn() && !window.DottinoPay.hasAccess(4); }
+const gradePrice = () => !!(window.DottinoPay && window.DottinoPay.CFG && window.DottinoPay.CFG.prices && window.DottinoPay.CFG.prices['g' + GRADE]);
+const payOn = () => !!(window.DottinoPay && window.DottinoPay.active() && gradePrice());
+function payLocked() { return WEEK >= 2 && payOn() && !window.DottinoPay.hasAccess(GRADE); }
+function renderGradeBar() {
+  const gb = $('gradebar'); if (!gb) return;
+  const zh = S.lang === 'zh';
+  const list = [
+    { g: 3, t: zh ? '三级' : 'Grade 3', s: '3A–3D' },
+    { g: 4, t: zh ? '四级' : 'Grade 4', s: '4A–4C' },
+    { g: 5, t: zh ? '五级' : 'Grade 5', s: '5A–5C' }
+  ];
+  gb.innerHTML = list.map(x => `<a href="${x.g === 4 ? '/aural' : '/aural?g=' + x.g}" class="${x.g === GRADE ? 'on' : ''}">${x.t}<span class="gb-tag">${x.s}</span></a>`).join('');
+}
 function renderPay(locked) {
-  const on = payOn(), P = PT(), has = !!(window.DottinoPay && window.DottinoPay.hasAccess(4)), owned = on && has;
+  const on = payOn(), P = PT(), has = !!(window.DottinoPay && window.DottinoPay.hasAccess(GRADE)), owned = on && has;
   $('pay-box').hidden = !on;
-  $('wl-form').hidden = on || has; // the waitlist form is replaced by the real purchase while selling
+  $('wl-form').hidden = on || has || GRADE !== 4; // Grades 3 & 5 are open to try across all 8 weeks until Paddle g3/g5 prices are linked
   if (!on) return;
   $('pb-title').textContent = locked ? P.lockTitle : P.title;
   $('pb-sub').textContent = locked ? P.title + ' — ' + P.sub : P.sub;
@@ -2708,7 +2811,8 @@ function renderPay(locked) {
 function renderQuickModes() {
   const box = $('qmodes'); if (!box) return;
   const zh = S.lang === 'zh';
-  const items = [
+  const gm = AG.GRADE_META && AG.GRADE_META[GRADE] && AG.GRADE_META[GRADE][S.lang];
+  const items = (gm && gm.quick) ? gm.quick.map(x => ({ href: x.href, hi: x.w === WEEK || (x.w === 8 && WEEK !== 8), t: x.t, s: x.s })) : [
     { href: '/ear-check/?ref=aural-quick', hi: false, t: zh ? '🎯 3 分钟自测' : '🎯 3-Min Check', s: zh ? '先找出薄弱题型' : 'Find weak spots' },
     { href: '?w=4', hi: WEEK === 4, t: zh ? '🎹 A 题 · 弹回/调性' : '🎹 Test A · Mode', s: zh ? '第 4 周专项' : 'Week 4 focus' },
     { href: '?w=7', hi: WEEK === 7, t: zh ? '🎤 B 题 · 视唱' : '🎤 Test B · Sing', s: zh ? '第 7 周五线谱' : 'Week 7 staff' },
@@ -2717,8 +2821,8 @@ function renderQuickModes() {
   box.innerHTML = items.map(x => `<a class="qmode${x.hi ? ' hi' : ''}" href="${x.href}"><b>${x.t}</b><span>${x.s}</span></a>`).join('');
 }
 $('pb-buy').onclick = () => {
-  track('buy-click-g4');
-  window.DottinoPay.buy(4, { lang: S.lang, ref: shared.ref || '', onDone: ok => { $('pb-status').style.color = ok ? 'var(--good)' : 'var(--muted)'; $('pb-status').textContent = ok ? PT().paid : PT().paidNo; renderWeek(); } })
+  track('buy-click-g' + GRADE);
+  window.DottinoPay.buy(GRADE, { lang: S.lang, ref: shared.ref || '', onDone: ok => { $('pb-status').style.color = ok ? 'var(--good)' : 'var(--muted)'; $('pb-status').textContent = ok ? PT().paid : PT().paidNo; renderWeek(); } })
     .catch(() => { $('pb-status').style.color = 'var(--bad)'; $('pb-status').textContent = PT().fail; });
 };
 $('pb-rs-btn').onclick = () => {
@@ -2731,6 +2835,7 @@ $('pb-rs-btn').onclick = () => {
 // ---------- week page ----------
 function renderWeek() {
   const T_ = t(), locked = payLocked();
+  renderGradeBar();
   renderQuickModes();
   renderPay(locked);
   $('lessons').innerHTML = T_.L.map((x, i) => {
@@ -2741,9 +2846,9 @@ function renderWeek() {
   }).join('');
   $('lessons').querySelectorAll('.go').forEach(b => { b.onclick = () => startLesson(+b.dataset.l); });
   if (PREVIEW) { let pb = $('pv-banner'); if (!pb) { pb = document.createElement('div'); pb.id = 'pv-banner'; pb.className = 'pv-banner'; $('lessons').before(pb); } pb.textContent = S.lang === 'zh' ? '老师预览模式：所有站已解锁，可以跳着看。有意见点右下角「反馈」。' : 'Teacher preview: every stop is unlocked, so you can jump around. Spotted something? Tap “Feedback” at the bottom right.'; }
-  const wl = n => n === 1 ? '/aural' : '/aural?w=' + n, LAST = 8;
+  const wl = n => GRADE === 4 ? (n === 1 ? '/aural' : '/aural?w=' + n) : (n === 1 ? '/aural?g=' + GRADE : '/aural?g=' + GRADE + '&w=' + n), LAST = 8;
   $('weeknav').innerHTML = WEEK === 1 ? `<a href="${wl(2)}">${T_.weekNext}</a>` : `<a href="${wl(WEEK - 1)}">${T_.weekN(WEEK - 1, -1)}</a>` + (WEEK < LAST ? ` · <a href="${wl(WEEK + 1)}">${T_.weekN(WEEK + 1, 1)}</a>` : '');
-  // week card once the core stops are done (week 1: stops 1–3; week 2: all four)
+  // week card once the core stops are done (week 1: stops 1–3; week 2+: all four)
   const CARD = WEEK >= 2 ? [0, 1, 2, 3] : [0, 1, 2];
   const all = CARD.every(i => saved.lessons[i]);
   $('week-card').hidden = !all;
@@ -2755,20 +2860,23 @@ function renderWeek() {
       const sum = ids => { const o = {}; ids.forEach(i => { const st = (saved.lessons[i] || {}).stats || {}; Object.keys(st).forEach(k => { const a = o[k] = o[k] || { asked: 0, right: 0 }; a.asked += st[k].asked; a.right += st[k].right; }); }); return secStats(o); };
       ex = sum([0, 2, 3]); pr = sum([1]);
       Object.keys(agg).forEach(k => delete agg[k]);
-      ['A', 'B', 'Bk', 'Ci', 'Cii'].forEach(k => { if (ex[k].asked || pr[k].asked) agg[k] = ex[k].asked ? ex[k] : pr[k]; });
+      SEC_KEYS.forEach(k => { if ((ex[k] && ex[k].asked) || (pr[k] && pr[k].asked)) agg[k] = ex[k].asked ? ex[k] : pr[k]; });
     }
-    const lvl = k => { const a = agg[k]; if (!a) return 0; if (WEEK >= 2) { const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; } if (k === 'hl') return Math.min(4, a.endLv + 1); if (k === 'contour') return Math.min(4, a.endLv + 1); const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; };
-    const desc = k => { const a = agg[k]; if (!a) return ''; if (WEEK === 8) return T_.ready[readyOf(a)] + (ex[k].asked ? ' · ' + T_.examLbl + ' ' + ex[k].right + '/' + ex[k].asked : '') + (pr[k].asked ? ' · ' + T_.pracLbl + ' ' + pr[k].right + '/' + pr[k].asked : ''); if (WEEK >= 2) return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; if (k === 'hl') return T_.hlLv[Math.min(3, a.endLv)]; if (k === 'contour') return T_.ctLv[Math.min(3, a.endLv)]; return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; };
-    const keys = (WEEK === 8 ? ['A', 'B', 'Bk', 'Ci', 'Cii'] : WEEK === 7 ? ['sight', 'sightkeys', 'singmatch', 'tonic'] : WEEK === 6 ? ['feat', 'char'] : WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : [])).filter(k => WEEK < 7 || agg[k]);
-    if (WEEK === 1 && saved.lessons[3]) { const kd = saved.lessons[3].kinds; agg.change = { asked: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.a, 0) : 0, right: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.r, 0) : 0 }; if (!agg.change.asked) agg.change = { asked: 1, right: 0 }; }
-    $('skills').innerHTML = keys.map(k => `<li><div class="row"><b>${T_.skills[k]}</b><span class="muted">${desc(k)}</span></div><div class="meter">${[1, 2, 3, 4].map(i => `<i class="${i <= lvl(k) ? 'on' : ''}"></i>`).join('')}</div></li>`).join('');
-    $('wc-text').value = T_.card(keys.map(k => '· ' + T_.skills[k] + ': ' + desc(k)), saved.lessons[CARD[CARD.length - 1]].date);
+    const lvl = k => { const a = agg[k]; if (!a) return 0; if (WEEK >= 2 || GRADE === 5) { const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; } if (k === 'hl') return Math.min(4, a.endLv + 1); if (k === 'contour') return Math.min(4, a.endLv + 1); const r = a.right / a.asked; return r >= .85 ? 4 : r >= .6 ? 3 : r >= .35 ? 2 : 1; };
+    const desc = k => { const a = agg[k]; if (!a) return ''; if (WEEK === 8) return T_.ready[readyOf(a)] + (ex[k].asked ? ' · ' + T_.examLbl + ' ' + ex[k].right + '/' + ex[k].asked : '') + (pr[k].asked ? ' · ' + T_.pracLbl + ' ' + pr[k].right + '/' + pr[k].asked : ''); if (WEEK >= 2 || GRADE === 5) return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; if (k === 'hl') return T_.hlLv[Math.min(3, a.endLv)]; if (k === 'contour') return T_.ctLv[Math.min(3, a.endLv)]; return T_.echoLv[lvl(k) - 1] + ' · ' + a.right + '/' + a.asked; };
+    const rawKeys = WEEK === 8 ? SEC_KEYS : Object.keys(T_.skills || {});
+    const keys = (GRADE === 4 && WEEK < 8
+      ? (WEEK === 7 ? ['sight', 'sightkeys', 'singmatch', 'tonic'] : WEEK === 6 ? ['feat', 'char'] : WEEK === 5 ? ['tapbeat', 'taprhythm', 'rhythm'] : WEEK === 4 ? ['mode', 'echo'] : WEEK === 3 ? ['tonic', 'rhythm', 'echo'] : WEEK === 2 ? ['meter', 'contour', 'echo'] : ['hl', 'contour', 'same', 'echo'].concat(saved.lessons[3] ? ['change'] : []))
+      : rawKeys).filter(k => agg[k]);
+    if (GRADE !== 5 && WEEK === 1 && saved.lessons[3] && agg.same) { const kd = saved.lessons[3].kinds; agg.change = { asked: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.a, 0) : 0, right: kd ? kd.by.filter(x => x.k !== 'same').reduce((a, x) => a + x.r, 0) : 0 }; if (!agg.change.asked) agg.change = { asked: 1, right: 0 }; }
+    $('skills').innerHTML = keys.map(k => `<li><div class="row"><b>${(T_.skills && T_.skills[k]) || k}</b><span class="muted">${desc(k)}</span></div><div class="meter">${[1, 2, 3, 4].map(i => `<i class="${i <= lvl(k) ? 'on' : ''}"></i>`).join('')}</div></li>`).join('');
+    $('wc-text').value = T_.card(keys.map(k => '· ' + ((T_.skills && T_.skills[k]) || k) + ': ' + desc(k)), saved.lessons[CARD[CARD.length - 1]].date);
   }
 }
 function setText() {
   const T_ = t();
   document.documentElement.lang = S.lang === 'zh' ? 'zh-CN' : 'en';
-  document.title = 'Dottino · Grade 4 Aural, Week ' + WEEK;
+  document.title = 'Dottino · Grade ' + GRADE + ' Aural, Week ' + WEEK;
   const map = { 't-with': T_.with, 't-eyebrow': T_.eyebrow, 't-h1': T_.h1, 't-intro': T_.intro, 't-lessons': T_.lessons, 't-wc-eyebrow': T_.wcEyebrow, 't-wc-title': T_.wcTitle, 't-wc-share': T_.wcShare,
     'btn-copy': T_.copy, 't-plan': T_.plan, 't-plans': T_.plans, 't-price': T_.price, 't-later': T_.later, 't-open': T_.open, 'wl-btn': T_.tell, 't-home': T_.home, 't-privacy': T_.privacy, 't-keep': T_.keep,
     't-starrule': T_.starRule, 't-back': T_.backHome, 'l-home': T_.backHome, 'btn-quit': T_.exit, 'btn-replay': T_.replay, 'btn-slow': T_.slow, 'btn-nextlesson': T_.nextLesson, 'btn-week': T_.backWeek };

@@ -70,8 +70,10 @@
         <select id="t-dest">
           <option value="ear">Free 3-Minute Ear Check (Grades 3–5)</option>
           <option value="pieces">Free Piece Pre-Flight · ABRSM 2027–28 Grade 4 A1–A3</option>
-          <option value="w1">Free Week 1 · Foundations (4 × 10 min)</option>
+          <option value="g3">Grade 3 Aural · Full 8-Week Plan (3A–3D + Mock)</option>
+          <option value="w1">Grade 4 Aural · Free Week 1 Foundations (4 × 10 min)</option>
           <option value="mock">Grade 4 Full Mock &amp; 8-Week Pack (£15)</option>
+          <option value="g5">Grade 5 Aural · Full 8-Week Plan (6-Note Sing, Texture, Style &amp; 6/8)</option>
         </select>
       </div>
     </div>
@@ -102,7 +104,7 @@
     </div>
   </form>
 
-  <p class="note">Explore: <a href="/pieces/?ref=teacher">Piece Pre-Flight</a> · <a href="/ear-check/?ref=teacher">3-Minute Ear Check</a> · <a href="/aural?w=1&amp;ref=teacher">Week 1 Free</a> · <a href="/guides/abrsm-grade-4-aural/">Parent’s Guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock Test Guide</a> · <a href="/">dottino.app</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
+  <p class="note">Explore: <a href="/aural?g=3&amp;ref=teacher">Grade 3 Aural</a> · <a href="/aural?ref=teacher">Grade 4 Aural</a> · <a href="/aural?g=5&amp;ref=teacher">Grade 5 Aural</a> · <a href="/pieces/?ref=teacher">Piece Pre-Flight</a> · <a href="/ear-check/?ref=teacher">3-Minute Ear Check</a> · <a href="/">dottino.app</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
 </article>
 <script>
 const gc = (p, t) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: t, event: true }); } catch (e) {} };
@@ -113,6 +115,8 @@ function currentUrl() {
   const ref = tag ? 'teacher-' + tag : 'teacher';
   const v = destIn.value;
   if (v === 'pieces') return 'https://dottino.app/pieces/?ref=' + ref;
+  if (v === 'g3') return 'https://dottino.app/aural?g=3&ref=' + ref;
+  if (v === 'g5') return 'https://dottino.app/aural?g=5&ref=' + ref;
   if (v === 'w1') return 'https://dottino.app/aural?w=1&ref=' + ref;
   if (v === 'mock') return 'https://dottino.app/aural?w=8&ref=' + ref;
   return 'https://dottino.app/ear-check/?ref=' + ref;
@@ -121,6 +125,10 @@ function syncMsg() {
   const url = currentUrl(), v = destIn.value;
   const body = v === 'pieces'
     ? 'Hi! Before starting this week’s new piece, please put the tablet on the piano music stand and run this free 4-minute Dottino Piece Pre-Flight (key-signature terrain, rhythm skeleton & ear preview — works with the real piano microphone, MIDI or screen):\n' + url
+    : v === 'g3'
+    ? 'Hi! Here is Dottino’s ABRSM Grade 3 aural plan (pulse & 2/3/4 time, echoes, pitch vs rhythm changes, major/minor & exam-order mocks — works in any browser, no download):\n' + url
+    : v === 'g5'
+    ? 'Hi! Here is Dottino’s ABRSM Grade 5 aural plan (extended melody playback, 6-note sight-singing, texture, cadences, Baroque/Classical/Romantic style & 6/8 time — works in any browser):\n' + url
     : v === 'w1'
     ? 'Hi! For aural practice between lessons this week, here is Week 1 of Dottino (free, 4 short 10-minute listening games in the browser, no download or sign-up needed):\n' + url
     : v === 'mock'
