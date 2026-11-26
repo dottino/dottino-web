@@ -675,12 +675,15 @@ p { margin: 0; }
         <li><b data-t="j3">3 · See the next 7 weeks</b><span data-t="j3s"></span></li>
         <li><b data-t="j4">4 · Continue if it helps</b><span data-t="j4s"></span></li>
       </ol>
-      <button class="daily-link" id="btn-daily" data-t="dailyLink">Also free: the daily sight-reading game, 60 seconds a day →</button>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center">
+        <a class="daily-link" href="/pieces/" style="text-decoration:none;color:var(--coral);font-weight:800" data-t="piecesLink">New · Piece Pre-Flight: 4-minute warm-up for ABRSM 2027–28 Grade 4 pieces →</a>
+        <button class="daily-link" id="btn-daily" data-t="dailyLink">Also free: the daily sight-reading game, 60 seconds a day →</button>
+      </div>
     </section>
 
     <footer class="foot">
       <div class="me"><img src="img/wave.png" alt=""><span data-t="fMe"></span></div>
-      <div><a href="/guides/abrsm-grade-4-aural/">Grade 4 aural guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock test plan</a> · <a href="/teachers/">For teachers</a> · <a href="/play/">Basso Challenges</a></div>
+      <div><a href="/pieces/">Piece Pre-Flight</a> · <a href="/guides/abrsm-grade-4-aural/">Grade 4 aural guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock test plan</a> · <a href="/teachers/">For teachers</a> · <a href="/play/">Basso Challenges</a></div>
       <div><a href="privacy.html" data-t="fPrivacy">Privacy</a> · <a href="terms.html" data-t="fTerms">Terms</a> · <a href="refunds.html">Refunds</a> · dottino.app</div>
       <div class="disc-note" data-t="fDisc">Dottino is an independent ear-training app. It is not affiliated with or endorsed by ABRSM.</div>
     </footer>
@@ -864,6 +867,7 @@ const T = {
     mkC1: 'Royal College of Music · MPerf', mkC2: 'Royal Holloway, Univ. of London · PhD', mkC3: 'Xinghai Conservatory · BA', mkC4: '15+ years teaching',
     trustRow: '<span>🔒 Apple Pay &amp; Card (Paddle)</span><span>📱 Restore on any device by email</span><span>✓ 14-day full refund</span>',
     buyOwned: 'Grade 4 unlocked ✓ · Go to Week 2 →', buyPaid: 'Thank you! Opening Week 2…', buyFail: 'Could not open checkout right now. Opening Week 2 page…',
+    piecesLink: 'New · Piece Pre-Flight: 4-minute warm-up for ABRSM 2027–28 Grade 4 pieces →',
     dailyLink: 'Also free: the daily sight-reading game, 60 seconds a day →',
     fMe: 'Made by Tim: pianist, music education researcher, 15+ years teaching. Royal College of Music (MPerf) · Royal Holloway, University of London (PhD) · Xinghai Conservatory of Music (BA).', fPrivacy: 'Privacy',
     with: 'with Basso', tag: 'Hear what you play.', sub: 'An interactive ear-training app that shows children what to listen for, built around the ABRSM aural test format (Grades 3–5). By an RCM-trained pianist and music education researcher. Plus a free daily sight-reading game.',
@@ -934,6 +938,7 @@ const T = {
     mkC1: '英国皇家音乐学院 · 演奏硕士', mkC2: '伦敦大学皇家霍洛威学院 · 博士', mkC3: '星海音乐学院 · 学士', mkC4: '15 年以上教学经验',
     trustRow: '<span>🔒 支持 Apple Pay / 银行卡 (Paddle)</span><span>📱 凭邮箱在任意设备找回</span><span>✓ 14 天无理由全额退款</span>',
     buyOwned: '已解锁四级 ✓ · 进入第 2 周 →', buyPaid: '购买成功！正在进入第 2 周…', buyFail: '暂时打不开支付窗口，正前往第 2 周页面…',
+    piecesLink: '新功能 · 上琴前 4 分钟热身：ABRSM 2027–28 四级曲目调性/节奏/听觉预检 →',
     dailyLink: '另外免费：每日识谱小游戏，每天 60 秒 →',
     fMe: '由 Tim 设计：钢琴家、音乐教育研究者，十五年以上教学经验。英国皇家音乐学院演奏硕士 · 伦敦大学皇家霍洛威学院音乐博士 · 星海音乐学院学士。', fPrivacy: '隐私',
     with: '和谱兽 Basso 一起', tag: '听见你弹的每个音。', sub: '互动听力训练软件，教孩子知道该听什么，按 ABRSM 3–5 级听力题型设计。由皇家音乐学院出身的钢琴家、音乐教育研究者设计。另有免费的每日识谱挑战。',

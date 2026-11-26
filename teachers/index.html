@@ -69,6 +69,7 @@
         <label for="t-dest">What to send</label>
         <select id="t-dest">
           <option value="ear">Free 3-Minute Ear Check (Grades 3–5)</option>
+          <option value="pieces">Free Piece Pre-Flight · ABRSM 2027–28 Grade 4 A1–A3</option>
           <option value="w1">Free Week 1 · Foundations (4 × 10 min)</option>
           <option value="mock">Grade 4 Full Mock &amp; 8-Week Pack (£15)</option>
         </select>
@@ -101,7 +102,7 @@
     </div>
   </form>
 
-  <p class="note">Explore: <a href="/ear-check/?ref=teacher">3-Minute Ear Check</a> · <a href="/aural?w=1&amp;ref=teacher">Week 1 Free</a> · <a href="/guides/abrsm-grade-4-aural/">Parent’s Guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock Test Guide</a> · <a href="/">dottino.app</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
+  <p class="note">Explore: <a href="/pieces/?ref=teacher">Piece Pre-Flight</a> · <a href="/ear-check/?ref=teacher">3-Minute Ear Check</a> · <a href="/aural?w=1&amp;ref=teacher">Week 1 Free</a> · <a href="/guides/abrsm-grade-4-aural/">Parent’s Guide</a> · <a href="/guides/abrsm-grade-4-aural-mock-test/">Mock Test Guide</a> · <a href="/">dottino.app</a>. Dottino is independent and not affiliated with or endorsed by ABRSM.</p>
 </article>
 <script>
 const gc = (p, t) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: t, event: true }); } catch (e) {} };
@@ -111,13 +112,16 @@ function currentUrl() {
   const tag = slug(nameIn.value);
   const ref = tag ? 'teacher-' + tag : 'teacher';
   const v = destIn.value;
+  if (v === 'pieces') return 'https://dottino.app/pieces/?ref=' + ref;
   if (v === 'w1') return 'https://dottino.app/aural?w=1&ref=' + ref;
   if (v === 'mock') return 'https://dottino.app/aural?w=8&ref=' + ref;
   return 'https://dottino.app/ear-check/?ref=' + ref;
 }
 function syncMsg() {
   const url = currentUrl(), v = destIn.value;
-  const body = v === 'w1'
+  const body = v === 'pieces'
+    ? 'Hi! Before starting this week’s new piece, please put the tablet on the piano music stand and run this free 4-minute Dottino Piece Pre-Flight (key-signature terrain, rhythm skeleton & ear preview — works with the real piano microphone, MIDI or screen):\n' + url
+    : v === 'w1'
     ? 'Hi! For aural practice between lessons this week, here is Week 1 of Dottino (free, 4 short 10-minute listening games in the browser, no download or sign-up needed):\n' + url
     : v === 'mock'
     ? 'Hi! Ahead of the Grade 4 exam, Dottino has an 8-week aural pack with full exam-order mocks and sight-singing (£15 one-time, Week 1 free to try first):\n' + url
