@@ -1074,12 +1074,37 @@ function loadSamples() {
   if (!loads.more) loads.more = Promise.all(Array.from({ length: 21 }, (x, i) => loads[(36 + i * 3) + ':9'])).then(() => { loadLayer(4); loadLayer(14); });
 }
 loadSamples();
-// a little room around the piano (one reverb per audio bus, so stopping the audio also stops the echo)
+// Warm wood practice-room early reflections (ported from Basso studio piano renderer — replaces harsh white-noise wash!)
 let roomIR = null;
 function roomIn() {
   const b0 = outBus(); if (b0.verb) return b0.verb;
-  if (!roomIR || roomIR.sampleRate !== ctx.sampleRate) { const len = Math.floor(ctx.sampleRate * 2); roomIR = ctx.createBuffer(2, len, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = roomIR.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.4) * (i < 240 ? i / 240 : 1); } }
-  const cv = ctx.createConvolver(); cv.buffer = roomIR; const wet = ctx.createGain(); wet.gain.value = 0.24; cv.connect(wet); wet.connect(b0); b0.verb = cv;
+  if (!roomIR || roomIR.sampleRate !== ctx.sampleRate) {
+    const sr = ctx.sampleRate, len = Math.floor(sr * 0.65);
+    roomIR = ctx.createBuffer(2, len, sr);
+    const taps = [
+      [[0.021, 0.24], [0.039, 0.14], [0.061, 0.08], [0.089, 0.04]],
+      [[0.025, 0.24], [0.044, 0.14], [0.067, 0.08], [0.095, 0.04]]
+    ];
+    for (let c = 0; c < 2; c++) {
+      const d = roomIR.getChannelData(c);
+      // Discrete warm wood practice-room early reflections
+      taps[c].forEach(([sec, amp]) => {
+        const idx = Math.floor(sec * sr);
+        for (let k = -3; k <= 3; k++) if (idx + k >= 0 && idx + k < len) d[idx + k] += amp * Math.exp(-(k * k) / 4);
+      });
+      // Softly low-pass-filtered short wooden diffuse tail (zero metallic high-frequency hiss)
+      let lp = 0;
+      for (let i = Math.floor(0.03 * sr); i < len; i++) {
+        const white = (Math.random() * 2 - 1);
+        lp = lp * 0.86 + white * 0.14;
+        const env = Math.pow(1 - i / len, 3.6) * 0.065;
+        d[i] += lp * env;
+      }
+    }
+  }
+  const cv = ctx.createConvolver(); cv.buffer = roomIR;
+  const wet = ctx.createGain(); wet.gain.value = 0.22;
+  cv.connect(wet); wet.connect(b0); b0.verb = cv;
   return cv;
 }
 function unlock() {
@@ -1095,11 +1120,18 @@ let bus = null, audioGen = 0, audioEnd = 0;
 function outBus() {
   if (!bus || bus.context !== ctx) {
     bus = ctx.createGain();
+    // Studio piano warmth EQ (matches Basso video renderer: +1.6dB @ 210Hz wood body, -1.2dB @ 6.5kHz silky treble)
+    let tail = bus;
+    if (typeof ctx.createBiquadFilter === 'function') {
+      const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 210; low.gain.value = 1.6;
+      const hi = ctx.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 6500; hi.gain.value = -1.2;
+      tail.connect(low); low.connect(hi); tail = hi; bus.eq = [low, hi];
+    }
     if (typeof ctx.createDynamicsCompressor === 'function') {
       const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.16;
-      bus.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
-    } else bus.connect(ctx.destination);
+      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.005; comp.release.value = 0.18;
+      tail.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
+    } else tail.connect(ctx.destination);
     const an = typeof vbAnalyser === 'function' ? vbAnalyser() : null; if (an) bus.connect(an);
   }
   return bus;
@@ -1107,20 +1139,29 @@ function outBus() {
 function stopAudio() {
   audioGen++; audioEnd = 0;
   if (typeof followT !== 'undefined') { followT.forEach(clearTimeout); followT = []; }
-  if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 150); }
+  if (bus && ctx) { const b = bus; try { b.gain.setTargetAtTime(0, ctx.currentTime, 0.012); } catch (e) { /* ignore */ } setTimeout(() => { try { b.disconnect(); if (b.eq) b.eq.forEach(n => n.disconnect()); if (b.comp) b.comp.disconnect(); } catch (e) { /* ignore */ } }, 150); }
   bus = null;
 }
 function play(midi, when, vol, waited, len, holdTo) {
   if (!ctx) return;
   const gen = audioGen;
   if (ctx.state === 'suspended') ctx.resume();
-  const base = Math.max(36, Math.min(96, 36 + Math.round((midi - 36) / 3) * 3)), v0 = vol == null ? 0.85 : vol;
-  const want = v0 < 0.42 ? 4 : v0 < 0.78 ? 9 : 14, key = buf[base + ':' + want] ? base + ':' + want : base + ':9', layer = buf[base + ':' + want] ? want : 9;
-  if (!buf[key] && loads[base + ':9'] && !waited) { const t0 = performance.now(); let done = false; const go = () => { if (done || gen !== audioGen) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len, holdTo == null ? null : Math.max(0, holdTo - (performance.now() - t0) / 1000)); }; loads[base + ':9'].then(go); setTimeout(go, 1200); return; }
+  const base = Math.max(36, Math.min(96, 36 + Math.round((midi - 36) / 3) * 3)), v0 = vol == null ? 0.76 : vol;
+  // Match Basso studio velocity layers: warm v9 for normal playing (0.45..0.90), v4 soft, v14 true fortissimo only
+  const want = v0 < 0.46 ? 4 : v0 < 0.90 ? 9 : 14, key = buf[base + ':' + want] ? base + ':' + want : base + ':9', layer = buf[base + ':' + want] ? want : 9;
+  if (!buf[key] && !waited) {
+    loadLayer(9);
+    const p = loads[base + ':9'];
+    if (p) {
+      const t0 = performance.now(); let done = false;
+      const go = () => { if (done || gen !== audioGen) return; done = true; play(midi, Math.max(0, (when || 0) - (performance.now() - t0) / 1000), vol, true, len, holdTo == null ? null : Math.max(0, holdTo - (performance.now() - t0) / 1000)); };
+      p.then(go); setTimeout(go, 3500); return;
+    }
+  }
   const at = ctx.currentTime + (when || 0);
   const end = holdTo != null ? ctx.currentTime + holdTo : at + (len || 1.25);
   audioEnd = Math.max(audioEnd, Math.min(end, at + 1.4));
-  const g = ctx.createGain(); g.gain.value = (0.5 + 0.62 * v0) * LAYER_GAIN[layer] * 0.8;
+  const g = ctx.createGain(); g.gain.value = (0.44 + 0.58 * v0) * LAYER_GAIN[layer] * 0.78;
   // Pianist-perspective stereo imaging: bass gently left, treble gently right (±22%)
   let outNode = g;
   if (typeof ctx.createStereoPanner === 'function') {
@@ -1132,10 +1173,14 @@ function play(midi, when, vol, waited, len, holdTo) {
   if (buf[key]) {
     const s2 = ctx.createBufferSource(); s2.buffer = buf[key]; s2.playbackRate.value = Math.pow(2, (midi - base) / 12);
     s2.connect(g); outNode.connect(roomIn());
-    s2.start(at); g.gain.setTargetAtTime(0, end, len && len < 0.3 && holdTo == null ? 0.06 : 0.2); s2.stop(end + 1.6);
+    // Smooth natural Yamaha C5 damper release tail
+    s2.start(at); g.gain.setTargetAtTime(0, end, len && len < 0.28 && holdTo == null ? 0.08 : 0.26); s2.stop(end + 1.8);
   } else {
-    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
-    o.connect(g); g.gain.setValueAtTime(0.3, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.8); o.start(at); o.stop(at + 0.85);
+    // Only if offline / sample fetch completely failed: warm filtered piano-like fallback instead of harsh raw triangle
+    const o = ctx.createOscillator(), f = ctx.createBiquadFilter();
+    o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+    f.type = 'lowpass'; f.frequency.value = 1400;
+    o.connect(f); f.connect(g); g.gain.setValueAtTime(0.24, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.75); o.start(at); o.stop(at + 0.8);
   }
 }
 // play a list of notes; returns ms until done
@@ -2521,8 +2566,8 @@ function judge(ok, info) {
     if (q.type === 'feat') { feedback(true, T_.featRight(T_.featName[q.ans]), featViz(q) + pieceLine(q)); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'char') { feedback(true, T_.charRight(T_.charName[q.c]), `<div class="say-it">${T_.sayIt(q.c, q.why)}${pieceLine(q)}</div>`); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'cadence' && AG.cadenceSvg) { feedback(true, T_.cadRight(T_.cadName[q.ans]), AG.cadenceSvg(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
-    if (q.type === 'texture' && AG.textureSvg) { feedback(true, T_.texRight(T_.texName[q.ans]), AG.textureSvg(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
-    if (q.type === 'style' && AG.styleSayIt) { feedback(true, T_.styRight(T_.styName[q.ans]), AG.styleSayIt(q.ans, S.lang === 'zh')); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'texture' && AG.textureSvg) { feedback(true, T_.texRight(T_.texName[q.ans]), AG.textureSvg(q.ans, S.lang === 'zh', q.piece)); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
+    if (q.type === 'style' && AG.styleSayIt) { feedback(true, T_.styRight(T_.styName[q.ans]), AG.styleSayIt(q.ans, S.lang === 'zh', q.piece)); $('btn-next').textContent = segDone() && L.si === L.segs.length - 1 ? T_.finish : T_.next; $('next-row').hidden = false; return; }
     if (q.type === 'find') keyMark(q.target, 'ok');
     if (q.type === 'echo') q.notes.forEach(m => keyMark(m, 'ok'));
     if (info && info.tempoRatio && T_.tempoTip) { const tip = T_.tempoTip(info.tempoRatio); if (tip) toast(tip.trim()); }
@@ -2578,10 +2623,10 @@ function explain(q, info) {
     feedback(false, T_.wrongCad(q.ans), AG.cadenceSvg(q.ans, S.lang === 'zh'), () => AG.playCadence(q, play, true), false, T_.hearAgain);
   }
   else if (q.type === 'texture' && AG.textureSvg) {
-    feedback(false, T_.wrongTex(q.ans), AG.textureSvg(q.ans, S.lang === 'zh'), () => AG.playTexture(q, play, true), false, T_.hearAgain);
+    feedback(false, T_.wrongTex(q.ans), AG.textureSvg(q.ans, S.lang === 'zh', q.piece), () => AG.playTexture(q, play, true), false, T_.hearAgain);
   }
   else if (q.type === 'style' && AG.styleSayIt) {
-    feedback(false, T_.wrongSty(q.ans), AG.styleSayIt(q.ans, S.lang === 'zh'), () => AG.playStyle(q, play, true), false, T_.hearAgain);
+    feedback(false, T_.wrongSty(q.ans), AG.styleSayIt(q.ans, S.lang === 'zh', q.piece), () => AG.playStyle(q, play, true), false, T_.hearAgain);
   }
   else if (q.type === 'meter') {
     if (q.level >= 3) {

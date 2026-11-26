@@ -437,18 +437,30 @@
   function outBus() {
     if (bus && bus.context === ctx) return bus;
     bus = ctx.createGain();
+    let tail = bus;
+    if (typeof ctx.createBiquadFilter === 'function') {
+      const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 210; low.gain.value = 1.6;
+      const hi = ctx.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 6500; hi.gain.value = -1.2;
+      tail.connect(low); low.connect(hi); tail = hi; bus.eq = [low, hi];
+    }
     if (typeof ctx.createDynamicsCompressor === 'function') {
       const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.16;
-      bus.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
-    } else bus.connect(ctx.destination);
+      comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.005; comp.release.value = 0.18;
+      tail.connect(comp); comp.connect(ctx.destination); bus.comp = comp;
+    } else tail.connect(ctx.destination);
     if (!roomIR || roomIR.sampleRate !== ctx.sampleRate) {
-      const len = Math.floor(ctx.sampleRate * 1.6);
-      roomIR = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) { const d = roomIR.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.5) * (i < 220 ? i / 220 : 1); }
+      const sr = ctx.sampleRate, len = Math.floor(sr * 0.65);
+      roomIR = ctx.createBuffer(2, len, sr);
+      const taps = [[[0.021, 0.24], [0.039, 0.14], [0.061, 0.08], [0.089, 0.04]], [[0.025, 0.24], [0.044, 0.14], [0.067, 0.08], [0.095, 0.04]]];
+      for (let c = 0; c < 2; c++) {
+        const d = roomIR.getChannelData(c);
+        taps[c].forEach(([sec, amp]) => { const idx = Math.floor(sec * sr); for (let k = -3; k <= 3; k++) if (idx + k >= 0 && idx + k < len) d[idx + k] += amp * Math.exp(-(k * k) / 4); });
+        let lp = 0;
+        for (let i = Math.floor(0.03 * sr); i < len; i++) { lp = lp * 0.86 + (Math.random() * 2 - 1) * 0.14; d[i] += lp * Math.pow(1 - i / len, 3.6) * 0.065; }
+      }
     }
     const cv = ctx.createConvolver(); cv.buffer = roomIR;
-    const wet = ctx.createGain(); wet.gain.value = 0.2;
+    const wet = ctx.createGain(); wet.gain.value = 0.22;
     cv.connect(wet); wet.connect(bus); bus.verb = cv;
     return bus;
   }

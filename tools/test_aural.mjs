@@ -153,20 +153,34 @@ for (const lv of [0, 1, 2]) {
   assert(short === 0, `P2 Rhythm Lv.${lv} (${N} samples): <3 unique options = ${short}`);
 }
 
-// 5. P1-02: Style 4 official periods + multi-templates + overlapping tempos
+// 5. P1-02: Style 4 official periods + 34+ distinct real excerpts + overlapping tempos + Shuffle Bag zero back-to-back repeats
 {
-  const periods = new Set(), tpls = new Set();
+  const periods = new Set(), piecesSeen = new Set();
   const tempoRange = { baroque: [999, 0], classical: [999, 0], romantic: [999, 0], modern: [999, 0] };
-  for (let i = 0; i < 1000; i++) {
+  let styleConsecDup = 0, prevStyKey = null;
+  for (let i = 0; i < 400; i++) {
     const q = R5.makeQ('style', 1);
     periods.add(q.ans);
-    tpls.add(q.ans + ':' + q.tpl);
+    const pk = q.ans + ':' + (q.piece.title || q.tpl);
+    piecesSeen.add(pk);
+    if (pk === prevStyKey) styleConsecDup++;
+    prevStyKey = pk;
     const bpm = Math.round(60 / q.piece.B);
     tempoRange[q.ans][0] = Math.min(tempoRange[q.ans][0], bpm);
     tempoRange[q.ans][1] = Math.max(tempoRange[q.ans][1], bpm);
   }
+  let texConsecDup = 0, prevTexKey = null;
+  const texSeen = new Set();
+  for (let i = 0; i < 120; i++) {
+    const q = R5.makeQ('texture', 1);
+    const tk = q.ans + ':' + (q.piece.title || q.tpl);
+    texSeen.add(tk);
+    if (tk === prevTexKey) texConsecDup++;
+    prevTexKey = tk;
+  }
   assert(periods.size === 4 && periods.has('modern'), `P1-02 Style covers all 4 official periods: [${[...periods].join(',')}]`);
-  assert(tpls.size === 12, `P1-02 Style has 12 distinct templates (3 per era): seen=${tpls.size}`);
+  assert(piecesSeen.size >= 34 && styleConsecDup === 0, `Repertoire Style bank has ${piecesSeen.size} distinct pieces (0 consecutive repeats)`);
+  assert(texSeen.size >= 16 && texConsecDup === 0, `Repertoire Texture bank has ${texSeen.size} distinct pieces (0 consecutive repeats)`);
   const minHigh = Math.min(...Object.values(tempoRange).map(r => r[1]));
   const maxLow = Math.max(...Object.values(tempoRange).map(r => r[0]));
   assert(minHigh > maxLow, `P1-02 Style tempos overlap across all 4 periods (${JSON.stringify(tempoRange)})`);
