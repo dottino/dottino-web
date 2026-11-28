@@ -98,6 +98,7 @@
   async function buy(grade, opts) {
     pendingGrade = +grade || 4;
     onDone = opts && opts.onDone;
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'event/checkout/open-g' + pendingGrade, title: 'checkout open g' + pendingGrade, event: true }); } catch (e) { /* ignore */ }
     const P = await load();
     P.Checkout.open({
       items: [{ priceId: CFG.prices['g' + pendingGrade], quantity: 1 }],

@@ -2918,8 +2918,8 @@ $('c-go').onclick = () => { cereTimers.forEach(clearTimeout); $('cere').hidden =
 // ---------- payment (Paddle; multi-grade ready — Grades 3 & 5 stay open to test until their Paddle price IDs are added in pay.js) ----------
 const gLabelEn = 'Grade ' + GRADE, gLabelZh = GRADE === 3 ? '三级' : GRADE === 5 ? '五级' : '四级';
 const PAYT = {
-  en: { title: gLabelEn + ' Aural Pack · £15', sub: 'All 8 weeks of ' + gLabelEn + ' aural practice, for 6 months. One payment, no auto-renewal. 14-day refund.', buy: 'Buy the ' + gLabelEn + ' pack', owned: 'You have the ' + gLabelEn + ' pack ✓', lockTitle: 'Week ' + WEEK + ' is part of the ' + gLabelEn + ' Aural Pack', lockBtn: 'In the Aural Pack', rsSum: 'Already bought? Restore on this device', rsBtn: 'Restore', rsOk: 'Restored ✓', rsNo: 'No purchase found for this email.', fail: 'Something went wrong. Please try again.', paid: 'Thank you! Week 2 onwards is open.', paidNo: 'Payment received. Unlock is taking a moment — please use Restore with your email.' },
-  zh: { title: gLabelZh + '听力训练包 · £15', sub: '完整 8 周' + gLabelZh + '听力练习，可用 6 个月。一次付费，不自动续费，14 天内可退款。', buy: '购买' + gLabelZh + '训练包', owned: '你已拥有' + gLabelZh + '训练包 ✓', lockTitle: '第 ' + WEEK + ' 周属于' + gLabelZh + '听力训练包', lockBtn: '训练包内容', rsSum: '已经买过？在这台设备上恢复', rsBtn: '恢复', rsOk: '已恢复 ✓', rsNo: '没有找到这个邮箱的购买记录。', fail: '出了点问题，请再试一次。', paid: '谢谢！第 2 周起已解锁。', paidNo: '已收到付款，解锁稍慢——请用邮箱点「恢复」。' }
+  en: { title: gLabelEn + ' Aural Pack · £15', sub: 'All 8 weeks of ' + gLabelEn + ' aural practice, for 6 months. One payment, no auto-renewal. 14-day refund.', buy: 'Buy the ' + gLabelEn + ' pack', owned: 'You have the ' + gLabelEn + ' pack ✓', lockTitle: 'Week ' + WEEK + ' is part of the ' + gLabelEn + ' Aural Pack', lockBtn: 'In the Aural Pack', rsSum: 'Already bought? Restore on this device', rsBtn: 'Restore', rsOk: 'Restored ✓', rsNo: 'No purchase found for this email.', fail: 'Something went wrong. Please try again.', paid: 'Thank you! Week 2 onwards is open. On an iPad or another browser, enter your email under Restore — no password needed.', paidNo: 'Payment received. Unlock is taking a moment — please use Restore with your email.' },
+  zh: { title: gLabelZh + '听力训练包 · £15', sub: '完整 8 周' + gLabelZh + '听力练习，可用 6 个月。一次付费，不自动续费，14 天内可退款。', buy: '购买' + gLabelZh + '训练包', owned: '你已拥有' + gLabelZh + '训练包 ✓', lockTitle: '第 ' + WEEK + ' 周属于' + gLabelZh + '听力训练包', lockBtn: '训练包内容', rsSum: '已经买过？在这台设备上恢复', rsBtn: '恢复', rsOk: '已恢复 ✓', rsNo: '没有找到这个邮箱的购买记录。', fail: '出了点问题，请再试一次。', paid: '谢谢！第 2 周起已解锁。换到 iPad 或清理浏览器后，在下方「恢复」输入付款邮箱即可找回，无需密码。', paidNo: '已收到付款，解锁稍慢——请用邮箱点「恢复」。' }
 };
 const PT = () => PAYT[S.lang] || PAYT.en;
 const gradePrice = () => !!(window.DottinoPay && window.DottinoPay.CFG && window.DottinoPay.CFG.prices && window.DottinoPay.CFG.prices['g' + GRADE]);
@@ -2947,8 +2947,15 @@ function renderPay(locked) {
   $('pb-rs-sum').textContent = P.rsSum; $('pb-rs-btn').textContent = P.rsBtn;
   $('pb-restore').hidden = owned;
   $('pb-test').hidden = !(window.DottinoPay.CFG.env === 'sandbox');
-  if (locked) { $('pay-box').classList.add('lock'); const lc = $('lessons').closest('.card'); if (lc && lc.parentNode) lc.parentNode.insertBefore($('pay-box'), lc); }
-  else $('pay-box').classList.remove('lock');
+  if (locked) {
+    $('pay-box').classList.add('lock');
+    const lc = $('lessons').closest('.card'); if (lc && lc.parentNode) lc.parentNode.insertBefore($('pay-box'), lc);
+    if (!owned) {
+      const pk = GRADE + ':' + WEEK;
+      if (!renderPay._seen) renderPay._seen = {};
+      if (!renderPay._seen[pk]) { renderPay._seen[pk] = 1; track('paywall/view-g' + GRADE); }
+    }
+  } else $('pay-box').classList.remove('lock');
 }
 function renderQuickModes() {
   const box = $('qmodes'); if (!box) return;

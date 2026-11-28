@@ -23,12 +23,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <link rel="stylesheet" href="/challenge/challenge.css">
+<style>
+.ear-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-decoration: none; background: var(--card); border: 2px solid var(--coral); border-radius: 16px; padding: 13px 16px; box-shadow: 0 4px 14px rgba(233, 85, 58, .1); }
+.ear-banner b { display: block; font: 800 17px/1.25 var(--f-display); color: var(--ink); }
+.ear-banner span { display: block; margin-top: 2px; font-size: 13.5px; color: var(--muted); }
+.ear-go { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: var(--coral); color: #fff; font: 800 18px/1 var(--f-display); }
+</style>
 <script>try { if (/[?&]embed=1/.test(location.search)) { document.documentElement.classList.add('embed'); const b = document.createElement('base'); b.target = '_top'; document.head.appendChild(b); } } catch (e) {}</script>
 </head>
 <body>
 <div class="wrap">
   <header class="top"><span class="badge">Basso Challenges</span><a class="brand" href="/" data-ref>dottino<i>.</i></a></header>
   <section class="hero"><h1>Can you hear it before Basso does?</h1><p>Short listening games from the videos. New challenges every week.</p></section>
+  <a class="ear-banner" href="/ear-check/" data-ref>
+    <div>
+      <p class="eyebrow">ABRSM Grades 3–5 · Free</p>
+      <b>Where is your ear right now? Take the 3-min Ear Check</b>
+      <span>6 listening questions · instant grade &amp; weak-spot breakdown</span>
+    </div>
+    <span class="ear-go" aria-hidden="true">→</span>
+  </a>
   <h2 class="sec">Latest</h2>
   <a class="card latest" href="/aural?w=1" data-ref data-rel="1795806000000" hidden>
     <p class="eyebrow">Basso Challenge #12</p>

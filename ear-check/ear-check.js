@@ -403,8 +403,28 @@
     else if (plays >= 3 && plays <= 5) gap = `You’re working at Grade ${plays}; your ear isn’t at Grade 3 level yet. That’s common, and it’s the easiest gap to close: a few minutes of listening a day makes a real difference.`;
     else if (plays === 6) gap = 'This check stops at Grade 5. If you got 6/6, your ear is ready for more.';
     const target = Math.min(5, Math.max(3, lv >= 5 ? 5 : plays >= 3 && plays <= 5 ? plays : lv + 1 || 3));
+    const SKILL = {
+      '3:meter': 'Time signature (2/3/4 beats)',
+      '3:change': 'Pitch vs rhythm change',
+      '4:shape': 'Major melody shape',
+      '4:rhythm': '2-bar rhythm grid',
+      '5:shape': 'Minor melody shape',
+      '5:rhythm': 'Dotted & syncopated rhythm'
+    };
+    const missed = S.qs.filter((q, i) => S.picks[i] !== q.ans).map(q => SKILL[q.grade + ':' + q.kind] || q.kind);
+    const diagHtml = missed.length
+      ? `<p class="diag"><b>Focus on first:</b> ${missed.slice(0, 3).map(m => `<span>${m}</span>`).join(' · ')}</p>`
+      : `<p class="diag ok"><b>All 6 listening checks right.</b> Next step: full Grade ${target} mock tests (including singing back, sight-singing &amp; describing music).</p>`;
+    const P = window.DottinoPay;
+    const payOn = !!(P && P.active() && P.CFG && P.CFG.prices && P.CFG.prices['g' + target]);
+    const owned = !!(payOn && P.hasAccess(target));
+    const packCta = owned
+      ? `<a class="go pack" id="goPack" href="/aural?g=${target}&w=1&ref=ear-owned-${encodeURIComponent(REF)}"><b>Grade ${target} pack unlocked — open lessons</b><span>All 8 weeks and mock exams are open on this device.</span></a>`
+      : payOn
+        ? `<button class="go pack" id="goPack" type="button"><b>Unlock the full 8-week Grade ${target} pack · £15</b><span>All 8 weeks plus mock exams, 6 months access. One payment, no auto-renewal.</span><span class="pack-trust">🔒 Apple Pay &amp; Card · 📱 Restore on any device by email · ✓ 14-day refund</span></button>`
+        : `<a class="go pack" id="goPack" href="/aural?g=${target}&w=2&ref=ear-pack-${encodeURIComponent(REF)}"><b>Unlock the full 8-week Grade ${target} pack · £15</b><span>All 8 weeks plus mock exams, 6 months access. One payment, no auto-renewal.</span></a>`;
     const resultText = `Dottino Ear Check: ${total}/6 · ${lv ? 'around Grade ' + lv : 'building up to Grade 3'}`;
-    try { localStorage.setItem('dottino:earcheck', JSON.stringify({ total, lv, plays: S.plays, at: Date.now() })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem('dottino:earcheck', JSON.stringify({ total, lv, plays: S.plays, missed, at: Date.now() })); } catch (e) { /* ignore */ }
     track('finish'); track('result/' + (lv ? 'g' + lv : 'pre3')); if (plays >= 3 && plays <= 5) track('gap/plays' + plays + '-ear' + lv);
     app.innerHTML = `
       <section class="card final">
@@ -412,17 +432,19 @@
         <h1 class="q">${head}</h1>
         ${gap ? `<p class="count">${gap}</p>` : ''}
         <div class="rows">${[3, 4, 5].map(g => { const s = scoreOf(g); return `<div class="row"><span>Grade ${g} level</span><span class="pips">${[0, 1].map(j => `<i class="${j < s ? 'ok' : ''}"></i>`).join('')}</span><span class="muted">${s}/2</span></div>`; }).join('')}</div>
+        ${diagHtml}
         <p class="fine">A quick 6-question listening check, not an ABRSM mark. It doesn’t test singing, clapping back or describing music, which the real aural test also asks for.</p>
       </section>
       <section class="below">
         ${SOCIAL ? `<p class="caption"><b>Came from a Basso video?</b> Comment your grade and score: <span class="hl">“${plays ? (GRADES.find(g => g.v === S.plays).t + ' · ') : ''}${total}/6”</span></p>` : ''}
-        <div class="actions"><button class="btn primary" id="share">Share my result</button><button class="btn ghost" id="send">Send to a parent or teacher</button></div>
-        <p class="share-note" id="shareNote" hidden></p>
         <div class="next">
+          ${packCta}
+          <p class="pack-msg" id="packMsg" role="status" hidden></p>
           <a class="go" id="goWeek" href="/aural?g=${target}&w=1&ref=ear-${encodeURIComponent(REF)}"><b>Start Grade ${target} listening practice free</b><span>Week 1 of the Grade ${target} plan: four 10-minute lessons with Basso, the same tools you just saw. No sign-up.</span></a>
-          <a class="go pack" id="goPack" href="/aural?g=${target}&w=2&ref=ear-pack-${encodeURIComponent(REF)}"><b>Unlock the full 8-week Grade ${target} pack · £15</b><span>All 8 weeks plus mock exams, 6 months access. One payment, no auto-renewal.</span></a>
           <button class="go linkish" id="again"><b>Try a new set of questions</b><span>Every check is different.</span></button>
         </div>
+        <div class="actions"><button class="btn primary" id="share">Share my result</button><button class="btn ghost" id="send">Send to a parent or teacher</button></div>
+        <p class="share-note" id="shareNote" hidden></p>
         ${INAPP ? '<p class="tip">Tip: the full lessons work best in Safari or Chrome. Tap ••• and choose “Open in browser”.</p>' : ''}
         <form class="mail" id="mail" novalidate>
           <label for="mailIn"><b>Get Grade ${target} listening tips by email</b><span>Free Grade ${target} practice tips for parents and students (the full Grade ${target} pack is open above). Under 13? Ask a parent to enter their email. No spam.</span></label>
@@ -440,7 +462,37 @@
     $('share').onclick = () => share(`I got ${total}/6 on the Dottino Ear Check (${lv ? 'around Grade ' + lv : 'building up to Grade 3'}). How far can your ear go?`, 'share');
     $('send').onclick = () => share(`My ear check result: ${total}/6, ${lv ? 'around Grade ' + lv : 'building up to Grade 3'} ${plays ? '(I’m working at ' + GRADES.find(g => g.v === S.plays).t + ')' : ''}. Here’s the check:`, 'send-adult');
     $('goWeek').onclick = () => track('go/week1-g' + target);
-    if ($('goPack')) $('goPack').onclick = () => track('go/grade' + target + '-pack');
+    if ($('goPack')) {
+      $('goPack').onclick = () => {
+        track('go/grade' + target + '-pack');
+        if (!payOn || owned) return;
+        const msg = $('packMsg');
+        msg.hidden = false; msg.className = 'pack-msg'; msg.textContent = 'Opening secure checkout…';
+        P.buy(target, {
+          lang: 'en',
+          ref: 'ear-' + REF,
+          onDone: ok => {
+            if (ok) {
+              msg.className = 'pack-msg';
+              msg.innerHTML = `Grade ${target} pack unlocked ✓ <a href="/aural?g=${target}&w=1&ref=ear-paid">Open your lessons →</a> (Switching to iPad later? Enter your email under Restore Access — no password needed.)`;
+              const btn = $('goPack');
+              if (btn) {
+                const a = document.createElement('a');
+                a.className = 'go pack'; a.id = 'goPack'; a.href = `/aural?g=${target}&w=1&ref=ear-paid`;
+                a.innerHTML = `<b>Grade ${target} pack unlocked — open lessons</b><span>All 8 weeks and mock exams are ready.</span>`;
+                btn.replaceWith(a);
+              }
+            } else {
+              msg.className = 'pack-msg err';
+              msg.textContent = 'Payment received. Unlock is taking a moment — open Week 1 and use Restore Access with your email.';
+            }
+          }
+        }).catch(() => {
+          msg.className = 'pack-msg err';
+          msg.textContent = 'Could not open checkout right now. Please try again, or open Week 1 below.';
+        });
+      };
+    }
     $('again').onclick = () => { track('again'); build(); S.stage = 'q'; newQ(); };
     $('mail').onsubmit = e => {
       e.preventDefault(); const v = $('mailIn').value.trim(), msg = $('mailMsg');
